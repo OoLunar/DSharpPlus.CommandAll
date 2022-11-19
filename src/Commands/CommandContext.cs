@@ -58,6 +58,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     {
                         if (param.Flags.HasFlag(CommandParameterFlags.Optional))
                         {
+                            _logger.LogDebug("Skipping optional parameter {Parameter} because it was not provided", param);
                             NamedArguments.Add(param.Name, param.DefaultValue);
                             continue;
                         }
@@ -71,6 +72,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     {
                         throw new InvalidOperationException($"Failed to create an instance of {param.ArgumentConverterType}. Does the argument converter have a public constructor? Were all the services able to be resolved?");
                     }
+
+                    _logger.LogTrace("Converting argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
                     Task<IOptional> optionalTask = converter.ConvertAsync(this, param, arg);
                     optionalTask.Wait();
                     if (!optionalTask.IsCompletedSuccessfully)
@@ -79,13 +82,17 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     }
                     else if (optionalTask.Result.HasValue)
                     {
+                        _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
                         NamedArguments.Add(param.Name, optionalTask.Result.RawValue);
                     }
                     else if (param.Flags.HasFlag(CommandParameterFlags.Optional))
                     {
+                        _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", param);
                         NamedArguments.Add(param.Name, param.DefaultValue);
                     }
                 }
+
+                _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
             }
         }
 
