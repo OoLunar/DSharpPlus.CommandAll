@@ -29,24 +29,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
         public virtual async Task<bool> ExecuteAsync(CommandContext context)
         {
             BaseCommand commandObject = (BaseCommand)ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, context.CurrentOverload.Method.DeclaringType!);
-            Task task = Task.Run(async () =>
+            try
             {
                 await commandObject.BeforeExecutionAsync(context);
                 await (Task)context.CurrentOverload.Method.Invoke(commandObject, context.NamedArguments.Values.Prepend(context).ToArray())!;
                 await commandObject.AfterExecutionAsync(context);
-            });
-
-            await task;
-
-            if (!task.IsCompletedSuccessfully)
+            }
+            catch (Exception error)
             {
                 try
                 {
-                    await commandObject.OnErrorAsync(context, task.Exception!);
+                    await commandObject.OnErrorAsync(context, error);
                 }
-                catch (Exception error)
+                catch (Exception error2)
                 {
-                    _logger.LogError(error, "An uncaught exception was thrown by {CommandName}'s {MethodName} method.", context.CurrentOverload.Method.DeclaringType!.Name, nameof(BaseCommand.OnErrorAsync));
+                    _logger.LogError(error2, "An uncaught exception was thrown by {CommandName}'s {MethodName} method.", context.CurrentOverload.Method.DeclaringType!.Name, nameof(BaseCommand.OnErrorAsync));
                     return false;
                 }
             }

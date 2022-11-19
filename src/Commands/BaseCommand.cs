@@ -9,6 +9,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
         public virtual Task AfterExecutionAsync(CommandContext context) => Task.CompletedTask;
 
-        public virtual Task OnErrorAsync(CommandContext context, AggregateException exception) => Task.CompletedTask;
+        public virtual Task OnErrorAsync(CommandContext context, Exception exception) => Task.CompletedTask;
     }
 }
