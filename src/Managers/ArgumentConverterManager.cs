@@ -73,7 +73,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                     // Try setting the default type converter for the parameter.
                     else if (!parameter.TrySetArgumentConverterType(converterType, out string? error))
                     {
-                        throw new ArgumentException($"Failed to set {converterType} as an argument converter for parameter {ReflectionUtilities.GetFullname(parameter.ParameterInfo.Member)} {parameter.ParameterInfo.Name}: {error}");
+                        throw new ArgumentException($"Failed to set {converterType} as an argument converter for parameter {parameter.ParameterInfo.Member} {parameter.ParameterInfo.Name}: {error}");
                     }
                     // Argument converter was set successfully.
                     else

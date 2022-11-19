@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
-    [DebuggerDisplay("{" + nameof(DebugDisplay) + ",nq}")]
     public sealed class CommandOverload
     {
         public readonly MethodInfo Method;
@@ -28,11 +26,5 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 throw new ArgumentException($"First parameter must be of type {nameof(CommandContext)}.", nameof(parameters));
             }
         }
-
-        // [Command("help")]
-        // public async Task HelpCommand(CommandContext ctx, [Description("The command to get help for.")] string? command = null)
-        // ->
-        // help, OoLunar.DSharpPlus.Examples.HelloWorld.Commands.HelpCommand(ctx, command)
-        private string DebugDisplay() => $"{CommandAttribute.Name}, {ReflectionUtilities.GetFullname(Method)}({Parameters.Select(param => param.Name).Aggregate((a, b) => $"{a}, {b}")})";
     }
 }

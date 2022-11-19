@@ -107,7 +107,7 @@ namespace OoLunar.DSharpPlus.CommandAll
                 {
                     if (parameter.ArgumentConverterType is null && !parameter.Type.IsAssignableFrom(typeof(CommandContext)) && !overload.Flags.HasFlag(CommandFlags.Disabled))
                     {
-                        _logger.LogError("Method {Method} has parameter {Parameter} of type {ParameterType} that does not have an argument converter. Disabling the overload.", ReflectionUtilities.GetFullname(overload.Method), parameter.Name, parameter.Type);
+                        _logger.LogError("Method {Method} has parameter {Parameter} of type {ParameterType} that does not have an argument converter. Disabling the overload.", overload.Method, parameter.Name, parameter.Type);
                         overload.Flags |= CommandFlags.Disabled;
                         break;
                     }

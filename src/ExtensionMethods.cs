@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using DSharpPlus;
 
@@ -21,7 +20,6 @@ namespace OoLunar.DSharpPlus.CommandAll
 
             configuration ??= new();
             CommandAllExtension extension = new(configuration);
-
             client.AddExtension(extension);
             return extension;
         }
@@ -40,7 +38,7 @@ namespace OoLunar.DSharpPlus.CommandAll
                 extensions[shard.ShardId] = shard.GetExtension<CommandAllExtension>() ?? shard.UseCommandsAll(configuration);
             }
 
-            return Task.FromResult((IReadOnlyDictionary<int, CommandAllExtension>)extensions);
+            return Task.FromResult((IReadOnlyDictionary<int, CommandAllExtension>)extensions.AsReadOnly());
         }
 
         public static CommandAllExtension? GetCommandsAllExtension(this DiscordClient client) => client == null
@@ -64,7 +62,7 @@ namespace OoLunar.DSharpPlus.CommandAll
                 }
             }
 
-            return new ReadOnlyDictionary<int, CommandAllExtension>(extensions);
+            return extensions.AsReadOnly();
         }
     }
 }
