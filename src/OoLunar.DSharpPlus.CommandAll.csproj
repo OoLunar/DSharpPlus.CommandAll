@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net7.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>OoLunar.DSharpPlus.CommandAll</PackageId>
+    <Description>An extension for DSharpPlus to allow for text and slash commands to be used with a single base.</Description>
+    <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
+    <Authors>OoLunar</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01183" />
+    <PackageReference Include="Humanizer" Version="2.14.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+  </ItemGroup>
+</Project>

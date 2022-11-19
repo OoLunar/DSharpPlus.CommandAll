@@ -1,0 +1,1 @@
+[2022-11-17 18:53:45.425 -06:00] [EROR] [10] OoLunar.DSharpPlus.CommandAll.CommandAllExtension: Method OoLunar.DSharpPlus.CommandAll.Examples.HelloWorldCommand.HelloWorldSub2CommandAsync has parameter context of type OoLunar.DSharpPlus.CommandAll.Commands.CommandContext that does not have an argument converter. Disabling the overload.

@@ -1,0 +1,1 @@
+[2022-11-09 00:46:27.116 -06:00] [WARN] [1] OoLunar.DSharpPlus.CommandAll.CommandsAllExtension: CommandBuilder.TryParse failed to parse command OoLunar.DSharpPlus.CommandsAll.Examples.HelloWorldCommand. Skipping. Error: Type OoLunar.DSharpPlus.CommandsAll.Examples.HelloWorldCommand does not have a CommandAttribute and no methods with a CommandAttribute.
