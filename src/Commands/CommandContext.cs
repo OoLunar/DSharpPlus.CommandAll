@@ -129,7 +129,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     messageBuilder.WithReply(Message.Id);
                 }
 
-                if (messageBuilder.Mentions.Count == 0)
+                if (messageBuilder.Mentions is null || messageBuilder.Mentions.Count == 0)
                 {
                     _logger.LogTrace("No mentions explicitly set when replying to text command message id {Id}, automatically preventing any accidental mentions.", Message.Id);
                     messageBuilder.WithAllowedMentions(Mentions.None);
