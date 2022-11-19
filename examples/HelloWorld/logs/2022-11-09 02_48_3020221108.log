@@ -1,1 +1,0 @@
-[2022-11-08 20:48:31.092 -06:00] [WARN] [1] OoLunar.DSharpPlus.CommandAll.CommandsAllExtension: CommandBuilder.TryBuild failed to build command OoLunar.DSharpPlus.CommandsAll.Examples.HelloWorldCommand. Skipping. Error: Description cannot be null or whitespace.

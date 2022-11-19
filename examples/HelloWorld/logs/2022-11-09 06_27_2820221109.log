@@ -1,1 +1,0 @@
-[2022-11-09 00:27:28.757 -06:00] [WARN] [1] OoLunar.DSharpPlus.CommandAll.CommandsAllExtension: CommandBuilder.TryParse failed to parse command OoLunar.DSharpPlus.CommandsAll.Examples.HelloWorldCommand. Skipping. Error: Recursion limit exceeded. Subcommand groups may not have subcommand groups. type: OoLunar.DSharpPlus.CommandsAll.Examples.HelloWorldCommand+HelloWorldGroupCommand
