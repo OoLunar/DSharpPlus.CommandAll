@@ -25,7 +25,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             ArgumentConverterManager = new ArgumentConverterManager();
             CommandOverloadParser = new CommandOverloadParser();
             PrefixParser = new PrefixParser();
-            TextArgumentParser = new CommandsNextStyleTextArgumentParser();
+            TextArgumentParser = new CommandsNextStyleTextArgumentParser(this);
             CommandExecutor = new CommandExecutor();
             CommandManager = new CommandManager(ArgumentConverterManager, CommandOverloadParser);
         }
