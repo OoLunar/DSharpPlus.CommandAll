@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OoLunar.DSharpPlus.CommandAll.Parsers
 {
     public class CommandsNextStyleTextArgumentParser : ITextArgumentParser
     {
+        private readonly char[] _quoteCharacters;
+
+        public CommandsNextStyleTextArgumentParser(CommandAllConfiguration configuration) => _quoteCharacters = configuration.QuoteCharacters;
+
         public bool TryExtractArguments(string message, out IReadOnlyList<string> arguments)
         {
             if (message is null)
@@ -26,19 +31,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
             for (i = 0; i < messageSpan.Length; i++)
             {
                 char character = messageSpan[i];
+                if (_quoteCharacters.Contains(character) && argumentState is ArgumentState.None or ArgumentState.Quoted)
+                {
+                    if (argumentState == ArgumentState.None)
+                    {
+                        argumentState |= ArgumentState.Quoted;
+                    }
+                    else if (argumentState == ArgumentState.Quoted)
+                    {
+                        argumentState &= ~ArgumentState.Quoted;
+                    }
+                }
+
+                // Unsure if this should be in an else statement, in case if the quote characters contain any of the below characters.
                 switch (character)
                 {
-                    // TODO: Respect quote chars from config
-                    case '"' when argumentState is ArgumentState.None or ArgumentState.Quoted:
-                        if (argumentState == ArgumentState.None)
-                        {
-                            argumentState |= ArgumentState.Quoted;
-                        }
-                        else if (argumentState == ArgumentState.Quoted)
-                        {
-                            argumentState &= ~ArgumentState.Quoted;
-                        }
-                        break;
                     case '\\' when argumentState is ArgumentState.None:
                         argumentState &= ArgumentState.Escaped;
                         break;

@@ -42,7 +42,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="configuration">The configuration to use.</param>
         internal CommandAllExtension(CommandAllConfiguration configuration)
         {
-            ServiceProvider = configuration.ServiceCollection.BuildServiceProvider();
+            ServiceProvider = configuration.ServiceCollection.AddSingleton(configuration).AddSingleton(this).BuildServiceProvider();
             CommandManager = configuration.CommandManager;
             ArgumentConverterManager = configuration.ArgumentConverterManager;
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
