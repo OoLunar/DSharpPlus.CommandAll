@@ -75,17 +75,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             }
         }
 
-        public bool TryFindCommand([NotNull] ref string commandString, [NotNullWhen(true)] out Command? command)
+        public bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command)
         {
             if (string.IsNullOrWhiteSpace(commandString))
             {
                 command = null;
+                rawArguments = null;
                 return false;
             }
 
             string[] split = commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (!_commands.TryGetValue(split[0], out command))
             {
+                rawArguments = null;
                 return false;
             }
 
@@ -103,7 +105,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 }
             }
 
-            commandString = string.Join(' ', split.Skip(i));
+            rawArguments = string.Join(' ', split.Skip(i));
             return true;
         }
     }

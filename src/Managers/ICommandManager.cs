@@ -18,6 +18,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         void AddCommands(Assembly assembly);
         void AddCommands(IEnumerable<Type> commandTypes);
 
-        bool TryFindCommand([NotNull] ref string commandString, [NotNullWhen(true)] out Command? command);
+        bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command);
     }
 }

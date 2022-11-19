@@ -13,14 +13,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
     {
         private static readonly Type _converterType = typeof(IArgumentConverter<>);
 
-        private readonly ILogger<ArgumentConverterManager> _logger = NullLogger<ArgumentConverterManager>.Instance;
-
         public IReadOnlyList<CommandParameter> Parameters => _parameters;
-        private readonly List<CommandParameter> _parameters = new();
-
         public IReadOnlyDictionary<Type, Type> TypeConverters => _typeConverters;
-        private readonly Dictionary<Type, Type> _typeConverters = new();
 
+        private readonly List<CommandParameter> _parameters = new();
+        private readonly Dictionary<Type, Type> _typeConverters = new();
+        private readonly ILogger<ArgumentConverterManager> _logger = NullLogger<ArgumentConverterManager>.Instance;
 
         public ArgumentConverterManager(ILogger<ArgumentConverterManager>? logger = null) => _logger = logger ?? NullLogger<ArgumentConverterManager>.Instance;
 
@@ -31,9 +29,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         {
             foreach (Type type in types)
             {
+                // Test if the type inherits from IArgumentConverter<T>
                 Type? argumentInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == _converterType);
                 if (argumentInterface is null)
                 {
+                    _logger.LogTrace("Type {type} does not inherit from IArgumentConverter<T>, skipping adding it as an argument converter.", type);
                     continue;
                 }
                 else if (_typeConverters.TryGetValue(type, out Type? existingType))
@@ -43,16 +43,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 }
 
                 _typeConverters.Add(argumentInterface.GenericTypeArguments[0], type);
+
+                // Go through all the parameters and set the argument converter type if it is null
                 foreach (CommandParameter parameter in _parameters)
                 {
-                    // Check if the parameter's argument converter is null, if the parameter type is the same as the converter's type, and if the parameter's argument converter can be successfully set.
+                    // TrySet sets the converter for us.
                     if (parameter.ArgumentConverterType is null && parameter.Type == type.GenericTypeArguments[0] && parameter.TrySetArgumentConverterType(type))
                     {
-                        _logger.LogTrace("Set {ArgumentConverter} as the default argument converter for parameter {Parameter} (previously null)", type, parameter);
-                    }
-                    else
-                    {
-                        continue;
+                        _logger.LogTrace("Set {ArgumentConverter} as the default argument converter for parameter {Parameter}", type, parameter);
                     }
                 }
             }
@@ -85,12 +83,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 // Try to register the parameter.
                 if (parameters.Contains(parameter))
                 {
-                    _logger.LogWarning("Cannot register parameter {Parameter} because it is already registered!", parameter);
+                    _logger.LogWarning("Cannot register parameter {Parameter} again because it was already registered once before!", parameter);
                 }
 
                 // Parameter was registered successfully.
                 _parameters.Add(parameter);
-                _logger.LogDebug("Registered {ArgumentConverter} for parameter {Parameter}", parameter.ArgumentConverterType, parameter);
+                _logger.LogTrace("Set {ArgumentConverter} as an argument converter for parameter {Parameter}", parameter.ArgumentConverterType, parameter);
             }
         }
     }

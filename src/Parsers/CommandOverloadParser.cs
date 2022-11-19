@@ -15,6 +15,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
 
         public bool TryParseOverload(Command command, IDictionary<string, object> arguments, [NotNullWhen(true)] out CommandOverload? overload)
         {
+            _logger.LogDebug("Attempting to find a valid overload for command {CommandName} with arguments {Arguments}", command.Name, arguments);
             foreach (CommandOverload commandOverload in command.Overloads)
             {
                 // Skip disabled overloads
@@ -49,6 +50,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
 
                 if (!skipOverload)
                 {
+                    _logger.LogDebug("Found a valid overload {Overload}", commandOverload);
                     overload = commandOverload;
                     return true;
                 }
@@ -61,6 +63,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
 
         public bool TryParseOverload(Command command, IEnumerable<string> arguments, [NotNullWhen(true)] out CommandOverload? overload)
         {
+            _logger.LogDebug("Attempting to find a valid overload for command {CommandName} with arguments {Arguments}", command.Name, arguments);
             int argCount = arguments.Count();
             foreach (CommandOverload commandOverload in command.Overloads)
             {
@@ -96,6 +99,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
 
                 if (!skipOverload)
                 {
+                    _logger.LogDebug("Found a valid overload {Overload}", commandOverload);
                     overload = commandOverload;
                     return true;
                 }
