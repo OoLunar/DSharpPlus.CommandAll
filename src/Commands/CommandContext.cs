@@ -27,6 +27,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandOverload CurrentOverload;
         public readonly IDictionary<string, object?> NamedArguments;
         public readonly string RawArguments;
+        public DiscordClient Client => Extension.Client;
 
         public bool IsSlashCommand => Interaction != null;
         public InteractionResponseType? LastInteractionResponseType { get; private set; }
