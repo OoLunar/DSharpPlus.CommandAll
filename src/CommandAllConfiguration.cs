@@ -21,7 +21,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         public CommandAllConfiguration()
         {
             ServiceCollection = new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
-            QuoteCharacters = new[] { '"', '«', '»', '‘', '“', '„', '‟' };
+            QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
             ArgumentConverterManager = new ArgumentConverterManager();
             CommandOverloadParser = new CommandOverloadParser();
             PrefixParser = new PrefixParser();

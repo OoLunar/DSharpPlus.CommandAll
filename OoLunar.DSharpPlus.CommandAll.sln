@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OoLunar.DSharpPlus.CommandA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{6C8BF7C4-DD9B-4104-9E2E-58438193475D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgumentConverter", "examples\ArgumentConverter\ArgumentConverter.csproj", "{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "examples\HelloWorld\HelloWorld.csproj", "{F5269563-1743-4F8D-9ACF-E99011EF1605}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OoLunar.DSharpPlus.CommandAll.Tests", "tests\OoLunar.DSharpPlus.CommandAll.Tests.csproj", "{D206AA9B-45F3-47E5-8840-5DC08875FE76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,17 +24,16 @@ Global
 		{1A5B485B-5D6A-44D0-9346-19A4A8E1778F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A5B485B-5D6A-44D0-9346-19A4A8E1778F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A5B485B-5D6A-44D0-9346-19A4A8E1778F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F5269563-1743-4F8D-9ACF-E99011EF1605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F5269563-1743-4F8D-9ACF-E99011EF1605}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5269563-1743-4F8D-9ACF-E99011EF1605}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5269563-1743-4F8D-9ACF-E99011EF1605}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D206AA9B-45F3-47E5-8840-5DC08875FE76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D206AA9B-45F3-47E5-8840-5DC08875FE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D206AA9B-45F3-47E5-8840-5DC08875FE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D206AA9B-45F3-47E5-8840-5DC08875FE76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{85AEBAC8-D256-49CD-8CB4-F6A5FD5E94B3} = {6C8BF7C4-DD9B-4104-9E2E-58438193475D}
 		{F5269563-1743-4F8D-9ACF-E99011EF1605} = {6C8BF7C4-DD9B-4104-9E2E-58438193475D}
 	EndGlobalSection
 EndGlobal
