@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,12 +23,14 @@ namespace OoLunar.DSharpPlus.CommandAll
         {
             ServiceCollection = new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
-            ArgumentConverterManager = new ArgumentConverterManager();
-            CommandOverloadParser = new CommandOverloadParser();
+
+            IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();
+            ArgumentConverterManager = new ArgumentConverterManager(serviceProvider.GetService<ILogger<ArgumentConverterManager>>());
+            CommandOverloadParser = new CommandOverloadParser(serviceProvider.GetService<ILogger<CommandOverloadParser>>());
             PrefixParser = new PrefixParser();
+            CommandExecutor = new CommandExecutor(serviceProvider.GetService<ILogger<CommandExecutor>>());
+            CommandManager = new CommandManager(serviceProvider.GetService<ILogger<CommandManager>>());
             TextArgumentParser = new CommandsNextStyleTextArgumentParser(this);
-            CommandExecutor = new CommandExecutor();
-            CommandManager = new CommandManager(ArgumentConverterManager, CommandOverloadParser);
         }
     }
 }

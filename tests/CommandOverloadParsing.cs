@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
     public sealed class CommandOverloadParsing
     {
         private readonly ICommandOverloadParser _parser = new CommandOverloadParser();
-        private readonly Command EchoCommand = CommandBuilder.Parse(typeof(Commands.EchoCommand)).First().Build();
+        private readonly Command EchoCommand = new(CommandBuilder.Parse(typeof(Commands.EchoCommand)).First());
 
         [TestMethod]
         public void SingleOverload()

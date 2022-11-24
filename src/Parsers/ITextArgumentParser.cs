@@ -12,8 +12,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
     internal enum ArgumentState
     {
         None = 0,
-        Quoted,
-        Escaped,
-        Backticked
+        Quoted = 1 << 1,
+        Escaped = 1 << 2,
+        Backticked = 1 << 3,
+        Whitespace = 1 << 4
     }
 }

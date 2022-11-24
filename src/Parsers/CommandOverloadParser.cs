@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Parsers
 {
@@ -19,7 +20,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
             foreach (CommandOverload commandOverload in command.Overloads)
             {
                 // Skip disabled overloads
-                if (commandOverload.Flags.HasFlag(CommandFlags.Disabled))
+                if (commandOverload.Flags.HasFlag(CommandOverloadFlags.Disabled))
                 {
                     _logger.LogDebug("Skipping disabled overload {Overload}", commandOverload);
                     continue;
@@ -68,7 +69,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
             foreach (CommandOverload commandOverload in command.Overloads)
             {
                 // Skip disabled overloads
-                if (commandOverload.Flags.HasFlag(CommandFlags.Disabled))
+                if (commandOverload.Flags.HasFlag(CommandOverloadFlags.Disabled))
                 {
                     _logger.LogDebug("Skipping disabled overload {Overload}", commandOverload);
                     continue;

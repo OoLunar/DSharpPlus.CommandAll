@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
@@ -27,11 +28,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandOverload CurrentOverload;
         public readonly IDictionary<string, object?> NamedArguments;
         public readonly string RawArguments;
-        public DiscordClient Client => Extension.Client;
-
-        public bool IsSlashCommand => Interaction != null;
         public InteractionResponseType? LastInteractionResponseType { get; private set; }
 
+        public DiscordClient Client => Extension.Client;
+        public bool IsSlashCommand => Interaction != null;
         private readonly ILogger<CommandContext> _logger;
 
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
@@ -192,5 +192,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 return Message!.DeleteAsync();
             }
         }
+
+        public override string? ToString() => $"{CurrentCommand.FullName} {RawArguments} ({(IsSlashCommand ? Interaction!.Id : Message!.Id)})";
     }
 }

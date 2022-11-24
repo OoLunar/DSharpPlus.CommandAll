@@ -1,14 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
+using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using OoLunar.DSharpPlus.CommandAll.Managers;
 using OoLunar.DSharpPlus.CommandAll.Parsers;
 
@@ -16,6 +21,9 @@ namespace OoLunar.DSharpPlus.CommandAll
 {
     public sealed class CommandAllExtension : BaseExtension
     {
+        /// <summary>
+        /// The services used when utilizing dependency injection.
+        /// </summary>
         public readonly IServiceProvider ServiceProvider;
 
         /// <summary>
@@ -53,6 +61,15 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         public readonly ITextArgumentParser TextArgumentParser;
 
+        public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
+        private readonly AsyncEvent<CommandAllExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", TimeSpan.MaxValue, EverythingWentWrongErrorHandler);
+
+        public event AsyncEventHandler<CommandAllExtension, ConfigureCommandsEventArgs> ConfigureCommands { add => _configureCommands.Register(value); remove => _configureCommands.Unregister(value); }
+        private readonly AsyncEvent<CommandAllExtension, ConfigureCommandsEventArgs> _configureCommands = new("COMMANDALL_CONFIGURE_COMMANDS", TimeSpan.MaxValue, EverythingWentWrongErrorHandler);
+
+        public event AsyncEventHandler<CommandAllExtension, CommandErroredEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
+        private readonly AsyncEvent<CommandAllExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", TimeSpan.MaxValue, EverythingWentWrongErrorHandler);
+
         /// <summary>
         /// Used to log messages from this extension.
         /// </summary>
@@ -68,12 +85,14 @@ namespace OoLunar.DSharpPlus.CommandAll
             ServiceProvider = configuration.ServiceCollection.AddSingleton(configuration).AddSingleton(this).BuildServiceProvider();
             CommandManager = configuration.CommandManager;
             ArgumentConverterManager = configuration.ArgumentConverterManager;
-            // Add the default converters to the argument converter manager.
-            ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
             CommandOverloadParser = configuration.CommandOverloadParser;
             CommandExecutor = configuration.CommandExecutor;
             PrefixParser = configuration.PrefixParser;
             TextArgumentParser = configuration.TextArgumentParser;
+
+            // Add the default converters to the argument converter manager.
+            ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
+
             // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
             _logger = ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;
         }
@@ -98,7 +117,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             // If the client has already been initialized, register the event handlers.
             if (DiscordClient.Guilds.Count != 0)
             {
-                DiscordClient_ReadyAsync(DiscordClient, null!);
+                DiscordClient_ReadyAsync(DiscordClient, null!).GetAwaiter().GetResult();
             }
             else
             {
@@ -111,36 +130,33 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>
-        private Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
+        private async Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
         {
             // Prevent the event handler from being executed multiple times.
             DiscordClient.Ready -= DiscordClient_ReadyAsync;
 
-            // TODO: Parallelize this?
-            // Disable the overloads which don't have argument converters for a specific parameter type.
-            foreach (CommandOverload overload in CommandManager.Commands.Values.SelectMany(x => x.Overloads))
+            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
+            foreach (CommandBuilder commandBuilder in CommandManager.CommandBuilders.Values)
             {
-                // If the overload was previously disabled, just skip over it.
-                if (overload.Flags.HasFlag(CommandFlags.Disabled))
+                foreach (CommandOverloadBuilder commandOverloadBuilder in commandBuilder.Overloads)
                 {
-                    continue;
-                }
-
-                // Iterate over the parameters, checking if there are missing argument converters. If there is, disable the overload and log an error.
-                foreach (CommandParameter parameter in overload.Parameters)
-                {
-                    if (parameter.ArgumentConverterType is null && !parameter.Type.IsAssignableFrom(typeof(CommandContext)) && !overload.Flags.HasFlag(CommandFlags.Disabled))
+                    if (!ArgumentConverterManager.TryAddParameters(commandOverloadBuilder.Parameters, out IEnumerable<CommandParameterBuilder>? failedParameters))
                     {
-                        _logger.LogError("Method {Method} has parameter {Parameter} of type {ParameterType} that does not have an argument converter. Disabling the overload.", overload.Method, parameter.Name, parameter.Type);
-                        overload.Flags |= CommandFlags.Disabled;
-                        break;
+                        commandOverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
+                        _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", commandOverloadBuilder, failedParameters);
                     }
                 }
+
+                if (commandBuilder.Overloads.All(overload => overload.Flags.HasFlag(CommandOverloadFlags.Disabled)))
+                {
+                    commandBuilder.Flags |= CommandFlags.Disabled;
+                    _logger.LogWarning("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
+                }
             }
+            CommandManager.BuildCommands();
 
             DiscordClient.MessageCreated += DiscordClient_MessageCreatedAsync;
             DiscordClient.InteractionCreated += DiscordClient_InteractionCreatedAsync;
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -170,5 +186,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(eventArgs.Interaction.Data.Name, out _, out Command? command)
                 ? Task.CompletedTask
                 : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction));
+
+        private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
     }
 }

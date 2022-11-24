@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
@@ -12,17 +13,20 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly IReadOnlyList<Command> Subcommands;
         public readonly IReadOnlyList<string> Aliases;
         public readonly CommandFlags Flags;
+        public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
 
-        public Command(string name, IEnumerable<string> aliases, string description, IEnumerable<CommandOverload> overloads, IEnumerable<Command> subcommands, Command? parent = null)
+        public Command(CommandBuilder builder, Command? parent = null)
         {
-            Name = name;
-            Description = description;
-            List<CommandOverload> overloadsList = overloads.ToList();
-            overloadsList.Sort((overloadA, overloadB) => overloadA.Priority is not null && overloadB.Priority is not null ? overloadA.Priority.Value.CompareTo(overloadB.Priority.Value) : (overloadA.Priority is null ? 1 : -1));
-            Overloads = overloadsList.AsReadOnly();
-            Subcommands = subcommands.ToList().AsReadOnly();
-            Aliases = aliases.ToList().AsReadOnly();
+            builder.Verify();
+            Name = builder.Name!;
+            Description = builder.Description!;
             Parent = parent;
+            Overloads = builder.Overloads.Select(overloadBuilder => new CommandOverload(overloadBuilder, this)).ToList().AsReadOnly();
+            Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();
+            Aliases = builder.Aliases.AsReadOnly();
+            Flags = builder.Flags;
         }
+
+        public override string? ToString() => $"{FullName} {(Flags.HasFlag(CommandFlags.Disabled) ? "Disabled " : "")}({Overloads.Count} overloads, {Subcommands.Count} subcommands)";
     }
 }

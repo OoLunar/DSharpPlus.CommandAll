@@ -2,29 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
     public sealed class CommandOverload
     {
+        public readonly Command Command;
         public readonly MethodInfo Method;
         public readonly IReadOnlyList<CommandParameter> Parameters;
-        public readonly CommandAttribute CommandAttribute;
-        public readonly int? Priority;
-        public CommandFlags Flags { get; internal set; }
+        public readonly CommandOverloadFlags Flags;
+        public readonly int Priority;
 
-        public CommandOverload(MethodInfo method, IEnumerable<CommandParameter>? parameters = null, CommandAttribute? commandAttribute = null, OverloadPriorityAttribute? priorityAttribute = null)
+        public CommandOverload(CommandOverloadBuilder builder, Command command)
         {
-            Method = method;
-            Parameters = new List<CommandParameter>(parameters ?? method.GetParameters().Select(parameter => new CommandParameter(parameter))).AsReadOnly();
-            CommandAttribute = commandAttribute ?? method.GetCustomAttribute<CommandAttribute>() ?? throw new ArgumentException("Command overload must have a CommandAttribute.", nameof(commandAttribute));
-            Priority = (priorityAttribute ?? method.GetCustomAttribute<OverloadPriorityAttribute>())?.Priority;
-
-            if (Parameters.Count == 0 || Parameters[0].ParameterInfo.ParameterType != typeof(CommandContext))
-            {
-                throw new ArgumentException($"First parameter must be of type {nameof(CommandContext)}.", nameof(parameters));
-            }
+            builder.Verify();
+            Command = command ?? throw new ArgumentNullException(nameof(command));
+            Method = builder.Method;
+            Priority = builder.Priority;
+            Flags = builder.Flags;
+            Parameters = builder.Parameters.Select(parameterBuilder => new CommandParameter(parameterBuilder, this)).ToArray();
         }
     }
 }

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
@@ -13,10 +14,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
     {
         private static readonly Type _converterType = typeof(IArgumentConverter<>);
 
-        public IReadOnlyList<CommandParameter> Parameters => _parameters;
+        public IReadOnlyList<CommandParameterBuilder> Parameters => _parameters;
         public IReadOnlyDictionary<Type, Type> TypeConverters => _typeConverters;
 
-        private readonly List<CommandParameter> _parameters = new();
+        private readonly List<CommandParameterBuilder> _parameters = new();
         private readonly Dictionary<Type, Type> _typeConverters = new();
         private readonly ILogger<ArgumentConverterManager> _logger = NullLogger<ArgumentConverterManager>.Instance;
 
@@ -45,37 +46,36 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 _typeConverters.Add(argumentInterface.GenericTypeArguments[0], type);
 
                 // Go through all the parameters and set the argument converter type if it is null
-                foreach (CommandParameter parameter in _parameters)
+                foreach (CommandParameterBuilder parameter in _parameters)
                 {
-                    // TrySet sets the converter for us.
-                    if (parameter.ArgumentConverterType is null && parameter.Type == type.GenericTypeArguments[0] && parameter.TrySetArgumentConverterType(type))
+                    if (parameter.ArgumentConverterType is null && parameter.ParameterInfo!.ParameterType == type.GenericTypeArguments[0])
                     {
+                        parameter.ArgumentConverterType = type;
                         _logger.LogTrace("Set {ArgumentConverter} as the default argument converter for parameter {Parameter}", type, parameter);
                     }
                 }
             }
         }
 
-        public void AddParameters(IEnumerable<CommandParameter> parameters)
+        public bool TryAddParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder> failedParameters)
         {
-            foreach (CommandParameter parameter in parameters)
+            List<CommandParameterBuilder> failed = new();
+            foreach (CommandParameterBuilder parameter in parameters)
             {
                 // Parameter does not have an argument converter.
-                if (parameter.ArgumentConverterType is null && !parameter.Type.IsAssignableFrom(typeof(CommandContext)))
+                if (parameter.ArgumentConverterType is null)
                 {
                     // Try finding a default type converter for the parameter type.
-                    if (!_typeConverters.TryGetValue(parameter.Type, out Type? converterType))
+                    if (!_typeConverters.TryGetValue(parameter.ParameterInfo!.ParameterType, out Type? converterType))
                     {
-                        throw new ArgumentException($"No Argument Converter is registered for type {parameter.Type}");
-                    }
-                    // Try setting the default type converter for the parameter.
-                    else if (!parameter.TrySetArgumentConverterType(converterType, out string? error))
-                    {
-                        throw new ArgumentException($"Failed to set {converterType} as an argument converter for parameter {parameter.ParameterInfo.Member} {parameter.ParameterInfo.Name}: {error}");
+                        failed.Add(parameter);
+                        _logger.LogTrace("Could not find an argument converter for parameter {Parameter}", parameter);
+                        continue;
                     }
                     // Argument converter was set successfully.
                     else
                     {
+                        parameter.ArgumentConverterType = converterType;
                         _logger.LogTrace("Set {ArgumentConverter} as the default argument converter for parameter {Parameter}", converterType, parameter);
                     }
                 }
@@ -83,6 +83,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 // Try to register the parameter.
                 if (parameters.Contains(parameter))
                 {
+                    failed.Add(parameter);
                     _logger.LogWarning("Cannot register parameter {Parameter} again because it was already registered once before!", parameter);
                 }
 
@@ -90,6 +91,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 _parameters.Add(parameter);
                 _logger.LogTrace("Set {ArgumentConverter} as an argument converter for parameter {Parameter}", parameter.ArgumentConverterType, parameter);
             }
+
+            failedParameters = failed;
+            return failed.Any();
         }
     }
 }
