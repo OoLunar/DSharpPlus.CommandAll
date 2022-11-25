@@ -23,7 +23,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         {
             foreach (Type commandType in commandTypes)
             {
-                if (CommandBuilder.TryParse(commandType, out IEnumerable<CommandBuilder>? commandBuilders))
+                if (!commandType.IsNested && CommandBuilder.TryParse(commandType, out IEnumerable<CommandBuilder>? commandBuilders))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {

@@ -26,7 +26,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         {
             Assert.IsTrue(_parser.TryParseOverload(EchoCommand, new[] { "hello world" }, out CommandOverload? overload));
             Assert.IsNotNull(overload);
-            Assert.AreEqual(2, overload.Parameters.Count);
+            Assert.AreEqual(1, overload.Parameters.Count);
             Assert.AreEqual(EchoCommand.Overloads[0], overload);
         }
     }

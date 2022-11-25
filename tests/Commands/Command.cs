@@ -9,6 +9,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests.Commands
     [Command("command"), Description("A command for testing.")]
     public sealed class Command : BaseCommand
     {
+        [Command("subcommand"), Description("A subcommand for testing.")]
+        public static Task ExecuteAsync(CommandContext context) => context.ReplyAsync(new DiscordMessageBuilder().WithContent("Hello, world!"));
+
         [Command("group"), Description("Group description.")]
         public sealed class GroupCommand
         {

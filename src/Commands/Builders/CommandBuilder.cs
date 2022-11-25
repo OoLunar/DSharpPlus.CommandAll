@@ -168,23 +168,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             // Parse subcommands
             foreach (Type subType in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
-                if (subType.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute && TryParse(subType, recursionCount + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
+                if (TryParse(subType, recursionCount + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
                 {
-                    CommandBuilder builder = new()
-                    {
-                        Name = commandAttribute.Name,
-                        Subcommands = new(subBuilders)
-                    };
-
-                    // Take the description from the first subcommand that has it.
-                    foreach (CommandBuilder subcommand in builder.Subcommands)
-                    {
-                        if (!string.IsNullOrWhiteSpace(subcommand.Description))
-                        {
-                            builder.Description = subcommand.Description;
-                            break;
-                        }
-                    }
+                    commandBuilders.AddRange(subBuilders);
                 }
             }
 
@@ -195,7 +181,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 return false;
             }
             // If the whole thing is a group command and this is the top level, then we need to mark this as a group command. If it isn't, then the subcommand parsing done above will automatically mark the results as a group command for us.
-            else if (type.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute && recursionCount != 0)
+            else if (type.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
             {
                 CommandBuilder builder = new()
                 {
