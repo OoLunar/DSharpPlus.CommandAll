@@ -127,9 +127,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 builders = null;
                 return false;
             }
-            else if (recursionCount > 2)
+            else if (recursionCount == 2)
             {
-                error = new InvalidOperationException("Groups must not have subgroups that contain subgroups! The maximum amount of nested classes is 2.");
+                error = new InvalidOperationException("Groups must not have subgroups! The maximum amount of nested classes is 1.");
                 builders = null;
                 return false;
             }
@@ -168,10 +168,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             // Parse subcommands
             foreach (Type subType in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
-                if (TryParse(subType, recursionCount + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
+                if (!TryParse(subType, recursionCount + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
                 {
-                    commandBuilders.AddRange(subBuilders);
+                    builders = null;
+                    return false;
                 }
+                commandBuilders.AddRange(subBuilders);
             }
 
             if (!commandBuilders.Any())

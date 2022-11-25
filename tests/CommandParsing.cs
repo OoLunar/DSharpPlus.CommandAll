@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Managers;
+using OoLunar.DSharpPlus.CommandAll.Tests.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Tests
 {
@@ -13,7 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
 
         public CommandParsing()
         {
-            _commandManager.AddCommands(typeof(CommandParsing).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Tests.Commands"));
+            _commandManager.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
             _argumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
             _argumentConverterManager.TryAddParameters(_commandManager.CommandBuilders.Values.SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
             _commandManager.BuildCommands();
@@ -43,6 +46,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
             Assert.IsNotNull(command);
             Assert.AreEqual("Subcommand", command.Name);
             Assert.AreEqual("Command Group Subcommand", command.FullName);
+        }
+
+        [TestMethod]
+        public void InvalidMultiLevelCommand()
+        {
+            Assert.IsFalse(CommandBuilder.TryParse(typeof(InvalidMultiLevelCommand), out IEnumerable<CommandBuilder>? builders, out Exception? error));
+            Assert.IsNull(builders);
+            Assert.IsInstanceOfType(error, typeof(InvalidOperationException));
+        }
+
+        [TestMethod]
+        public void InvalidGroupCommand()
+        {
+            Assert.IsFalse(CommandBuilder.TryParse(typeof(InvalidGroupCommand), out IEnumerable<CommandBuilder>? builders, out Exception? error));
+            Assert.IsNull(builders);
+            Assert.IsInstanceOfType(error, typeof(ArgumentNullException));
         }
     }
 }
