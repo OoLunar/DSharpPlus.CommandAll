@@ -22,7 +22,7 @@ jobs:
     name: Build
     runs-on: self-hosted
     if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
-    uses: oolunar/dsharpplus.commandall/.github/workflows/dotnet_build.yml
+    uses: oolunar/dsharpplus.commandall/.github/workflows/dotnet_build.yml@setup
     steps:
       - name: Build
         run: dotnet publish src/OoLunar.DSharpPlus.CommandAll.csproj -c Debug -f net7.0 --self-contained -p:DebugType=embedded
@@ -36,7 +36,7 @@ jobs:
     name: Test
     runs-on: self-hosted
     if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
-    uses: oolunar/dsharpplus.commandall/.github/workflows/dotnet_build.yml
+    uses: oolunar/dsharpplus.commandall/.github/workflows/dotnet_build.yml@setup
     steps:
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
