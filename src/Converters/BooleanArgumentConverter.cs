@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class BooleanArgumentConverter : IArgumentConverter<bool>
     {
-        public ApplicationCommandOptionType Type { get; init; } = ApplicationCommandOptionType.Boolean;
+        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Boolean;
 
         public Task<Optional<bool>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => value.Trim().ToLowerInvariant() switch
         {

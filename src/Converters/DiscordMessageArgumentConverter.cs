@@ -12,7 +12,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
     {
-        public ApplicationCommandOptionType Type { get; init; } = ApplicationCommandOptionType.Role;
+        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Role;
         private static readonly Regex RoleRegex = RoleRegexMethod();
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]

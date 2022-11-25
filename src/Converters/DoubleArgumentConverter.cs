@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class DoubleArgumentConverter : IArgumentConverter<double>
     {
-        public ApplicationCommandOptionType Type { get; init; } = ApplicationCommandOptionType.Number;
+        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Number;
 
         public Task<Optional<double>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(double.TryParse(value, out double result) ? Optional.FromValue(result) : Optional.FromNoValue<double>());
     }

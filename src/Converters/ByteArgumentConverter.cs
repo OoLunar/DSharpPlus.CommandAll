@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class ByteArgumentConverter : IArgumentConverter<byte>
     {
-        public ApplicationCommandOptionType Type { get; init; } = ApplicationCommandOptionType.Integer;
+        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Integer;
 
         public Task<Optional<byte>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(byte.TryParse(value, out byte result) ? Optional.FromValue(result) : Optional.FromNoValue<byte>());
     }

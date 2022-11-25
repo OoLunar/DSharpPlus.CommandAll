@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class UInt64ArgumentConverter : IArgumentConverter<ulong>
     {
-        public ApplicationCommandOptionType Type { get; init; } = ApplicationCommandOptionType.Integer;
+        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Integer;
 
         public Task<Optional<ulong>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(ulong.TryParse(value, out ulong result) ? Optional.FromValue(result) : Optional.FromNoValue<ulong>());
     }
