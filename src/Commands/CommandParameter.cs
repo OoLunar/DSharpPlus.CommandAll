@@ -20,7 +20,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandParameter(CommandParameterBuilder builder, CommandOverload overload)
         {
             builder.Verify();
-            if (builder.ArgumentConverterType is null)
+            if (builder.ArgumentConverterType is null && !overload.Flags.HasFlag(CommandOverloadFlags.Disabled))
             {
                 throw new PropertyNullException(nameof(builder.ArgumentConverterType));
             }

@@ -131,22 +131,9 @@ namespace OoLunar.DSharpPlus.CommandAll
             Client.Ready -= DiscordClient_ReadyAsync;
 
             await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
-            foreach (CommandBuilder commandBuilder in CommandManager.CommandBuilders.Values)
+            foreach (CommandBuilder command in CommandManager.CommandBuilders.Values)
             {
-                foreach (CommandOverloadBuilder commandOverloadBuilder in commandBuilder.Overloads)
-                {
-                    if (!ArgumentConverterManager.TryAddParameters(commandOverloadBuilder.Parameters, out IEnumerable<CommandParameterBuilder>? failedParameters))
-                    {
-                        commandOverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
-                        _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", commandOverloadBuilder, failedParameters);
-                    }
-                }
-
-                if (commandBuilder.Overloads.All(overload => overload.Flags.HasFlag(CommandOverloadFlags.Disabled)))
-                {
-                    commandBuilder.Flags |= CommandFlags.Disabled;
-                    _logger.LogWarning("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
-                }
+                SaturateParametersRecursively(command);
             }
             CommandManager.BuildCommands();
 
@@ -184,5 +171,28 @@ namespace OoLunar.DSharpPlus.CommandAll
                 : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction));
 
         private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
+
+        private void SaturateParametersRecursively(CommandBuilder commandBuilder)
+        {
+            foreach (CommandOverloadBuilder commandOverloadBuilder in commandBuilder.Overloads)
+            {
+                if (!ArgumentConverterManager.TrySaturateParameters(commandOverloadBuilder.Parameters, out IEnumerable<CommandParameterBuilder>? failedParameters))
+                {
+                    commandOverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
+                    _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", commandOverloadBuilder, failedParameters);
+                }
+            }
+
+            foreach (CommandBuilder subBuilder in commandBuilder.Subcommands)
+            {
+                SaturateParametersRecursively(subBuilder);
+            }
+
+            if (commandBuilder.Overloads.Any() && commandBuilder.Overloads.All(overload => overload.Flags.HasFlag(CommandOverloadFlags.Disabled)))
+            {
+                commandBuilder.Flags |= CommandFlags.Disabled;
+                _logger.LogWarning("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
+            }
+        }
     }
 }

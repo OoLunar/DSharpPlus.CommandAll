@@ -9,13 +9,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
     public interface IArgumentConverterManager
     {
-        IReadOnlyList<CommandParameterBuilder> Parameters { get; }
         IReadOnlyDictionary<Type, Type> TypeConverters { get; }
 
         void AddArgumentConverter(Type type);
         void AddArgumentConverter<T>() where T : IArgumentConverter;
         void AddArgumentConverters(Assembly assembly);
         void AddArgumentConverters(IEnumerable<Type> types);
-        bool TryAddParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder>? failedParameters);
+        bool TrySaturateParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder>? failedParameters);
     }
 }
