@@ -33,5 +33,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             DefaultValue = builder.DefaultValue;
             ArgumentConverterType = builder.ArgumentConverterType!;
         }
+
+        public override string ToString() => $"{Overload.Command.FullName} {Type.Name} {Name}";
     }
 }

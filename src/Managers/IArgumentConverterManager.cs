@@ -13,7 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         IReadOnlyDictionary<Type, Type> TypeConverters { get; }
 
         void AddArgumentConverter(Type type);
-        void AddArgumentConverter<T>() where T : IArgumentConverter<T>;
+        void AddArgumentConverter<T>() where T : IArgumentConverter;
         void AddArgumentConverters(Assembly assembly);
         void AddArgumentConverters(IEnumerable<Type> types);
         bool TryAddParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder>? failedParameters);

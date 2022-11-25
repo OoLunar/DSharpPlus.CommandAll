@@ -14,7 +14,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
         None = 0,
         Quoted = 1 << 1,
         Escaped = 1 << 2,
-        Backticked = 1 << 3,
-        Whitespace = 1 << 4
+        Backticked = 1 << 3
     }
 }

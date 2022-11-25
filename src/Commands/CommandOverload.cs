@@ -24,5 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             Flags = builder.Flags;
             Parameters = builder.Parameters.Select(parameterBuilder => new CommandParameter(parameterBuilder, this)).ToArray();
         }
+
+        public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.Type.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
     }
 }

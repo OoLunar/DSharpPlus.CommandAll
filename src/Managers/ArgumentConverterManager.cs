@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         public ArgumentConverterManager(ILogger<ArgumentConverterManager>? logger = null) => _logger = logger ?? NullLogger<ArgumentConverterManager>.Instance;
 
         public void AddArgumentConverter(Type type) => AddArgumentConverters(new Type[] { type });
-        public void AddArgumentConverter<T>() where T : IArgumentConverter<T> => AddArgumentConverter(typeof(T));
+        public void AddArgumentConverter<T>() where T : IArgumentConverter => AddArgumentConverter(typeof(T));
         public void AddArgumentConverters(Assembly assembly) => AddArgumentConverters(assembly.ExportedTypes);
         public void AddArgumentConverters(IEnumerable<Type> types)
         {

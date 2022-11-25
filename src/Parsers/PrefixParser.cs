@@ -16,7 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
             {
                 if (message.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    messageWithoutPrefix = message[prefix.Length..];
+                    messageWithoutPrefix = message[prefix.Length..].Trim();
                     return true;
                 }
             }
