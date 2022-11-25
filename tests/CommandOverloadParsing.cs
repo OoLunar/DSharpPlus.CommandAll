@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Managers;
 using OoLunar.DSharpPlus.CommandAll.Parsers;

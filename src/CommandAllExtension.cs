@@ -163,7 +163,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         private async Task DiscordClient_MessageCreatedAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
         {
             // Attempt to parse the prefix, find the command, check if it's disabled, and create a new command context to pass to the command executor.
-            if (!PrefixParser.TryRemovePrefix(eventArgs.Message.Content, out string? commandString) // Remove the prefix
+            if (!PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString) // Remove the prefix
                 || !CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command) // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
                 || command.Flags.HasFlag(CommandFlags.Disabled)) // Check if the command is disabled due to argument converter issues.
             {
