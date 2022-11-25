@@ -7,7 +7,7 @@ namespace OoLunar.DSharpPlus.CommandAll
 {
     public static class ExtensionMethods
     {
-        public static CommandAllExtension UseCommandsAll(this DiscordClient client, CommandAllConfiguration? configuration = null)
+        public static CommandAllExtension UseCommandAll(this DiscordClient client, CommandAllConfiguration? configuration = null)
         {
             if (client == null)
             {
@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             return extension;
         }
 
-        public static Task<IReadOnlyDictionary<int, CommandAllExtension>> UseCommandsAllAsync(this DiscordShardedClient shardedClient, CommandAllConfiguration? configuration = null)
+        public static Task<IReadOnlyDictionary<int, CommandAllExtension>> UseCommandAllAsync(this DiscordShardedClient shardedClient, CommandAllConfiguration? configuration = null)
         {
             if (shardedClient == null)
             {
@@ -35,17 +35,17 @@ namespace OoLunar.DSharpPlus.CommandAll
             Dictionary<int, CommandAllExtension> extensions = new();
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
             {
-                extensions[shard.ShardId] = shard.GetExtension<CommandAllExtension>() ?? shard.UseCommandsAll(configuration);
+                extensions[shard.ShardId] = shard.GetExtension<CommandAllExtension>() ?? shard.UseCommandAll(configuration);
             }
 
             return Task.FromResult((IReadOnlyDictionary<int, CommandAllExtension>)extensions.AsReadOnly());
         }
 
-        public static CommandAllExtension? GetCommandsAllExtension(this DiscordClient client) => client == null
+        public static CommandAllExtension? GetCommandAllExtension(this DiscordClient client) => client == null
             ? throw new ArgumentNullException(nameof(client))
             : client.GetExtension<CommandAllExtension>();
 
-        public static IReadOnlyDictionary<int, CommandAllExtension> GetCommandsAllExtensions(this DiscordShardedClient shardedClient)
+        public static IReadOnlyDictionary<int, CommandAllExtension> GetCommandAllExtensions(this DiscordShardedClient shardedClient)
         {
             if (shardedClient == null)
             {

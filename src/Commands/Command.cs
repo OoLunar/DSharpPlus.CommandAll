@@ -34,7 +34,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             };
 
             Name = builder.Name!.Trim().Pascalize();
-            builder.Aliases.Add(Name);
             builder.Aliases.Add(Name.Kebaberize());
             builder.Aliases.Add(Name.Camelize());
             builder.Aliases.Add(Name.Underscore());
