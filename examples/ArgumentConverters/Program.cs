@@ -1,35 +1,33 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
-using OoLunar.DSharpPlus.CommandAll.Parsers;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.HelloWorld
+namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
 {
     public sealed class Program
     {
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
-            DiscordClient client = new(new DiscordConfiguration
+            if (args.Length < 1)
             {
-                Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN"),
-                TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
-            });
+                Console.WriteLine("Please provide a bot token.");
+                return;
+            }
 
             ServiceCollection services = new();
             services.AddLogging(logger =>
             {
                 // Log both to console and the file
                 LoggerConfiguration loggerConfiguration = new();
-                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Verbose);
-                loggerConfiguration.Enrich.WithThreadId();
-                loggerConfiguration.WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] [{ThreadId}] {SourceContext}: {Message:lj}{NewLine}{Exception}", theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
+                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Information);
+                loggerConfiguration.WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}", theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
                 {
                     [ConsoleThemeStyle.Text] = "\x1b[0m",
                     [ConsoleThemeStyle.SecondaryText] = "\x1b[90m",
@@ -52,7 +50,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelloWorld
                 loggerConfiguration.WriteTo.File(
                     $"logs/{DateTime.Now.ToUniversalTime().ToString("yyyy'-'MM'-'dd' 'HH'_'mm'_'ss", CultureInfo.InvariantCulture)}.log",
                     rollingInterval: RollingInterval.Day,
-                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] [{ThreadId}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
+                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
                 );
 
                 // Set Log.Logger for a static reference to the logger
@@ -60,11 +58,17 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelloWorld
                 logger.AddSerilog(Log.Logger);
             });
 
-            CommandAllExtension commandsAll = client.UseCommandsAll(new CommandAllConfiguration(services)
+            DiscordClient client = new(new DiscordConfiguration()
             {
-                PrefixParser = new PrefixParser(new[] { "!", ">>" }),
+                Token = args[0],
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
+                LoggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()
             });
-            commandsAll.CommandManager.AddCommands(typeof(Program).Assembly);
+
+            CommandAllExtension extension = client.UseCommandAll(new(services)); // Register the extension
+            extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
+            extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
+
             await client.ConnectAsync();
             await Task.Delay(-1);
         }

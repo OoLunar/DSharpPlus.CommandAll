@@ -18,7 +18,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         {
             _commandManager.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
             _argumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
-            _argumentConverterManager.TryAddParameters(_commandManager.CommandBuilders.Values.SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
+            _argumentConverterManager.TrySaturateParameters(_commandManager.CommandBuilders.Values.SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
             _commandManager.BuildCommands();
         }
 

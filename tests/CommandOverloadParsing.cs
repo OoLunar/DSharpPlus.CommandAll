@@ -17,7 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
             CommandBuilder command = CommandBuilder.Parse(typeof(Commands.EchoCommand)).First();
             ArgumentConverterManager argumentConverterManager = new();
             argumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
-            argumentConverterManager.TryAddParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
+            argumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
             EchoCommand = new Command(command);
         }
 
