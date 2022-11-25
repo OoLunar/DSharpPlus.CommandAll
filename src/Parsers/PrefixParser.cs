@@ -10,7 +10,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
 
         public PrefixParser(params string[] prefixes) => Prefixes = prefixes.Length == 0 ? new[] { "!" } : prefixes;
 
-        public bool TryRemovePrefix(string message, [NotNullWhen(true)] out string? messageWithoutPrefix)
+        public bool TryRemovePrefix(CommandAllExtension extension, string message, [NotNullWhen(true)] out string? messageWithoutPrefix)
         {
             foreach (string prefix in Prefixes)
             {
@@ -19,6 +19,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
                     messageWithoutPrefix = message[prefix.Length..].Trim();
                     return true;
                 }
+            }
+
+            // Mention check
+            if (message.StartsWith(extension.Client.CurrentUser.Mention, StringComparison.OrdinalIgnoreCase))
+            {
+                messageWithoutPrefix = message[extension.Client.CurrentUser.Mention.Length..].Trim();
+                return true;
             }
 
             messageWithoutPrefix = null;
