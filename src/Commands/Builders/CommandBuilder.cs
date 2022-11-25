@@ -13,7 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
     public sealed class CommandBuilder
     {
-        private static readonly Type _contextType = typeof(CommandContext);
+        private static readonly Type _baseCommandType = typeof(BaseCommand);
 
         public string? Name { get; set; }
         public string? Description { get; set; }
@@ -40,7 +40,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
 
                 overload.Priority = priority++;
-                overloads[overload.Priority] = overload;
+                overloads.Insert(overload.Priority, overload);
             }
 
             // Set only the first element to be slash preferred.
@@ -121,9 +121,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 builders = null;
                 return false;
             }
-            else if (!type.IsAssignableFrom(_contextType))
+            else if (_baseCommandType.IsAssignableTo(type))
             {
-                error = new InvalidCastException($"The type {type.FullName} must be assignable from {nameof(CommandContext)}!");
+                error = new InvalidCastException($"The type {type.FullName} must be assignable from {nameof(BaseCommand)}!");
                 builders = null;
                 return false;
             }

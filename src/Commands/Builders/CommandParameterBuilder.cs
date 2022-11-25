@@ -59,28 +59,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 error = new InvalidPropertyTypeException(nameof(DefaultValue), DefaultValue.GetType(), ParameterInfo.ParameterType.GetType());
                 return false;
             }
-            else if (ArgumentConverterType is null)
+            else if (ArgumentConverterType is not null)
             {
-                error = new PropertyNullException(nameof(ArgumentConverterType));
-                return false;
+                Type? argumentConverterInterface = ArgumentConverterType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
+                if (argumentConverterInterface is null)
+                {
+                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>));
+                    return false;
+                }
+                else if (argumentConverterInterface.GenericTypeArguments[0] != ParameterInfo.ParameterType)
+                {
+                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
+                    return false;
+                }
             }
 
-            Type? argumentConverterInterface = ArgumentConverterType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
-            if (argumentConverterInterface is null)
-            {
-                error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>));
-                return false;
-            }
-            else if (argumentConverterInterface.GenericTypeArguments[0] != ParameterInfo.ParameterType)
-            {
-                error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
-                return false;
-            }
-            else
-            {
-                error = null;
-                return true;
-            }
+            error = null;
+            return true;
         }
 
         public static CommandParameterBuilder Parse(ParameterInfo parameterInfo) => TryParse(parameterInfo, out CommandParameterBuilder? commandParameterBuilder) ? commandParameterBuilder : throw new ArgumentException("Parameter is not a valid command parameter.", nameof(parameterInfo));
@@ -115,5 +110,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 
             return builder.TryVerify(out error);
         }
+
+        public override string ToString() => $"{ParameterInfo!.ParameterType.Name} {Name} ({ParameterInfo.Member})";
     }
 }

@@ -43,14 +43,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 error = new PropertyNullException(nameof(Parameters));
                 return false;
             }
-            else if (Parameters.Count is 0 or > 25)
+            else if (Parameters.Count > 25)
             {
-                error = new PropertyOutOfRangeException(nameof(Parameters), 1, 25, Parameters.Count);
-                return false;
-            }
-            else if (Parameters[0].ParameterInfo!.ParameterType.IsAssignableFrom(_commandContextType))
-            {
-                error = new InvalidPropertyStateException(nameof(Parameters), "The command context parameter must not be included in the parameter list!");
+                error = new PropertyOutOfRangeException(nameof(Parameters), 0, 25, Parameters.Count);
                 return false;
             }
 
@@ -88,9 +83,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             builder = new() { Method = methodInfo };
             List<CommandParameterBuilder> parameterBuilders = new();
             ParameterInfo[] parameters = methodInfo.GetParameters();
-            for (int i = 1; i < parameters.Length; i++)
+            for (int i = 0; i < parameters.Length; i++)
             {
                 ParameterInfo parameter = parameters[i];
+                if (i == 0)
+                {
+                    if (!_commandContextType.IsAssignableTo(parameter.ParameterType))
+                    {
+                        error = new InvalidPropertyStateException(nameof(Parameters), "The command context parameter must not be included in the parameter list!");
+                        builder = null;
+                        return false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
                 if (!CommandParameterBuilder.TryParse(parameter, out CommandParameterBuilder? parameterBuilder, out error))
                 {
                     builder = null;

@@ -77,14 +77,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                     {
                         parameter.ArgumentConverterType = converterType;
                         _logger.LogTrace("Set {ArgumentConverter} as the default argument converter for parameter {Parameter}", converterType, parameter);
+                        continue;
                     }
                 }
 
                 // Try to register the parameter.
-                if (parameters.Contains(parameter))
+                if (_parameters.Contains(parameter))
                 {
                     failed.Add(parameter);
                     _logger.LogWarning("Cannot register parameter {Parameter} again because it was already registered once before!", parameter);
+                    continue;
                 }
 
                 // Parameter was registered successfully.
@@ -93,7 +95,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             }
 
             failedParameters = failed;
-            return failed.Any();
+            return !failed.Any();
         }
     }
 }

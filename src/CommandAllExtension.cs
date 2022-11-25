@@ -27,11 +27,6 @@ namespace OoLunar.DSharpPlus.CommandAll
         public readonly IServiceProvider ServiceProvider;
 
         /// <summary>
-        /// The client associated with this extension.
-        /// </summary>
-        public DiscordClient DiscordClient { get; private set; } = null!;
-
-        /// <summary>
         /// The command manager, used to register and execute commands.
         /// </summary>
         public readonly ICommandManager CommandManager;
@@ -98,7 +93,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         }
 
         /// <summary>
-        /// Sets up the extension to use the specified <see cref="DiscordClient"/>.
+        /// Sets up the extension to use the specified <see cref="Client"/>.
         /// </summary>
         /// <param name="client">The client to register our event handlers too.</param>
         protected override void Setup(DiscordClient client)
@@ -107,33 +102,33 @@ namespace OoLunar.DSharpPlus.CommandAll
             {
                 throw new ArgumentNullException(nameof(client));
             }
-            else if (DiscordClient is not null)
+            else if (Client is not null)
             {
                 throw new InvalidOperationException("CommandAll Extension is already initialized.");
             }
 
-            DiscordClient = client;
+            Client = client;
 
             // If the client has already been initialized, register the event handlers.
-            if (DiscordClient.Guilds.Count != 0)
+            if (Client.Guilds.Count != 0)
             {
-                DiscordClient_ReadyAsync(DiscordClient, null!).GetAwaiter().GetResult();
+                DiscordClient_ReadyAsync(Client, null!).GetAwaiter().GetResult();
             }
             else
             {
-                DiscordClient.Ready += DiscordClient_ReadyAsync;
+                Client.Ready += DiscordClient_ReadyAsync;
             }
         }
 
         /// <summary>
-        /// Registers the event handlers that are used to handle commands. This is called when the <see cref="DiscordClient"/> is ready.
+        /// Registers the event handlers that are used to handle commands. This is called when the <see cref="Client"/> is ready.
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>
         private async Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
         {
             // Prevent the event handler from being executed multiple times.
-            DiscordClient.Ready -= DiscordClient_ReadyAsync;
+            Client.Ready -= DiscordClient_ReadyAsync;
 
             await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
             foreach (CommandBuilder commandBuilder in CommandManager.CommandBuilders.Values)
@@ -155,8 +150,9 @@ namespace OoLunar.DSharpPlus.CommandAll
             }
             CommandManager.BuildCommands();
 
-            DiscordClient.MessageCreated += DiscordClient_MessageCreatedAsync;
-            DiscordClient.InteractionCreated += DiscordClient_InteractionCreatedAsync;
+            Client.MessageCreated += DiscordClient_MessageCreatedAsync;
+            Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
+            _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
         }
 
         /// <summary>

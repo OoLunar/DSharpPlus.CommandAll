@@ -59,9 +59,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelloWorld
                 Log.Logger = loggerConfiguration.CreateLogger();
                 logger.AddSerilog(Log.Logger);
             });
-            CommandAllExtension commandsAll = client.UseCommandsAll(new CommandAllConfiguration()
+
+            CommandAllExtension commandsAll = client.UseCommandsAll(new CommandAllConfiguration(services)
             {
-                ServiceCollection = services,
                 PrefixParser = new PrefixParser(new[] { "!", ">>" }),
             });
             commandsAll.CommandManager.AddCommands(typeof(Program).Assembly);

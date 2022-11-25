@@ -52,7 +52,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             else
             {
                 CurrentOverload = overload;
-                IEnumerable<(CommandParameter, string)> namedArguments = overload.Parameters.Skip(1).Zip(arguments.Union(new string[overload.Parameters.Count - arguments.Count - 1]), (param, arg) => (param, arg));
+                IEnumerable<(CommandParameter, string)> namedArguments = overload.Parameters.Zip(arguments.Union(new string[overload.Parameters.Count - arguments.Count]), (param, arg) => (param, arg));
                 foreach ((CommandParameter param, string? arg) in namedArguments)
                 {
                     if (arg is null)

@@ -9,7 +9,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelloWorld
     {
         [Command("echo")]
         [Description("Repeats what the user said.")]
-        public static Task EchoAsync(CommandContext context, string text) => context.ReplyAsync(new()
+        public static Task EchoAsync(CommandContext context, [Description("Which text to repeat.")] string text) => context.ReplyAsync(new()
         {
             Content = text
         });

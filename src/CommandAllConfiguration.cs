@@ -19,9 +19,9 @@ namespace OoLunar.DSharpPlus.CommandAll
         public ITextArgumentParser TextArgumentParser { get; set; }
         public char[] QuoteCharacters { get; set; }
 
-        public CommandAllConfiguration()
+        public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
         {
-            ServiceCollection = new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+            ServiceCollection = serviceDescriptors ?? new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
             IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();
