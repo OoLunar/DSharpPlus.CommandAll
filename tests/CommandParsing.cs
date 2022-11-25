@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         {
             Assert.IsTrue(_commandManager.TryFindCommand("ping", out _, out Command? command));
             Assert.IsNotNull(command);
-            Assert.AreEqual("ping", command.Name);
+            Assert.AreEqual("Ping", command.Name);
         }
 
         [TestMethod]
@@ -32,8 +32,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         {
             Assert.IsTrue(_commandManager.TryFindCommand("command subcommand", out _, out Command? command));
             Assert.IsNotNull(command);
-            Assert.AreEqual("subcommand", command.Name);
-            Assert.AreEqual("command subcommand", command.FullName);
+            Assert.AreEqual("Subcommand", command.Name);
+            Assert.AreEqual("Command Subcommand", command.FullName);
         }
 
         [TestMethod]
@@ -41,8 +41,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         {
             Assert.IsTrue(_commandManager.TryFindCommand("command group subcommand", out _, out Command? command));
             Assert.IsNotNull(command);
-            Assert.AreEqual("subcommand", command.Name);
-            Assert.AreEqual("command group subcommand", command.FullName);
+            Assert.AreEqual("Subcommand", command.Name);
+            Assert.AreEqual("Command Group Subcommand", command.FullName);
         }
     }
 }

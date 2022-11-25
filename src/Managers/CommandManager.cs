@@ -27,7 +27,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {
-                        CommandBuilders.Add(commandBuilder.Name!, commandBuilder);
+                        if (CommandBuilders.TryGetValue(commandBuilder.Name!, out CommandBuilder? existingCommandBuilder))
+                        {
+                            _logger.LogError("Command {ExistingCommandBuilder} already has the name {ExistingCommandBuilderName}. Unable to add {CommandBuilder}", existingCommandBuilder, existingCommandBuilder.Name, commandBuilder);
+                        }
+                        else
+                        {
+                            CommandBuilders.Add(commandBuilder.Name!, commandBuilder);
+                        }
                     }
                 }
             }
@@ -44,11 +51,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                     _logger.LogError(error, "Failed to verify command builder {CommandBuilder}", commandBuilder);
                     continue;
                 }
+                else if (commands.TryGetValue(commandBuilder.Name!, out Command? existingCommand))
+                {
+                    _logger.LogError("Command {ExistingCommand} already has the name {ExistingCommandName}. Unable to add {CommandBuilder}", existingCommand, existingCommand.Name, commandBuilder);
+                    continue;
+                }
 
                 Command command = new(commandBuilder);
                 commands.Add(command.Name, command);
                 foreach (string alias in command.Aliases)
                 {
+                    if (commands.TryGetValue(alias, out Command? existingAliasCommand))
+                    {
+                        _logger.LogError("Command {ExistingAliasCommand} already has the alias {ExistingAliasCommandAlias}. Unable to add {CommandBuilder}", existingAliasCommand, alias, commandBuilder);
+                        continue;
+                    }
                     commands.Add(alias, command);
                 }
             }
