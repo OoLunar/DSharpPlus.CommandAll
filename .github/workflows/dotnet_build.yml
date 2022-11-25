@@ -26,5 +26,5 @@ jobs:
         uses: actions/upload-artifact@v2.2.4
         if: ${{ github.event_name == 'push' }}
         with:
-          name: OoLunar.DSharpPlus.CommandAll-${{ GITHUB_RUN_NUMBER }}∕${{ GITHUB_RUN_ATTEMPT }}
+          name: OoLunar.DSharpPlus.CommandAll-$GITHUB_RUN_NUMBER∕$GITHUB_RUN_ATTEMPT
           path: ./src/bin/Debug/net7.0/publish/
