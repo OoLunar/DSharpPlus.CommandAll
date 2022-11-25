@@ -17,7 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
             if (command is null)
             {
                 DiscordEmbedBuilder embedBuilder = new() { Color = new DiscordColor("#6b73db") };
-                foreach (Command distinctCommand in context.Extension.CommandManager.Commands!.Values.Distinct())
+                foreach (Command distinctCommand in context.Extension.CommandManager.Commands.Values.Distinct())
                 {
                     embedBuilder.AddField(distinctCommand.Name, distinctCommand.Description);
                 }
@@ -25,7 +25,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
             }
             else
             {
-                if (context.Extension.CommandManager.Commands!.TryGetValue(command.ToLowerInvariant(), out Command? foundCommand))
+                if (context.Extension.CommandManager.Commands.TryGetValue(command.ToLowerInvariant(), out Command? foundCommand))
                 {
                     DiscordEmbedBuilder embedBuilder = new()
                     {

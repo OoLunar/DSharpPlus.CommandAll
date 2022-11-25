@@ -11,7 +11,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
     public class CommandManager : ICommandManager
     {
-        public IReadOnlyDictionary<string, Command>? Commands { get; private set; }
+        public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
         public Dictionary<string, CommandBuilder> CommandBuilders { get; set; } = new();
         private readonly ILogger<CommandManager> _logger = NullLogger<CommandManager>.Instance;
 

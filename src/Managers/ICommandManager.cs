@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
     public interface ICommandManager
     {
-        IReadOnlyDictionary<string, Command>? Commands { get; }
+        IReadOnlyDictionary<string, Command> Commands { get; }
         Dictionary<string, CommandBuilder> CommandBuilders { get; set; }
 
         void AddCommand<T>() where T : BaseCommand;
@@ -16,7 +16,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         void AddCommands(Assembly assembly);
         void AddCommands(IEnumerable<Type> commandTypes);
 
-        [MemberNotNull(nameof(Commands))]
         void BuildCommands();
 
         bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command);
