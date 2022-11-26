@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -16,7 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public string? Name { get; set; }
         public string? Description { get; set; }
         public CommandParameterFlags Flags { get; set; }
-        public object? DefaultValue { get; set; }
+        public Optional<object?> DefaultValue { get; set; }
         public Type? ArgumentConverterType { get; set; }
         public ParameterInfo? ParameterInfo { get; set; }
         public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; } = new();
@@ -56,7 +57,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 error = new InvalidPropertyStateException(nameof(Flags), $"The {nameof(CommandParameterFlags.Params)} flag must have the {nameof(CommandParameterFlags.Optional)} flag set.");
                 return false;
             }
-            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue is not null && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.GetType()))
+            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.GetType()))
             {
                 error = new InvalidPropertyTypeException(nameof(DefaultValue), DefaultValue.GetType(), ParameterInfo.ParameterType.GetType());
                 return false;
@@ -95,7 +96,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             {
                 Name = parameterInfo.Name!,
                 ParameterInfo = parameterInfo,
-                DefaultValue = parameterInfo.DefaultValue,
+                DefaultValue = parameterInfo.DefaultValue is DBNull ? Optional.FromNoValue<object?>() : Optional.FromValue(parameterInfo.DefaultValue),
                 SlashMetadata = new()
             };
 

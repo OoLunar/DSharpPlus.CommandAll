@@ -18,7 +18,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandOverload Overload;
         public readonly ParameterInfo ParameterInfo;
         public readonly CommandParameterFlags Flags;
-        public readonly object? DefaultValue;
+        public readonly Optional<object?> DefaultValue;
         public readonly Type ArgumentConverterType;
         public readonly CommandParameterSlashMetadata SlashMetadata;
         public Type Type => ParameterInfo.ParameterType;
@@ -47,7 +47,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             parameter.Name.Underscore(),
             parameter.Description,
             parameter.SlashMetadata.OptionType,
-            parameter.DefaultValue is DBNull,
+            parameter.DefaultValue.HasValue,
             parameter.SlashMetadata.Choices,
             null,
             parameter.SlashMetadata.ChannelTypes,
