@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand
+namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
 {
     public sealed class Program
     {
@@ -75,10 +78,26 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand
             {
                 DebugGuildId = debugGuildId // Which guild to register the debug slash commands to.
             });
+            extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
             extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
+            extension.ConfigureCommands += TranslateCommands;
 
             await client.ConnectAsync();
             await Task.Delay(-1);
+        }
+
+        private static Task TranslateCommands(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
+        {
+            CommandBuilder? pingBuilder = eventArgs.CommandManager.CommandBuilders.Values.FirstOrDefault(x => x.Name == "ping");
+            if (pingBuilder is not null)
+            {
+                pingBuilder.SlashMetadata.LocalizedNames.Add(CultureInfo.GetCultureInfo("ru-RU"), "пинг");
+                pingBuilder.SlashMetadata.LocalizedDescriptions.Add(CultureInfo.GetCultureInfo("ru-RU"), "Проверяет, жив ли бот.");
+
+                pingBuilder.Overloads[0].SlashMetadata.LocalizedNames.Add(CultureInfo.GetCultureInfo("ru-RU"), "пинг");
+                pingBuilder.Overloads[0].SlashMetadata.LocalizedDescriptions.Add(CultureInfo.GetCultureInfo("ru-RU"), "Проверяет, жив ли бот.");
+            }
+            return Task.CompletedTask;
         }
     }
 }

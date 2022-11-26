@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -10,7 +11,7 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 {
-    public sealed class CommandParameterBuilder
+    public sealed class CommandParameterBuilder : IBuilder
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
@@ -18,6 +19,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public object? DefaultValue { get; set; }
         public Type? ArgumentConverterType { get; set; }
         public ParameterInfo? ParameterInfo { get; set; }
+        public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; } = new();
 
         [MemberNotNull(nameof(Name), nameof(Description), nameof(ParameterInfo))]
         public void Verify()
@@ -73,6 +75,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                     return false;
                 }
             }
+            else if (!SlashMetadata.TryVerify(out error))
+            {
+                return false;
+            }
 
             error = null;
             return true;
@@ -92,20 +98,38 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             builder = new()
             {
                 Name = parameterInfo.Name!,
-                Description = parameterInfo.GetCustomAttribute<DescriptionAttribute>()?.Description ?? string.Empty,
                 ParameterInfo = parameterInfo,
                 DefaultValue = parameterInfo.DefaultValue,
-                ArgumentConverterType = parameterInfo.GetCustomAttribute<ArgumentConverterAttribute>()?.ArgumentConverterType
+                SlashMetadata = new()
             };
+
+            foreach (object attribute in parameterInfo.GetCustomAttributes())
+            {
+                switch (attribute)
+                {
+                    case DescriptionAttribute description:
+                        builder.Description = description.Description ?? string.Empty;
+                        break;
+                    case ArgumentConverterAttribute argumentConverter:
+                        builder.ArgumentConverterType = argumentConverter.ArgumentConverterType;
+                        builder.SlashMetadata.OptionType = argumentConverter.ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType?;
+                        break;
+                    case MinMaxAttribute minMax:
+                        builder.SlashMetadata.MinValue = minMax.MinValue;
+                        builder.SlashMetadata.MaxValue = minMax.MaxValue;
+                        break;
+                    case ChannelTypesAttribute channelTypes:
+                        builder.SlashMetadata.ChannelTypes = channelTypes.ChannelTypes.ToList();
+                        break;
+                    case ParamArrayAttribute:
+                        builder.Flags |= CommandParameterFlags.Params;
+                        break;
+                }
+            }
 
             if (parameterInfo.IsOptional)
             {
                 builder.Flags |= CommandParameterFlags.Optional;
-            }
-
-            if (parameterInfo.GetCustomAttribute<ParamArrayAttribute>() != null)
-            {
-                builder.Flags |= CommandParameterFlags.Params;
             }
 
             return builder.TryVerify(out error);

@@ -16,6 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly IReadOnlyList<Command> Subcommands;
         public readonly IReadOnlyList<string> Aliases;
         public readonly CommandFlags Flags;
+        public readonly CommandSlashMetadata SlashMetadata;
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
 
         public Command(CommandBuilder builder, Command? parent = null)
@@ -46,6 +47,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();
             Aliases = builder.Aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
+            SlashMetadata = new(builder.SlashMetadata);
         }
 
         public override string? ToString() => $"{FullName} {(Flags.HasFlag(CommandFlags.Disabled) ? "Disabled " : "")}({Overloads.Count} overloads, {Subcommands.Count} subcommands)";
@@ -69,7 +71,17 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
             }
 
-            return new DiscordApplicationCommand(command.Name.Underscore(), command.Description, subCommandAndGroups, defaultMemberPermissions: command.Flags.HasFlag(CommandFlags.Disabled) ? Permissions.Administrator : null);
+            return new DiscordApplicationCommand(
+                command.Name.Underscore(),
+                command.Description,
+                subCommandAndGroups,
+                null,
+                ApplicationCommandType.SlashCommand,
+                command.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                command.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                command.Flags.HasFlag(CommandFlags.AllowDirectMessages),
+                command.SlashMetadata.RequiredPermissions
+            );
         }
 
         // This means we're a subcommand group
@@ -92,8 +104,15 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
             }
 
-            return new DiscordApplicationCommandOption(command.Name.Underscore(), command.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, subCommandAndGroups);
-
+            return new DiscordApplicationCommandOption(
+                command.Name.Underscore(),
+                command.Description,
+                ApplicationCommandOptionType.SubCommandGroup,
+                null, null,
+                subCommandAndGroups,
+                null, null, null, null,
+                command.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                command.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value));
         }
     }
 }

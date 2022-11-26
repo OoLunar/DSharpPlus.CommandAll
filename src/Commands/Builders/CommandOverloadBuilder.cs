@@ -8,7 +8,7 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 {
-    public sealed class CommandOverloadBuilder
+    public sealed class CommandOverloadBuilder : IBuilder
     {
         private static readonly Type _commandContextType = typeof(CommandContext);
 
@@ -16,6 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public List<CommandParameterBuilder> Parameters { get; set; } = new();
         public CommandOverloadFlags Flags { get; set; }
         public int Priority { get; set; }
+        public CommandSlashMetadataBuilder SlashMetadata { get; set; } = new(true);
 
         [MemberNotNull(nameof(Method), nameof(Parameters))]
         public void Verify()
@@ -45,6 +46,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             else if (Parameters.Count > 25)
             {
                 error = new PropertyOutOfRangeException(nameof(Parameters), 0, 25, Parameters.Count);
+                return false;
+            }
+            else if (!SlashMetadata.TryVerify(out error))
+            {
                 return false;
             }
 

@@ -15,9 +15,15 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
     {
         public static async Task Main(string[] args)
         {
-            if (args.Length < 1)
+            if (args.Length < 2)
             {
-                Console.WriteLine("Please provide a bot token.");
+                Console.WriteLine("Please provide a bot token and debug guild id, in that order.");
+                return;
+            }
+
+            if (!ulong.TryParse(args[1], out ulong debugGuildId))
+            {
+                Console.WriteLine("Please provide a valid debug guild id as the second argument.");
                 return;
             }
 
@@ -67,7 +73,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
 
             CommandAllExtension extension = client.UseCommandAll(new(services) // Register the extension
             {
-                DebugGuildId = 832354798153236510
+                DebugGuildId = debugGuildId // Which guild to register the debug slash commands to.
             });
             extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
             extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly

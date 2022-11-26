@@ -17,6 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly IReadOnlyList<CommandParameter> Parameters;
         public readonly CommandOverloadFlags Flags;
         public readonly int Priority;
+        public readonly CommandSlashMetadata SlashMetadata;
 
         public CommandOverload(CommandOverloadBuilder builder, Command command)
         {
@@ -26,10 +27,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             Priority = builder.Priority;
             Flags = builder.Flags;
             Parameters = builder.Parameters.Select(parameterBuilder => new CommandParameter(parameterBuilder, this)).ToArray();
+            SlashMetadata = new(builder.SlashMetadata);
         }
 
         public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.Type.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
 
-        public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(overload.Command.Name.Underscore(), overload.Command.Description, ApplicationCommandOptionType.SubCommand, null, null, overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter));
+        public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(
+            overload.Command.Name.Underscore(),
+            overload.Command.Description,
+            ApplicationCommandOptionType.SubCommand,
+            null, null,
+            overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter),
+            null, null, null, null,
+            overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+            overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value));
     }
 }

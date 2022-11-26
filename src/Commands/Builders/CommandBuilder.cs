@@ -11,7 +11,7 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
-    public sealed class CommandBuilder
+    public sealed class CommandBuilder : IBuilder
     {
         private static readonly Type _baseCommandType = typeof(BaseCommand);
 
@@ -21,6 +21,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public List<CommandBuilder> Subcommands { get; set; } = new List<CommandBuilder>();
         public List<string> Aliases { get; set; } = new();
         public CommandFlags Flags { get; set; }
+        public CommandSlashMetadataBuilder SlashMetadata { get; set; } = new(false);
 
         public void NormalizeOverloadPriorities()
         {
@@ -107,6 +108,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 {
                     return false;
                 }
+            }
+
+            if (!SlashMetadata.TryVerify(out error))
+            {
+                return false;
             }
 
             error = null;

@@ -6,6 +6,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
     public enum CommandFlags
     {
         None,
-        Disabled = 1 << 1
+        Disabled = 1 << 1,
+        AllowDirectMessages = 1 << 2
     }
 }
