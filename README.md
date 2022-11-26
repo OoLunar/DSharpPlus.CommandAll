@@ -20,7 +20,7 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 | Built In Help Command             | No                  |
 | Params (Auto Generated Arguments) | No                  |
 | XML Documentation                 | No                  |
-| Translation Classes               | No                  |
+| Translation Classes               | Ish                 |
 
 # How to use
 Example code can be found in the [Examples Folder](./examples)
