@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 
 namespace OoLunar.DSharpPlus.CommandAll.Attributes
@@ -7,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
     /// Attempts to parse a parameter with the specified converter.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, Inherited = true, AllowMultiple = false)]
-    public sealed class ArgumentConverterAttribute : Attribute
+    public class ArgumentConverterAttribute : Attribute
     {
         /// <summary>
         /// The converter to use.
@@ -26,11 +27,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
             {
                 throw new ArgumentNullException(nameof(parameterConverter));
             }
-            else if (!typeof(IArgumentConverter<>).IsAssignableFrom(parameterConverter))
+            else if (parameterConverter.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>)) is null)
             {
                 throw new ArgumentException($"Converter type must implement IArgumentConverter<`1>.");
             }
             ArgumentConverterType = parameterConverter;
         }
+    }
+
+    /// <summary>
+    /// Attempts to parse a parameter with the specified converter.
+    /// </summary>
+    public sealed class ArgumentConverterAttribute<T> : ArgumentConverterAttribute
+    {
+        /// <summary>
+        /// Attempts to parse a parameter with the specified converter.
+        /// </summary>
+        public ArgumentConverterAttribute() : base(typeof(T)) { }
     }
 }

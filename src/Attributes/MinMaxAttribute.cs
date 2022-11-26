@@ -5,29 +5,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class MinMaxAttribute : Attribute
     {
-        public readonly object? MinValue;
-        public readonly object? MaxValue;
+        public object? MinValue;
+        public object? MaxValue;
 
-        public MinMaxAttribute(int? minValue, int? maxValue)
+        public MinMaxAttribute()
         {
-            if (minValue is not null && maxValue is not null && minValue > maxValue)
+            if (MinValue is int minInt && MaxValue is int maxInt && minInt > maxInt)
             {
                 throw new ArgumentException("The minimum value cannot be greater than the maximum value.");
             }
-
-            MinValue = minValue;
-            MaxValue = maxValue;
-        }
-
-        public MinMaxAttribute(double? minValue, double? maxValue)
-        {
-            if (minValue is not null && maxValue is not null && minValue > maxValue)
+            else if (MinValue is double minDouble && MaxValue is double maxDouble && minDouble > maxDouble)
             {
                 throw new ArgumentException("The minimum value cannot be greater than the maximum value.");
             }
-
-            MinValue = minValue;
-            MaxValue = maxValue;
+            else if (MinValue is not null && MaxValue is not null && MinValue.GetType() != MaxValue.GetType())
+            {
+                throw new ArgumentException("The minimum and maximum values must be of the same type.");
+            }
         }
     }
 }

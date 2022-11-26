@@ -74,7 +74,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             return new DiscordApplicationCommand(
                 command.Name.Underscore(),
                 command.Description,
-                subCommandAndGroups,
+                subCommandAndGroups.Count == 1 ? subCommandAndGroups[0].Options : subCommandAndGroups,
                 null,
                 ApplicationCommandType.SlashCommand,
                 command.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),

@@ -75,10 +75,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                     return false;
                 }
             }
-            else if (!SlashMetadata.TryVerify(out error))
-            {
-                return false;
-            }
 
             error = null;
             return true;
