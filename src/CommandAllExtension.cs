@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -177,15 +178,15 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to determine if the interaction is an application command and conditionally executes commands with the provided data.</param>
         private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
-            string commandName = eventArgs.Interaction.Data.Name;
+            StringBuilder commandName = new(eventArgs.Interaction.Data.Name);
             IEnumerable<DiscordInteractionDataOption> options = eventArgs.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand)
             {
-                commandName += $" {options.First().Name}";
+                commandName.AppendFormat(" {0}", options.First().Name);
                 options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             }
 
-            return eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(commandName, out _, out Command? command)
+            return eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(commandName.ToString(), out _, out Command? command)
                 ? Task.CompletedTask
                 : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction, options));
         }
