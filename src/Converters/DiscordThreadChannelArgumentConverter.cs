@@ -39,7 +39,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             }
         }
 
-        [GeneratedRegex("^<#(\\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex(@"(\d+)|^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex ChannelRegexMethod();
     }
 }

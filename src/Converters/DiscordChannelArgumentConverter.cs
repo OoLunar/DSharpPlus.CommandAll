@@ -33,7 +33,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return Task.FromResult(channel is not null ? Optional.FromValue(channel) : Optional.FromNoValue<DiscordChannel>());
         }
 
-        [GeneratedRegex("^<#(\\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex(@"(\d+)|^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex ChannelRegexMethod();
     }
 }

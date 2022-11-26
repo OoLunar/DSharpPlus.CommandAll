@@ -70,7 +70,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return Optional.FromNoValue<DiscordUser>();
         }
 
-        [GeneratedRegex(@"^<@\\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex(@"(\d+)|^<@\\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex MemberRegexMethod();
     }
 }

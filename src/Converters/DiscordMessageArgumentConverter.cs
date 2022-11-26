@@ -13,7 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
     public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
     {
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Role;
-        private static readonly Regex RoleRegex = RoleRegexMethod();
+        private static readonly Regex MethodRegex = MessageRegexMethod();
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 return Optional.FromNoValue<DiscordMessage>();
             }
 
-            Match match = RoleRegex.Match(value);
+            Match match = MethodRegex.Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong messageId))
             {
                 return Optional.FromNoValue<DiscordMessage>();
@@ -69,6 +69,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
         }
 
         [GeneratedRegex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-        private static partial Regex RoleRegexMethod();
+        private static partial Regex MessageRegexMethod();
     }
 }

@@ -33,7 +33,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return Task.FromResult(role is not null ? Optional.FromValue(role) : Optional.FromNoValue<DiscordRole>());
         }
 
-        [GeneratedRegex(@"^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex(@"(\d+)|^<@&(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex RoleRegexMethod();
     }
 }

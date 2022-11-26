@@ -10,6 +10,7 @@ using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using Serilog;
 using Serilog.Events;
+using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
@@ -35,7 +36,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
             {
                 // Log both to console and the file
                 LoggerConfiguration loggerConfiguration = new();
-                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Information);
+                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Debug);
                 loggerConfiguration.WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}", theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
                 {
                     [ConsoleThemeStyle.Text] = "\x1b[0m",
@@ -61,6 +62,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
                     rollingInterval: RollingInterval.Day,
                     outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
                 );
+
+                loggerConfiguration.Filter.ByExcluding(Matching.FromSource("DSharpPlus"));
 
                 // Set Log.Logger for a static reference to the logger
                 Log.Logger = loggerConfiguration.CreateLogger();
@@ -96,6 +99,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
 
                 pingBuilder.Overloads[0].SlashMetadata.LocalizedNames.Add(CultureInfo.GetCultureInfo("ru-RU"), "пинг");
                 pingBuilder.Overloads[0].SlashMetadata.LocalizedDescriptions.Add(CultureInfo.GetCultureInfo("ru-RU"), "Проверяет, жив ли бот.");
+            }
+
+            CommandBuilder? pinnedMessageCountBuilder = eventArgs.CommandManager.CommandBuilders.Values.FirstOrDefault(x => x.Name == "pinned_message_count");
+            if (pinnedMessageCountBuilder is not null)
+            {
+                pinnedMessageCountBuilder.Overloads[0].Parameters[0].SlashMetadata.ChannelTypes = new List<ChannelType> { ChannelType.Text, ChannelType.News };
             }
             return Task.CompletedTask;
         }
