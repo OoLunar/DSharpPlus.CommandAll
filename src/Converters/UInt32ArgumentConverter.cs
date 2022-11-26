@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class UInt32ArgumentConverter : IArgumentConverter<uint>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Integer;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Integer;
 
         public Task<Optional<uint>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(uint.TryParse(value, out uint result) ? Optional.FromValue(result) : Optional.FromNoValue<uint>());
     }

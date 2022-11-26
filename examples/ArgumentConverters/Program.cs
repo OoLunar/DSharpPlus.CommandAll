@@ -65,7 +65,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
                 LoggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()
             });
 
-            CommandAllExtension extension = client.UseCommandAll(new(services)); // Register the extension
+            CommandAllExtension extension = client.UseCommandAll(new(services) // Register the extension
+            {
+                DebugGuildId = 832354798153236510
+            });
             extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
             extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
 

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
@@ -26,5 +29,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.Type.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
+
+        public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(overload.Command.Name.Underscore(), overload.Command.Description, ApplicationCommandOptionType.SubCommand, null, null, overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter));
     }
 }

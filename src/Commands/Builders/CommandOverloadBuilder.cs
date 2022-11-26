@@ -16,7 +16,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public List<CommandParameterBuilder> Parameters { get; set; } = new();
         public CommandOverloadFlags Flags { get; set; }
         public int Priority { get; set; }
-        public bool IsSlashPreferred { get; set; }
 
         [MemberNotNull(nameof(Method), nameof(Parameters))]
         public void Verify()
@@ -113,7 +112,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             if (methodInfo.GetCustomAttribute<CommandOverloadPriorityAttribute>() is CommandOverloadPriorityAttribute priorityAttribute)
             {
                 builder.Priority = priorityAttribute.Priority;
-                builder.IsSlashPreferred = priorityAttribute.IsSlashPreferred;
+                if (priorityAttribute.IsSlashPreferred)
+                {
+                    builder.Flags |= CommandOverloadFlags.SlashPreferred;
+                }
             }
             else
             {

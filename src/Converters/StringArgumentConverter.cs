@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class StringArgumentConverter : IArgumentConverter<string>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.String;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
 
         public Task<Optional<string>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(Optional.FromValue(value.ToString()));
     }

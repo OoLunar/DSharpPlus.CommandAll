@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
@@ -17,6 +18,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         void AddCommands(IEnumerable<Type> commandTypes);
 
         void BuildCommands();
+        IEnumerable<DiscordApplicationCommand> BuildSlashCommands();
 
         bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command);
     }

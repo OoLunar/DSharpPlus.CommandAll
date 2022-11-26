@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
@@ -47,5 +49,51 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         }
 
         public override string? ToString() => $"{FullName} {(Flags.HasFlag(CommandFlags.Disabled) ? "Disabled " : "")}({Overloads.Count} overloads, {Subcommands.Count} subcommands)";
+
+        public static explicit operator DiscordApplicationCommand(Command command)
+        {
+            List<DiscordApplicationCommandOption> subCommandAndGroups = new();
+
+            CommandOverload? overload = command.Overloads.FirstOrDefault(overload => overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred));
+            if (overload is not null)
+            {
+                subCommandAndGroups.Add((DiscordApplicationCommandOption)overload);
+            }
+
+            foreach (Command subcommand in command.Subcommands)
+            {
+                overload = subcommand.Overloads.FirstOrDefault(overload => overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred));
+                if (overload is not null)
+                {
+                    subCommandAndGroups.Add((DiscordApplicationCommandOption)overload);
+                }
+            }
+
+            return new DiscordApplicationCommand(command.Name.Underscore(), command.Description, subCommandAndGroups, defaultMemberPermissions: command.Flags.HasFlag(CommandFlags.Disabled) ? Permissions.Administrator : null);
+        }
+
+        // This means we're a subcommand group
+        public static explicit operator DiscordApplicationCommandOption(Command command)
+        {
+            List<DiscordApplicationCommandOption> subCommandAndGroups = new();
+
+            CommandOverload? overload = command.Overloads.FirstOrDefault(overload => overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred));
+            if (overload is not null)
+            {
+                subCommandAndGroups.Add((DiscordApplicationCommandOption)overload);
+            }
+
+            foreach (Command subcommand in command.Subcommands)
+            {
+                overload = subcommand.Overloads.FirstOrDefault(overload => overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred));
+                if (overload is not null)
+                {
+                    subCommandAndGroups.Add((DiscordApplicationCommandOption)overload);
+                }
+            }
+
+            return new DiscordApplicationCommandOption(command.Name.Underscore(), command.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, subCommandAndGroups);
+
+        }
     }
 }

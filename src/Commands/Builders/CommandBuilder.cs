@@ -33,7 +33,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             foreach (CommandOverloadBuilder overload in Overloads.OrderByDescending(overload => overload.Priority == 0 ? overload.Parameters.Count : overload.Priority))
             {
                 // If the overload is preferred by slash commands, it must have an index of 0.
-                if (overload.IsSlashPreferred)
+                if (overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred))
                 {
                     overloads.Insert(0, overload);
                     continue;
@@ -46,7 +46,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             // Set only the first element to be slash preferred.
             for (int i = 0; i < overloads.Count; i++)
             {
-                overloads[i].IsSlashPreferred = i == 0;
+                if (i == 0)
+                {
+                    overloads[i].Flags |= CommandOverloadFlags.SlashPreferred;
+                }
             }
             Overloads = overloads;
         }

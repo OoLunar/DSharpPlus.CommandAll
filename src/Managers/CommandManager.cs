@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
@@ -41,7 +42,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             }
         }
 
-        [MemberNotNull(nameof(Commands))]
         public void BuildCommands()
         {
             Dictionary<string, Command> commands = new();
@@ -112,6 +112,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
 
             rawArguments = string.Join(' ', split.Skip(i));
             return true;
+        }
+
+        public IEnumerable<DiscordApplicationCommand> BuildSlashCommands()
+        {
+            List<DiscordApplicationCommand> slashCommands = new();
+            foreach (Command command in Commands.Values.Distinct())
+            {
+                slashCommands.Add((DiscordApplicationCommand)command);
+            }
+            return slashCommands;
         }
     }
 }

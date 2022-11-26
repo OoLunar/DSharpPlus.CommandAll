@@ -56,6 +56,8 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         public readonly ITextArgumentParser TextArgumentParser;
 
+        public readonly ulong DebugGuildId;
+
         public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
         private readonly AsyncEvent<CommandAllExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", TimeSpan.MaxValue, EverythingWentWrongErrorHandler);
 
@@ -84,6 +86,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             CommandExecutor = configuration.CommandExecutor;
             PrefixParser = configuration.PrefixParser;
             TextArgumentParser = configuration.TextArgumentParser;
+            DebugGuildId = configuration.DebugGuildId;
 
             // Add the default converters to the argument converter manager.
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
@@ -135,7 +138,14 @@ namespace OoLunar.DSharpPlus.CommandAll
             {
                 SaturateParametersRecursively(command);
             }
+
             CommandManager.BuildCommands();
+            IEnumerable<DiscordApplicationCommand> applicationCommands = CommandManager.BuildSlashCommands();
+#if DEBUG
+            await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId, applicationCommands);
+#else
+            await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
+#endif
 
             Client.MessageCreated += DiscordClient_MessageCreatedAsync;
             Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
@@ -165,10 +175,20 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         /// <param name="client">Unused.</param>
         /// <param name="eventArgs">Used to determine if the interaction is an application command and conditionally executes commands with the provided data.</param>
-        private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs) =>
-            eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(eventArgs.Interaction.Data.Name, out _, out Command? command)
+        private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
+        {
+            string commandName = eventArgs.Interaction.Data.Name;
+            IEnumerable<DiscordInteractionDataOption> options = eventArgs.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+            while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand)
+            {
+                commandName += $" {options.First().Name}";
+                options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+            }
+
+            return eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(commandName, out _, out Command? command)
                 ? Task.CompletedTask
-                : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction));
+                : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction, options));
+        }
 
         private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
 

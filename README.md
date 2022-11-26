@@ -11,7 +11,7 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 | Feature                           | Currently Supported |
 | --------------------------------- | ------------------- |
 | Text Commands                     | Yes                 |
-| Slash Commands                    | No                  |
+| Slash Commands                    | Yes                 |
 | Command Aliases                   | Yes                 |
 | Generated Aliases                 | Yes                 |
 | Command Groups                    | Yes                 |

@@ -6,7 +6,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Arguments
 {
     public interface IArgumentConverter
     {
-        static abstract ApplicationCommandOptionType Type { get; }
+        static abstract ApplicationCommandOptionType OptionType { get; }
         Task<IOptional> ConvertAsync(CommandContext context, CommandParameter parameter, string value);
     }
 }

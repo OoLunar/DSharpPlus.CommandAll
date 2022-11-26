@@ -18,6 +18,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         public IPrefixParser PrefixParser { get; set; }
         public ITextArgumentParser TextArgumentParser { get; set; }
         public char[] QuoteCharacters { get; set; }
+        public ulong DebugGuildId { get; set; }
 
         public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
         {

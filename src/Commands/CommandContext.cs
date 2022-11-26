@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -34,9 +35,34 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public bool IsSlashCommand => Interaction != null;
         private readonly ILogger<CommandContext> _logger;
 
-        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
+        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
         {
+            CurrentOverload = currentCommand.Overloads[0];
+            NamedArguments = new Dictionary<string, object?>();
+            foreach (DiscordInteractionDataOption? option in options)
+            {
+                foreach (CommandParameter parameter in CurrentOverload.Parameters)
+                {
+                    if (parameter.Name.Underscore() == option.Name)
+                    {
+                        if (option.Value is null)
+                        {
+                            if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
+                            {
+                                _logger.LogDebug("Skipping optional parameter {Parameter} because it was not provided", parameter);
+                                NamedArguments.Add(parameter.Name, parameter.DefaultValue);
+                                continue;
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Not enough arguments were provided.", nameof(interaction));
+                            }
+                        }
 
+                        Convert(parameter, option.Value);
+                    }
+                }
+            }
         }
 
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordMessage message, string rawArguments) : this(message.Channel, message.Author, null, message, message.Channel.Guild, message.Author as DiscordMember, extension, currentCommand, rawArguments)
@@ -69,31 +95,36 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                         }
                     }
 
-                    if (ActivatorUtilities.CreateInstance(extension.ServiceProvider, param.ArgumentConverterType!) is not IArgumentConverter converter)
-                    {
-                        throw new InvalidOperationException($"Failed to create an instance of {param.ArgumentConverterType}. Does the argument converter have a public constructor? Were all the services able to be resolved?");
-                    }
-
-                    _logger.LogTrace("Converting argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
-                    Task<IOptional> optionalTask = converter.ConvertAsync(this, param, arg);
-                    optionalTask.Wait();
-                    if (!optionalTask.IsCompletedSuccessfully)
-                    {
-                        throw new InvalidOperationException($"Failed to convert argument {arg} to type {param.Type}.", optionalTask.Exception);
-                    }
-                    else if (optionalTask.Result.HasValue)
-                    {
-                        _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
-                        NamedArguments.Add(param.Name, optionalTask.Result.RawValue);
-                    }
-                    else if (param.Flags.HasFlag(CommandParameterFlags.Optional))
-                    {
-                        _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", param);
-                        NamedArguments.Add(param.Name, param.DefaultValue);
-                    }
+                    Convert(param, arg);
                 }
 
                 _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
+            }
+        }
+
+        private void Convert(CommandParameter param, object? arg)
+        {
+            if (ActivatorUtilities.CreateInstance(Extension.ServiceProvider, param.ArgumentConverterType!) is not IArgumentConverter converter)
+            {
+                throw new InvalidOperationException($"Failed to create an instance of {param.ArgumentConverterType}. Does the argument converter have a public constructor? Were all the services able to be resolved?");
+            }
+
+            _logger.LogTrace("Converting argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
+            Task<IOptional> optionalTask = converter.ConvertAsync(this, param, arg?.ToString() ?? string.Empty);
+            optionalTask.Wait();
+            if (!optionalTask.IsCompletedSuccessfully)
+            {
+                throw new InvalidOperationException($"Failed to convert argument {arg} to type {param.Type}.", optionalTask.Exception);
+            }
+            else if (optionalTask.Result.HasValue)
+            {
+                _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
+                NamedArguments.Add(param.Name, optionalTask.Result.RawValue);
+            }
+            else if (param.Flags.HasFlag(CommandParameterFlags.Optional))
+            {
+                _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", param);
+                NamedArguments.Add(param.Name, param.DefaultValue);
             }
         }
 

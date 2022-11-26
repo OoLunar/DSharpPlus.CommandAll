@@ -11,7 +11,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordChannelArgumentConverter : IArgumentConverter<DiscordChannel>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Channel;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Channel;
         private static readonly Regex ChannelRegex = ChannelRegexMethod();
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]

@@ -6,6 +6,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
     public enum CommandOverloadFlags
     {
         None = 0,
-        Disabled = 1 << 1
+        Disabled = 1 << 1,
+        SlashPreferred = 1 << 2,
     }
 }

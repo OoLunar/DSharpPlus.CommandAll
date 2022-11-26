@@ -8,7 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed class FloatArgumentConverter : IArgumentConverter<float>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.Number;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Number;
 
         public Task<Optional<float>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(float.TryParse(value, out float result) ? Optional.FromValue(result) : Optional.FromNoValue<float>());
     }

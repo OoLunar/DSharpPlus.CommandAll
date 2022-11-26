@@ -9,7 +9,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters.ArgumentConv
 {
     public sealed class UlidArgumentConverter : IArgumentConverter<Ulid>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.String;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
 
         public Task<Optional<Ulid>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Ulid.TryParse(value, out Ulid ulid)
             ? Task.FromResult(Optional.FromValue(ulid))

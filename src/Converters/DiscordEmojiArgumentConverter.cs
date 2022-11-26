@@ -9,7 +9,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordEmojiArgumentConverter : IArgumentConverter<DiscordEmoji>
     {
-        public static ApplicationCommandOptionType Type { get; } = ApplicationCommandOptionType.String;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public Task<Optional<DiscordEmoji>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
