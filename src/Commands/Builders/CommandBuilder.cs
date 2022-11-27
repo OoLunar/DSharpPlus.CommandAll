@@ -167,7 +167,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 builders = null;
                 return false;
             }
-            else if (typeof(BaseCommand).IsAssignableTo(type))
+            else if (!typeof(BaseCommand).IsAssignableFrom(type))
             {
                 error = new InvalidCastException($"The type {type.FullName} must be assignable from {nameof(BaseCommand)}!");
                 builders = null;

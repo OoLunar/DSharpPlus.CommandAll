@@ -49,7 +49,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
                     return await ExecuteErrorHandlerAsync(context, commandObject, beforeTask.Exception!.InnerExceptions[0]);
                 }
 
-                _logger.LogDebug("{CommandName}: Executing command overload {Overload} with {Arguments}...", context.CurrentCommand.Name, context.CurrentOverload.Method, string.Join(", ", context.NamedArguments.Select(x => x.ToString())));
+                _logger.LogDebug("{CommandName}: Executing command overload {Overload} with {Arguments}...", context.CurrentCommand.Name, context.CurrentOverload.Method, string.Join(", ", context.NamedArguments.Values.Select(x => x?.ToString())));
                 Task commandTask = (Task)context.CurrentOverload.Method.Invoke(commandObject, context.NamedArguments.Values.Prepend(context).ToArray())!;
                 await commandTask;
                 if (!commandTask.IsCompletedSuccessfully)

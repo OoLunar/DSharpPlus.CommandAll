@@ -43,7 +43,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         {
             foreach (Type type in types)
             {
-                if (!type.IsNested && CommandBuilder.TryParse(type, out IEnumerable<CommandBuilder>? commandBuilders))
+                if (type.IsNested || type.IsAbstract || type.IsInterface)
+                {
+                    continue;
+                }
+
+                if (CommandBuilder.TryParse(type, out IEnumerable<CommandBuilder>? commandBuilders, out Exception? error))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {
@@ -56,6 +61,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                             CommandBuilders.Add(commandBuilder.Name!, commandBuilder);
                         }
                     }
+                }
+                else if (typeof(BaseCommand).IsAssignableFrom(type))
+                {
+                    _logger.LogError(error, "Unable to parse {Type}", type);
                 }
             }
         }

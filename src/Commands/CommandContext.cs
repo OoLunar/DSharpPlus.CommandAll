@@ -1,10 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -66,7 +67,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The arguments that were passed to the command.
         /// </summary>
-        public readonly IDictionary<string, object?> NamedArguments;
+        public readonly IDictionary<CommandParameter, object?> NamedArguments;
 
         /// <summary>
         /// The arguments that were passed to the command, in a string form.
@@ -99,36 +100,62 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
         {
             CurrentOverload = currentCommand.Overloads[0];
-            NamedArguments = new Dictionary<string, object?>();
-            foreach (DiscordInteractionDataOption? option in options)
-            {
-                foreach (CommandParameter parameter in CurrentOverload.Parameters)
-                {
-                    if (parameter.Name.Underscore() == option.Name)
-                    {
-                        if (option.Value is null)
-                        {
-                            if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
-                            {
-                                _logger.LogDebug("Skipping optional parameter {Parameter} because it was not provided", parameter);
-                                NamedArguments.Add(parameter.Name, parameter.DefaultValue);
-                                continue;
-                            }
-                            else
-                            {
-                                throw new ArgumentException("Not enough arguments were provided.", nameof(interaction));
-                            }
-                        }
+            NamedArguments = new Dictionary<CommandParameter, object?>();
 
-                        Convert(parameter, option.Value);
+            DiscordInteractionDataOption[] arguments = options.ToArray();
+            for (int i = 0; i < arguments.Length; i++)
+            {
+                CommandParameter parameter = i < CurrentOverload.Parameters.Count ? CurrentOverload.Parameters[i] : CurrentOverload.Parameters[^1];
+                IOptional optional = Convert(parameter!, arguments[i]);
+                object? value;
+                if (optional.HasValue)
+                {
+                    _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arguments[i], parameter!.ParameterInfo.ParameterType);
+                    value = optional.RawValue;
+                }
+                else if (parameter!.Flags.HasFlag(CommandParameterFlags.Optional) && parameter.DefaultValue.HasValue)
+                {
+                    _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", parameter);
+                    value = parameter.DefaultValue.Value;
+                }
+                else
+                {
+                    throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(options));
+                }
+
+                if (parameter.Flags.HasFlag(CommandParameterFlags.Params))
+                {
+                    if (NamedArguments.TryGetValue(parameter, out object? existing))
+                    {
+                        if (existing is IList list)
+                        {
+                            list[arguments.Length - i - 1] = value;
+                        }
+                    }
+                    else
+                    {
+                        IList list = Array.CreateInstance(parameter.ParameterInfo.ParameterType.GetElementType()!, arguments.Length - i);
+                        list[arguments.Length - i - 1] = value;
+                        NamedArguments.Add(parameter, list);
                     }
                 }
+                else
+                {
+                    NamedArguments.Add(parameter, value);
+                }
             }
+
+            if (NamedArguments.Values.Last() is Array array)
+            {
+                Array.Reverse(array);
+            }
+
         }
 
         /// <summary>
         /// Creates a new <see cref="CommandContext"/> from a text command message.
         /// </summary>
+        [SuppressMessage("Roslyn", "IDE0045", Justification = "Clarity on an already confusing assignment in if statement.")]
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordMessage message, string rawArguments) : this(message.Channel, message.Author, null, message, message.Channel.Guild, message.Author as DiscordMember, extension, currentCommand, rawArguments)
         {
             if (!extension.TextArgumentParser.TryExtractArguments(extension, rawArguments, out IReadOnlyList<string> arguments))
@@ -142,24 +169,51 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             else
             {
                 CurrentOverload = overload;
-                IEnumerable<(CommandParameter, string)> namedArguments = overload.Parameters.Zip(arguments.Union(new string[overload.Parameters.Count - arguments.Count]), (param, arg) => (param, arg));
-                foreach ((CommandParameter param, string? arg) in namedArguments)
+                for (int i = 0; i < arguments.Count; i++)
                 {
-                    if (arg is null)
+                    CommandParameter parameter = i < CurrentOverload.Parameters.Count ? CurrentOverload.Parameters[i] : CurrentOverload.Parameters[^1];
+                    IOptional optional = Convert(parameter!, arguments[i]);
+                    object? value;
+                    if (optional.HasValue)
                     {
-                        if (param.Flags.HasFlag(CommandParameterFlags.Optional))
+                        _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arguments[i], parameter!.ParameterInfo.ParameterType);
+                        value = optional.RawValue;
+                    }
+                    else if (parameter!.Flags.HasFlag(CommandParameterFlags.Optional) && parameter.DefaultValue.HasValue)
+                    {
+                        _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", parameter);
+                        value = parameter.DefaultValue.Value;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(rawArguments));
+                    }
+
+                    if (parameter.Flags.HasFlag(CommandParameterFlags.Params))
+                    {
+                        if (NamedArguments.TryGetValue(parameter, out object? existing))
                         {
-                            _logger.LogDebug("Skipping optional parameter {Parameter} because it was not provided", param);
-                            NamedArguments.Add(param.Name, param.DefaultValue);
-                            continue;
+                            if (existing is IList list)
+                            {
+                                list[arguments.Count - i - 1] = value;
+                            }
                         }
                         else
                         {
-                            throw new ArgumentException("Not enough arguments were provided.", nameof(rawArguments));
+                            IList list = Array.CreateInstance(parameter.ParameterInfo.ParameterType.GetElementType()!, arguments.Count - i);
+                            list[arguments.Count - i - 1] = value;
+                            NamedArguments.Add(parameter, list);
                         }
                     }
+                    else
+                    {
+                        NamedArguments.Add(parameter, value);
+                    }
+                }
 
-                    Convert(param, arg);
+                if (NamedArguments.Values.Last() is Array array)
+                {
+                    Array.Reverse(array);
                 }
 
                 _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
@@ -169,7 +223,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// <summary>
         /// Creates a new instance of the parameter's argument converter and attempts to convert the argument.
         /// </summary>
-        private void Convert(CommandParameter param, object? arg)
+        private IOptional Convert(CommandParameter param, object? arg)
         {
             if (ActivatorUtilities.CreateInstance(Extension.ServiceProvider, param.ArgumentConverterType!) is not IArgumentConverter converter)
             {
@@ -179,20 +233,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             _logger.LogTrace("Converting argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
             Task<IOptional> optionalTask = converter.ConvertAsync(this, param, arg?.ToString() ?? string.Empty);
             optionalTask.Wait();
-            if (!optionalTask.IsCompletedSuccessfully)
-            {
-                throw new InvalidOperationException($"Failed to convert argument {arg} to type {param.ParameterInfo.ParameterType}.", optionalTask.Exception);
-            }
-            else if (optionalTask.Result.HasValue)
-            {
-                _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arg, param.ParameterInfo.ParameterType);
-                NamedArguments.Add(param.Name, optionalTask.Result.RawValue);
-            }
-            else if (param.Flags.HasFlag(CommandParameterFlags.Optional))
-            {
-                _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", param);
-                NamedArguments.Add(param.Name, param.DefaultValue);
-            }
+            return !optionalTask.IsCompletedSuccessfully
+                ? Optional.FromNoValue<object?>()
+                : optionalTask.Result;
         }
 
         /// <summary>
@@ -210,7 +253,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             CurrentCommand = currentCommand;
             CurrentOverload = null!; // This will be overriden by both constructors that call this one.
             RawArguments = rawArguments;
-            NamedArguments = new Dictionary<string, object?>();
+            NamedArguments = new Dictionary<CommandParameter, object?>();
             _logger = extension.ServiceProvider.GetService<ILogger<CommandContext>>() ?? NullLogger<CommandContext>.Instance;
         }
 

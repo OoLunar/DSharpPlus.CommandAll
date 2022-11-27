@@ -74,14 +74,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 error = new PropertyNullException(nameof(ParameterInfo));
                 return false;
             }
-            else if (Flags.HasFlag(CommandParameterFlags.Params) && !Flags.HasFlag(CommandParameterFlags.Optional))
-            {
-                error = new InvalidPropertyStateException(nameof(Flags), $"The {nameof(CommandParameterFlags.Params)} flag must have the {nameof(CommandParameterFlags.Optional)} flag set.");
-                return false;
-            }
-            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.GetType()))
+            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.Value!.GetType()))
             {
                 error = new InvalidPropertyTypeException(nameof(DefaultValue), DefaultValue.GetType(), ParameterInfo.ParameterType.GetType());
+                return false;
+            }
+            else if (ParameterInfo.ParameterType.IsArray && !Flags.HasFlag(CommandParameterFlags.Params))
+            {
+                error = new InvalidPropertyStateException(nameof(Flags), "Parameter is an array, but Flags does not contain Params. Add the 'params' keyword to the parameter to fix this.");
                 return false;
             }
             else if (ArgumentConverterType is not null)
@@ -91,6 +91,25 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 {
                     error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>));
                     return false;
+                }
+
+                if (Flags.HasFlag(CommandParameterFlags.Params))
+                {
+                    if (!Flags.HasFlag(CommandParameterFlags.Optional))
+                    {
+                        error = new InvalidPropertyStateException(nameof(Flags), $"The {nameof(CommandParameterFlags.Params)} flag must have the {nameof(CommandParameterFlags.Optional)} flag set.");
+                        return false;
+                    }
+                    else if (!ParameterInfo.ParameterType.IsArray)
+                    {
+                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array if the {nameof(CommandParameterFlags.Params)} flag is set.");
+                        return false;
+                    }
+                    else if (!ParameterInfo.ParameterType.GetElementType()!.IsAssignableFrom(argumentConverterInterface.GetGenericArguments()[0]))
+                    {
+                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array of the type {argumentConverterInterface.GetGenericArguments()[0]} if the {nameof(CommandParameterFlags.Params)} flag is set.");
+                        return false;
+                    }
                 }
                 else if (argumentConverterInterface.GenericTypeArguments[0] != ParameterInfo.ParameterType)
                 {
@@ -107,7 +126,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         /// Attempts to parse a <see cref="CommandParameter"/> from a <see cref="ParameterInfo"/>.
         /// </summary>
         /// <param name="parameterInfo">The <see cref="ParameterInfo"/> to parse.</param>
-        public static CommandParameterBuilder Parse(ParameterInfo parameterInfo) => TryParse(parameterInfo, out CommandParameterBuilder? commandParameterBuilder) ? commandParameterBuilder : throw new ArgumentException("Parameter is not a valid command parameter.", nameof(parameterInfo));
+        public static CommandParameterBuilder Parse(ParameterInfo parameterInfo) => TryParse(parameterInfo, out CommandParameterBuilder? commandParameterBuilder, out Exception? error) ? commandParameterBuilder : throw error;
 
         /// <inheritdoc cref="Parse(ParameterInfo)"/>
         /// <param name="commandParameterBuilder">The <see cref="CommandParameterBuilder"/> that was parsed.</param>
@@ -152,7 +171,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                         builder.SlashMetadata.ChannelTypes = channelTypes.ChannelTypes.ToList();
                         break;
                     case ParamArrayAttribute:
-                        builder.Flags |= CommandParameterFlags.Params;
+                        builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
+                        builder.DefaultValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, 0);
                         break;
                 }
             }
