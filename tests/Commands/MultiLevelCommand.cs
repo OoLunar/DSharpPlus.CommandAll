@@ -12,7 +12,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests.Commands
         public static Task ExecuteAsync(CommandContext context) => Task.CompletedTask;
 
         [Command("group"), Description("Group description.")]
-        public sealed class GroupCommand
+        public sealed class GroupCommand : BaseCommand
         {
             [Command("subcommand"), Description("Subcommand description.")]
             public static Task ExecuteAsync(CommandContext context) => Task.CompletedTask;
