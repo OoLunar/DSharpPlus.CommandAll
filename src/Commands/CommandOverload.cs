@@ -10,15 +10,46 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
+    /// <summary>
+    /// A command overload.
+    /// </summary>
     public sealed class CommandOverload
     {
+        /// <summary>
+        /// The command this overload belongs to.
+        /// </summary>
         public readonly Command Command;
+
+        /// <summary>
+        /// The method this overload calls.
+        /// </summary>
         public readonly MethodInfo Method;
+
+        /// <summary>
+        /// The parameters of this overload, NOT including the command context parameter.
+        /// </summary>
         public readonly IReadOnlyList<CommandParameter> Parameters;
+
+        /// <summary>
+        /// The flags of this overload.
+        /// </summary>
         public readonly CommandOverloadFlags Flags;
+
+        /// <summary>
+        /// The priority of this overload. If this overload is <see cref="CommandOverloadFlags.SlashPreferred"/>, this will be set to 0.
+        /// </summary>
         public readonly int Priority;
+
+        /// <summary>
+        /// The slash metadata of this overload.
+        /// </summary>
         public readonly CommandSlashMetadata SlashMetadata;
 
+        /// <summary>
+        /// Creates a new command overload.
+        /// </summary>
+        /// <param name="builder">The builder used to create this overload.</param>
+        /// <param name="command">The command this overload belongs to.</param>
         public CommandOverload(CommandOverloadBuilder builder, Command command)
         {
             builder.Verify();
@@ -30,7 +61,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             SlashMetadata = new(builder.SlashMetadata);
         }
 
-        public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.Type.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
+        public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.ParameterInfo.ParameterType.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
 
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(
             overload.Command.Name.Underscore(),

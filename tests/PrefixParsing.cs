@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OoLunar.DSharpPlus.CommandAll.Parsers;
@@ -9,9 +8,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
     public sealed class PrefixParsing
     {
         private readonly IPrefixParser _parser = new PrefixParser(">>", "!", "hey bot,");
-        private readonly CommandAllExtension _extension;
-
-        public PrefixParsing() => _extension = (CommandAllExtension)typeof(CommandAllExtension).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).First().Invoke(new[] { new CommandAllConfiguration() });
+        private readonly CommandAllExtension _extension = (CommandAllExtension)typeof(CommandAllExtension).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0].Invoke(new[] { new CommandAllConfiguration() });
 
         [TestMethod]
         public void SingleChar()

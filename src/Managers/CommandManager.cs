@@ -10,22 +10,40 @@ using OoLunar.DSharpPlus.CommandAll.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
+    /// <inheritdoc cref="ICommandManager" />
     public class CommandManager : ICommandManager
     {
+        /// <inheritdoc />
         public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
+
+        /// <inheritdoc />
         public Dictionary<string, CommandBuilder> CommandBuilders { get; set; } = new();
+
+        /// <summary>
+        /// Used to log when a command is or isn't found.
+        /// </summary>
         private readonly ILogger<CommandManager> _logger = NullLogger<CommandManager>.Instance;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="CommandManager"/>.
+        /// </summary>
         public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? NullLogger<CommandManager>.Instance;
 
+        /// <inheritdoc />
         public void AddCommand<T>() where T : BaseCommand => AddCommand(typeof(T));
-        public void AddCommand(Type commandType) => AddCommands(new[] { commandType });
+
+        /// <inheritdoc />
+        public void AddCommand(Type type) => AddCommands(new[] { type });
+
+        /// <inheritdoc />
         public void AddCommands(Assembly assembly) => AddCommands(assembly.GetExportedTypes());
-        public void AddCommands(IEnumerable<Type> commandTypes)
+
+        /// <inheritdoc />
+        public void AddCommands(IEnumerable<Type> types)
         {
-            foreach (Type commandType in commandTypes)
+            foreach (Type type in types)
             {
-                if (!commandType.IsNested && CommandBuilder.TryParse(commandType, out IEnumerable<CommandBuilder>? commandBuilders))
+                if (!type.IsNested && CommandBuilder.TryParse(type, out IEnumerable<CommandBuilder>? commandBuilders))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {
@@ -42,6 +60,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             }
         }
 
+        /// <inheritdoc />
         public void BuildCommands()
         {
             Dictionary<string, Command> commands = new();
@@ -74,6 +93,18 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             Commands = commands;
         }
 
+        /// <inheritdoc />
+        public IEnumerable<DiscordApplicationCommand> BuildSlashCommands()
+        {
+            List<DiscordApplicationCommand> slashCommands = new();
+            foreach (Command command in Commands.Values.Distinct())
+            {
+                slashCommands.Add((DiscordApplicationCommand)command);
+            }
+            return slashCommands;
+        }
+
+        /// <inheritdoc />
         public bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command)
         {
             if (string.IsNullOrWhiteSpace(commandString))
@@ -114,14 +145,46 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             return true;
         }
 
-        public IEnumerable<DiscordApplicationCommand> BuildSlashCommands()
+        /// <inheritdoc />
+        public bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out CommandBuilder? commandBuilder)
         {
-            List<DiscordApplicationCommand> slashCommands = new();
-            foreach (Command command in Commands.Values.Distinct())
+            if (string.IsNullOrWhiteSpace(commandString))
             {
-                slashCommands.Add((DiscordApplicationCommand)command);
+                commandBuilder = null;
+                rawArguments = null;
+                return false;
             }
-            return slashCommands;
+            else if (CommandBuilders is null)
+            {
+                CommandBuilders = new();
+                commandBuilder = null;
+                rawArguments = null;
+                return false;
+            }
+
+            string[] split = commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (!CommandBuilders.TryGetValue(split[0], out commandBuilder))
+            {
+                rawArguments = null;
+                return false;
+            }
+
+            int i = 1; // Start at 1 because the first element is the command name. Incremented after each subcommand is found.
+            while (commandBuilder.Subcommands.Count != 0 && i < split.Length)
+            {
+                foreach (CommandBuilder subBuilder in commandBuilder.Subcommands)
+                {
+                    if (subBuilder.Aliases.Contains(split[i]))
+                    {
+                        commandBuilder = subBuilder;
+                        i++;
+                        break;
+                    }
+                }
+            }
+
+            rawArguments = string.Join(' ', split.Skip(i));
+            return true;
         }
     }
 }

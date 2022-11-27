@@ -20,6 +20,9 @@ using OoLunar.DSharpPlus.CommandAll.Parsers;
 
 namespace OoLunar.DSharpPlus.CommandAll
 {
+    /// <summary>
+    /// Because not everyone can decide between slash commands and text commands.
+    /// </summary>
     public sealed class CommandAllExtension : BaseExtension
     {
         /// <summary>
@@ -57,16 +60,28 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         public readonly ITextArgumentParser TextArgumentParser;
 
-        public readonly ulong DebugGuildId;
+        /// <summary>
+        /// When the project is built in debug mode, this is the guild that the extension will register slash commands too. If this is null, slash commands will not be registered.
+        /// </summary>
+        public readonly ulong? DebugGuildId;
 
+        /// <summary>
+        /// Executed everytime a command is finished executing.
+        /// </summary>
         public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
-        private readonly AsyncEvent<CommandAllExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
+        internal readonly AsyncEvent<CommandAllExtension, CommandExecutedEventArgs> _commandExecuted = new("COMMANDALL_COMMAND_EXECUTED", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
 
+        /// <summary>
+        /// Executed before registering slash commands.
+        /// </summary>
         public event AsyncEventHandler<CommandAllExtension, ConfigureCommandsEventArgs> ConfigureCommands { add => _configureCommands.Register(value); remove => _configureCommands.Unregister(value); }
-        private readonly AsyncEvent<CommandAllExtension, ConfigureCommandsEventArgs> _configureCommands = new("COMMANDALL_CONFIGURE_COMMANDS", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
+        internal readonly AsyncEvent<CommandAllExtension, ConfigureCommandsEventArgs> _configureCommands = new("COMMANDALL_CONFIGURE_COMMANDS", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
 
+        /// <summary>
+        /// Executed everytime a command errored and <see cref="BaseCommand.OnErrorAsync(CommandContext, Exception)"/> also errored.
+        /// </summary>
         public event AsyncEventHandler<CommandAllExtension, CommandErroredEventArgs> CommandErrored { add => _commandErrored.Register(value); remove => _commandErrored.Unregister(value); }
-        private readonly AsyncEvent<CommandAllExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
+        internal readonly AsyncEvent<CommandAllExtension, CommandErroredEventArgs> _commandErrored = new("COMMANDALL_COMMAND_ERRORED", TimeSpan.FromSeconds(-1), EverythingWentWrongErrorHandler);
 
         /// <summary>
         /// Used to log messages from this extension.
@@ -141,14 +156,23 @@ namespace OoLunar.DSharpPlus.CommandAll
             }
 
             CommandManager.BuildCommands();
+
+            Client.MessageCreated += DiscordClient_MessageCreatedAsync;
             IEnumerable<DiscordApplicationCommand> applicationCommands = CommandManager.BuildSlashCommands();
 #if DEBUG
-            await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId, applicationCommands);
+            // Don't register slash commands if the debug guild id is null.
+            if (DebugGuildId is not null)
+            {
+                await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands);
+            }
+            else
+            {
+                _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
+            }
 #else
             await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
 #endif
 
-            Client.MessageCreated += DiscordClient_MessageCreatedAsync;
             Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
             _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
         }
@@ -191,8 +215,20 @@ namespace OoLunar.DSharpPlus.CommandAll
                 : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction, options));
         }
 
+        /// <summary>
+        /// The event handler used to log all unhandled exceptions, usually from when <see cref="_commandErrored"/> itself errors.
+        /// </summary>
+        /// <param name="asyncEvent">The event that errored.</param>
+        /// <param name="error">The error that occurred.</param>
+        /// <param name="handler">The handler/method that errored.</param>
+        /// <param name="sender">The extension.</param>
+        /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
         private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
 
+        /// <summary>
+        /// Attempts to add argument converters to all parameters in the command.
+        /// </summary>
+        /// <param name="command">The command whose parameters to add argument converters too.</param>
         private void SaturateParametersRecursively(CommandBuilder commandBuilder)
         {
             foreach (CommandOverloadBuilder commandOverloadBuilder in commandBuilder.Overloads)

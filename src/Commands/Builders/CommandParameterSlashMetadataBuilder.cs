@@ -8,17 +8,36 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 {
+    /// <summary>
+    /// A builder for slash parameter metadata.
+    /// </summary>
     public sealed class CommandParameterSlashMetadataBuilder : ISlashMetadataBuilder
     {
+        /// <inheritdoc cref="CommandParameterSlashMetadata.LocalizedNames"/>
         public Dictionary<CultureInfo, string> LocalizedNames { get; set; } = new();
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.LocalizedDescriptions"/>
         public Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; } = new();
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.OptionType"/>
         public ApplicationCommandOptionType? OptionType { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.Choices"/>
         public List<DiscordApplicationCommandOptionChoice>? Choices { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.ChannelTypes"/>
         public List<ChannelType>? ChannelTypes { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.MinValue"/>
         public object? MinValue { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.MaxValue"/>
         public object? MaxValue { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.AutoCompleteProvider"/>
         public Type? AutoCompleteProvider { get; set; }
 
+        /// <inheritdoc/>
         public void Verify()
         {
             if (!TryVerify(out Exception? error))
@@ -27,7 +46,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             }
         }
 
+        /// <inheritdoc/>
         public bool TryVerify() => TryVerify(out _);
+
+        /// <inheritdoc/>
         public bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (OptionType is ApplicationCommandOptionType.SubCommand or ApplicationCommandOptionType.SubCommandGroup)

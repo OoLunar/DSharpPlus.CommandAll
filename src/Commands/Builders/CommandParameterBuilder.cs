@@ -12,16 +12,36 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 {
+    /// <summary>
+    /// A builder for a command parameter.
+    /// </summary>
     public sealed class CommandParameterBuilder : IBuilder
     {
+        /// <inheritdoc cref="CommandParameter.Name"/>
         public string? Name { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.Description"/>
         public string? Description { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.Flags"/>
         public CommandParameterFlags Flags { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.DefaultValue"/>
         public Optional<object?> DefaultValue { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.ArgumentConverterType"/>
+        /// <remarks>
+        /// This is could be null if not explicitly set by the user. Before <see cref="CommandAllExtension.ConfigureCommands"/> is called, <see cref="CommandAllExtension.ArgumentConverterManager"/> will be used to find the correct converter, if any. If no converter could be found, the constructor for <see cref="CommandParameter"/> will throw an exception.
+        /// </remarks>
         public Type? ArgumentConverterType { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.ParameterInfo"/>
         public ParameterInfo? ParameterInfo { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.SlashMetadata"/>
         public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; } = new();
 
+        /// <inheritdoc/>
         [MemberNotNull(nameof(Name), nameof(Description), nameof(ParameterInfo))]
         public void Verify()
         {
@@ -31,9 +51,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             }
         }
 
+        /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(ParameterInfo))]
         public bool TryVerify() => TryVerify(out _);
 
+        /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(ParameterInfo))]
         public bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
@@ -81,8 +103,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
+        /// <summary>
+        /// Attempts to parse a <see cref="CommandParameter"/> from a <see cref="ParameterInfo"/>.
+        /// </summary>
+        /// <param name="parameterInfo">The <see cref="ParameterInfo"/> to parse.</param>
         public static CommandParameterBuilder Parse(ParameterInfo parameterInfo) => TryParse(parameterInfo, out CommandParameterBuilder? commandParameterBuilder) ? commandParameterBuilder : throw new ArgumentException("Parameter is not a valid command parameter.", nameof(parameterInfo));
+
+        /// <inheritdoc cref="Parse(ParameterInfo)"/>
+        /// <param name="commandParameterBuilder">The <see cref="CommandParameterBuilder"/> that was parsed.</param>
+        /// <returns>Whether or not the <see cref="ParameterInfo"/> was successfully parsed.</returns>
         public static bool TryParse(ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder) => TryParse(parameterInfo, out builder, out _);
+
+        /// <inheritdoc cref="TryParse(ParameterInfo, out CommandParameterBuilder?)"/>
+        /// <param name="error">The error that occurred while parsing the <see cref="ParameterInfo"/>.</param>
         public static bool TryParse(ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (parameterInfo is null)

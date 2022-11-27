@@ -10,26 +10,40 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
+    /// <inheritdoc cref="IArgumentConverterManager" />
     public class ArgumentConverterManager : IArgumentConverterManager
     {
-        private static readonly Type _converterType = typeof(IArgumentConverter<>);
-
-        public IReadOnlyDictionary<Type, Type> TypeConverters => _typeConverters;
+        /// <inheritdoc />
+        public IReadOnlyDictionary<Type, Type> TypeConverters => _typeConverters.AsReadOnly();
         private readonly Dictionary<Type, Type> _typeConverters = new();
 
+        /// <summary>
+        /// Used to log when a type isn't an argument converter or a parameter cannot be assigned an argument converter.
+        /// </summary>
         private readonly ILogger<ArgumentConverterManager> _logger = NullLogger<ArgumentConverterManager>.Instance;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ArgumentConverterManager"/>.
+        /// </summary>
+        /// <param name="logger">The logger to use to overly complain about things.</param>
         public ArgumentConverterManager(ILogger<ArgumentConverterManager>? logger = null) => _logger = logger ?? NullLogger<ArgumentConverterManager>.Instance;
 
-        public void AddArgumentConverter(Type type) => AddArgumentConverters(new Type[] { type });
+        /// <inheritdoc />
         public void AddArgumentConverter<T>() where T : IArgumentConverter => AddArgumentConverter(typeof(T));
+
+        /// <inheritdoc />
+        public void AddArgumentConverter(Type type) => AddArgumentConverters(new Type[] { type });
+
+        /// <inheritdoc />
         public void AddArgumentConverters(Assembly assembly) => AddArgumentConverters(assembly.ExportedTypes);
+
+        /// <inheritdoc />
         public void AddArgumentConverters(IEnumerable<Type> types)
         {
             foreach (Type type in types)
             {
                 // Test if the type inherits from IArgumentConverter<T>
-                Type? argumentInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == _converterType);
+                Type? argumentInterface = type.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
                 if (argumentInterface is null)
                 {
                     _logger.LogDebug("Type {type} does not inherit from IArgumentConverter<T>, skipping adding it as an argument converter.", type);
@@ -45,6 +59,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             }
         }
 
+        /// <inheritdoc />
         public bool TrySaturateParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder> failedParameters)
         {
             List<CommandParameterBuilder> failed = new();

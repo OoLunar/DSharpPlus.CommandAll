@@ -11,18 +11,59 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
+    /// <summary>
+    /// A command parameter.
+    /// </summary>
     public sealed class CommandParameter
     {
+        /// <summary>
+        /// The name of the parameter.
+        /// </summary>
         public readonly string Name;
-        public readonly string Description;
-        public readonly CommandOverload Overload;
-        public readonly ParameterInfo ParameterInfo;
-        public readonly CommandParameterFlags Flags;
-        public readonly Optional<object?> DefaultValue;
-        public readonly Type ArgumentConverterType;
-        public readonly CommandParameterSlashMetadata SlashMetadata;
-        public Type Type => ParameterInfo.ParameterType;
 
+        /// <summary>
+        /// The description of the parameter.
+        /// </summary>
+        public readonly string Description;
+
+        /// <summary>
+        /// The overload that this parameter belongs too.
+        /// </summary>
+        public readonly CommandOverload Overload;
+
+        /// <summary>
+        /// The parameter info that this parameter is based off of.
+        /// </summary>
+        public readonly ParameterInfo ParameterInfo;
+
+        /// <summary>
+        /// The flags for this parameter.
+        /// </summary>
+        public readonly CommandParameterFlags Flags;
+
+        /// <summary>
+        /// The default value for this parameter, if any.
+        /// </summary>
+        public readonly Optional<object?> DefaultValue;
+
+        /// <summary>
+        /// The argument converter for this parameter.
+        /// </summary>
+        /// <remarks>
+        /// This is null when <see cref="Overload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
+        /// </remarks>
+        public readonly Type ArgumentConverterType;
+
+        /// <summary>
+        /// The slash metadata for this parameter.
+        /// </summary>
+        public readonly CommandParameterSlashMetadata SlashMetadata;
+
+        /// <summary>
+        /// Creates a new command parameter.
+        /// </summary>
+        /// <param name="builder">The builder used to create this parameter.</param>
+        /// <param name="overload">The overload that this parameter belongs too.</param>
         public CommandParameter(CommandParameterBuilder builder, CommandOverload overload)
         {
             builder.Verify();
@@ -42,7 +83,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             SlashMetadata = new(builder.SlashMetadata);
         }
 
-        public override string ToString() => $"{Overload.Command.FullName} {Type.Name} {Name}";
+        public override string ToString() => $"{Overload.Command.FullName} {ParameterInfo.ParameterType.Name} {Name}";
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.Name.Underscore(),
             parameter.Description,

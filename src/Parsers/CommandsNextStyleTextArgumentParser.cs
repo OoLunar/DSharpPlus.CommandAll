@@ -4,13 +4,19 @@ using System.Linq;
 
 namespace OoLunar.DSharpPlus.CommandAll.Parsers
 {
+    /// <inheritdoc cref="ITextArgumentParser"/>
     public class CommandsNextStyleTextArgumentParser : ITextArgumentParser
     {
+        /// The characters that can be used to quote arguments. Defaults to <see cref="CommandAllConfiguration.QuoteCharacters"/>.
         private readonly char[] _quoteCharacters;
 
+        /// <summary>
+        /// The configuration used to grab the quote characters.
+        /// </summary>
         public CommandsNextStyleTextArgumentParser(CommandAllConfiguration configuration) => _quoteCharacters = configuration.QuoteCharacters ?? throw new ArgumentNullException(nameof(configuration));
 
-        public bool TryExtractArguments(string message, out IReadOnlyList<string> arguments)
+        /// <inheritdoc/>
+        public bool TryExtractArguments(CommandAllExtension extension, string message, out IReadOnlyList<string> arguments)
         {
             if (message is null)
             {

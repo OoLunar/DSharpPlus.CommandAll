@@ -13,28 +13,89 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
+    /// <summary>
+    /// The context of a command.
+    /// </summary>
     public sealed class CommandContext
     {
+        /// <summary>
+        /// The channel the command was executed in.
+        /// </summary>
         public readonly DiscordChannel Channel;
+
+        /// <summary>
+        /// Who executed the command.
+        /// </summary>
         public readonly DiscordUser User;
 
+        /// <summary>
+        /// The interaction that triggered the command, if the command was executed via slash command.
+        /// </summary>
         public readonly DiscordInteraction? Interaction;
+
+        /// <summary>
+        /// The message that triggered the command, if the command was executed via a text command.
+        /// </summary>
         public readonly DiscordMessage? Message;
 
+        /// <summary>
+        /// The guild that the command was executed in, if any.
+        /// </summary>
         public readonly DiscordGuild? Guild;
+
+        /// <summary>
+        /// The <see cref="User"/> as a <see cref="DiscordMember"/>, if the command was executed in a guild.
+        /// </summary>
         public readonly DiscordMember? Member;
 
+        /// <summary>
+        /// The <see cref="CommandAllExtension"/> instance that handled the command parsing and execution.
+        /// </summary>
         public readonly CommandAllExtension Extension;
+
+        /// <summary>
+        /// The <see cref="Command"/> that is being executed.
+        /// </summary>
         public readonly Command CurrentCommand;
+
+        /// <summary>
+        /// The <see cref="CommandOverload"/> that is being executed.
+        /// </summary>
         public readonly CommandOverload CurrentOverload;
+
+        /// <summary>
+        /// The arguments that were passed to the command.
+        /// </summary>
         public readonly IDictionary<string, object?> NamedArguments;
+
+        /// <summary>
+        /// The arguments that were passed to the command, in a string form.
+        /// </summary>
         public readonly string RawArguments;
+
+        /// <summary>
+        /// If the interaction has been responded to, the value will be what interaction response type was used. Will often be <see cref="InteractionResponseType.DeferredChannelMessageWithSource"/> or <see cref="InteractionResponseType.DeferredMessageUpdate"/>.
+        /// </summary>
         public InteractionResponseType? LastInteractionResponseType { get; private set; }
 
+        /// <summary>
+        /// The client attached to the <see cref="Extension"/>.
+        /// </summary>
         public DiscordClient Client => Extension.Client;
+
+        /// <summary>
+        /// Whether the command was executed via slash command or not.
+        /// </summary>
         public bool IsSlashCommand => Interaction != null;
+
+        /// <summary>
+        /// Used to log complaints.
+        /// </summary>
         private readonly ILogger<CommandContext> _logger;
 
+        /// <summary>
+        /// Creates a new <see cref="CommandContext"/> from a slash command interaction.
+        /// </summary>
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
         {
             CurrentOverload = currentCommand.Overloads[0];
@@ -65,9 +126,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
+        /// <summary>
+        /// Creates a new <see cref="CommandContext"/> from a text command message.
+        /// </summary>
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordMessage message, string rawArguments) : this(message.Channel, message.Author, null, message, message.Channel.Guild, message.Author as DiscordMember, extension, currentCommand, rawArguments)
         {
-            if (!extension.TextArgumentParser.TryExtractArguments(rawArguments, out IReadOnlyList<string> arguments))
+            if (!extension.TextArgumentParser.TryExtractArguments(extension, rawArguments, out IReadOnlyList<string> arguments))
             {
                 throw new ArgumentException("Failed to parse arguments.", nameof(rawArguments));
             }
@@ -102,6 +166,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of the parameter's argument converter and attempts to convert the argument.
+        /// </summary>
         private void Convert(CommandParameter param, object? arg)
         {
             if (ActivatorUtilities.CreateInstance(Extension.ServiceProvider, param.ArgumentConverterType!) is not IArgumentConverter converter)
@@ -114,7 +181,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             optionalTask.Wait();
             if (!optionalTask.IsCompletedSuccessfully)
             {
-                throw new InvalidOperationException($"Failed to convert argument {arg} to type {param.Type}.", optionalTask.Exception);
+                throw new InvalidOperationException($"Failed to convert argument {arg} to type {param.ParameterInfo.ParameterType}.", optionalTask.Exception);
             }
             else if (optionalTask.Result.HasValue)
             {
@@ -128,7 +195,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
-        private CommandContext(DiscordChannel channel, DiscordUser user, DiscordInteraction? interaction, DiscordMessage? message, DiscordGuild? guild, DiscordMember? member, CommandAllExtension extension, Command currentCommand, string rawArguments)
+        /// <summary>
+        /// Attempts to create a <see cref="CommandContext"/>. This constructor can be used to create a fake context for testing purposes.
+        /// </summary>
+        public CommandContext(DiscordChannel channel, DiscordUser user, DiscordInteraction? interaction, DiscordMessage? message, DiscordGuild? guild, DiscordMember? member, CommandAllExtension extension, Command currentCommand, string rawArguments)
         {
             Channel = channel;
             User = user;
@@ -144,6 +214,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             _logger = extension.ServiceProvider.GetService<ILogger<CommandContext>>() ?? NullLogger<CommandContext>.Instance;
         }
 
+        /// <summary>
+        /// Responds to the command with a message.
+        /// </summary>
+        /// <remarks>
+        /// If the command was invoked via a text command and <paramref name="messageBuilder"/> does not have a reply message set, the message that invoked the command will be set as the reply.
+        /// </remarks>
+        /// <param name="messageBuilder">The message to send.</param>
         public Task ReplyAsync(DiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
@@ -171,6 +248,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
+        /// <summary>
+        /// Responds to the command by letting the user know that the command is still being processed.
+        /// </summary>
+        /// <remarks>
+        /// If the command was invoked via a text command, the bot will instead start "typing" in the channel.
+        /// </remarks>
         public Task DelayAsync()
         {
             if (IsSlashCommand)
@@ -187,6 +270,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
+        /// <summary>
+        /// Edits the original response to the command.
+        /// </summary>
+        /// <param name="messageBuilder">The new message content.</param>
         public Task EditAsync(DiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
@@ -210,6 +297,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
+        /// <summary>
+        /// Deletes the original response to the command.
+        /// </summary>
         public Task DeleteAsync()
         {
             if (IsSlashCommand)

@@ -7,18 +7,64 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
+    /// <summary>
+    /// A command. This can be a top level command, subcommand and/or group command.
+    /// </summary>
     public sealed class Command
     {
+        /// <summary>
+        /// The name of the command.
+        /// </summary>
         public readonly string Name;
+
+        /// <summary>
+        /// The description of the command.
+        /// </summary>
         public readonly string Description;
+
+        /// <summary>
+        /// The command's parent, if any.
+        /// </summary>
         public readonly Command? Parent;
+
+        /// <summary>
+        /// The command's overloads, if any.
+        /// </summary>
+        /// <remarks>
+        /// The overload registered as the slash command will always be the first overload in this list.
+        /// </remarks>
         public readonly IReadOnlyList<CommandOverload> Overloads;
+
+        /// <summary>
+        /// The command's subcommands or subcommand groups, if any.
+        /// </summary>
         public readonly IReadOnlyList<Command> Subcommands;
+
+        /// <summary>
+        /// The command's aliases.
+        /// </summary>
         public readonly IReadOnlyList<string> Aliases;
+
+        /// <summary>
+        /// The command's flags.
+        /// </summary>
         public readonly CommandFlags Flags;
+
+        /// <summary>
+        /// The command's slash metadata.
+        /// </summary>
         public readonly CommandSlashMetadata SlashMetadata;
+
+        /// <summary>
+        /// The command's name concatenated with its parents.
+        /// </summary>
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
 
+        /// <summary>
+        /// Creates a new command.
+        /// </summary>
+        /// <param name="builder">The command builder.</param>
+        /// <param name="parent">The command's parent, if any.</param>
         public Command(CommandBuilder builder, Command? parent = null)
         {
             builder.Verify();
@@ -31,12 +77,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
                 string trimmed = alias.Trim();
                 builder.Aliases.Add(trimmed.Pascalize());
+                builder.Aliases.Add(trimmed.Pascalize().ToLowerInvariant());
                 builder.Aliases.Add(trimmed.Kebaberize());
                 builder.Aliases.Add(trimmed.Camelize());
                 builder.Aliases.Add(trimmed.Underscore());
             };
 
             Name = builder.Name!.Trim().Pascalize();
+            builder.Aliases.Add(Name.ToLowerInvariant());
             builder.Aliases.Add(Name.Kebaberize());
             builder.Aliases.Add(Name.Camelize());
             builder.Aliases.Add(Name.Underscore());

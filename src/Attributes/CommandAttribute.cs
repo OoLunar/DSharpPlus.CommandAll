@@ -3,9 +3,9 @@ using System;
 namespace OoLunar.DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
-    /// Marks a method as a command or a class as a subcommand.
+    /// Marks a class or method as a (sub)command or group.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
     public sealed class CommandAttribute : Attribute
     {
         /// <summary>

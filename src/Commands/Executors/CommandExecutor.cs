@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.EventArgs;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
 {
+    /// <inheritdoc cref="ICommandExecutor"/>
     public class CommandExecutor : ICommandExecutor
     {
         /// <summary>
@@ -28,38 +31,70 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
         /// <returns>Whether the command executed successfully without any uncaught exceptions.</returns>
         public virtual Task<bool> ExecuteAsync(CommandContext context)
         {
-            Task.Run(async () =>
+            if (context.CurrentOverload.Flags.HasFlag(CommandOverloadFlags.Disabled))
+            {
+                return Task.FromResult(false);
+            }
+
+            _ = Task.Run(async () =>
             {
                 // Constructor DI only
                 BaseCommand commandObject = (BaseCommand)ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, context.CurrentOverload.Method.DeclaringType!);
-                try
+
+                _logger.LogTrace("{CommandName}: Executing before execution check.", context.CurrentCommand.Name);
+                Task beforeTask = commandObject.BeforeExecutionAsync(context);
+                await beforeTask;
+                if (!beforeTask.IsCompletedSuccessfully)
                 {
-                    _logger.LogTrace("{CommandName}: Executing before execution check.", context.CurrentCommand.Name);
-                    await commandObject.BeforeExecutionAsync(context);
-                    _logger.LogDebug("{CommandName}: Executing command with {Arguments}...", context.CurrentCommand.Name, string.Join(", ", context.NamedArguments.Select(x => x.ToString())));
-                    _logger.LogTrace("{CommandName}: Executing command overload {OverloadName}...", context.CurrentCommand.Name, context.CurrentOverload.Method);
-                    await (Task)context.CurrentOverload.Method.Invoke(commandObject, context.NamedArguments.Values.Prepend(context).ToArray())!;
-                    _logger.LogTrace("{CommandName}: Executing after command async.", context.CurrentCommand.Name);
-                    await commandObject.AfterExecutionAsync(context);
+                    return await ExecuteErrorHandlerAsync(context, commandObject, beforeTask.Exception!.InnerExceptions[0]);
                 }
-                catch (Exception error)
+
+                _logger.LogDebug("{CommandName}: Executing command overload {Overload} with {Arguments}...", context.CurrentCommand.Name, context.CurrentOverload.Method, string.Join(", ", context.NamedArguments.Select(x => x.ToString())));
+                Task commandTask = (Task)context.CurrentOverload.Method.Invoke(commandObject, context.NamedArguments.Values.Prepend(context).ToArray())!;
+                await commandTask;
+                if (!commandTask.IsCompletedSuccessfully)
                 {
-                    try
-                    {
-                        _logger.LogTrace("{CommandName}: Executing error handler...", context.CurrentCommand.Name);
-                        await commandObject.OnErrorAsync(context, error);
-                    }
-                    catch (Exception error2)
-                    {
-                        _logger.LogError(error2, "An uncaught exception was thrown by {CommandName}'s error handler.", context.CurrentCommand.Name);
-                        return false;
-                    }
+                    return await ExecuteErrorHandlerAsync(context, commandObject, commandTask.Exception!.InnerExceptions[0]);
+                }
+
+                _logger.LogTrace("{CommandName}: Executing after command async.", context.CurrentCommand.Name);
+                Task afterTask = commandObject.AfterExecutionAsync(context);
+                await afterTask;
+                if (!afterTask.IsCompletedSuccessfully)
+                {
+                    return await ExecuteErrorHandlerAsync(context, commandObject, afterTask.Exception!.InnerExceptions[0]);
                 }
 
                 _logger.LogDebug("{CommandName}: Command executed successfully.", context.CurrentCommand.Name);
                 return true;
             });
+
             return Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Attempts to execute <see cref="BaseCommand.OnErrorAsync(CommandContext, Exception)"/>. If that method is not implemented or throws an exception, <see cref="CommandAllExtension._commandErrored"/> is invoked. If that fails, then exception is logged.
+        /// </summary>
+        private async Task<bool> ExecuteErrorHandlerAsync(CommandContext context, BaseCommand commandObject, Exception error)
+        {
+            _logger.LogTrace("{CommandName}: Executing error handler...", context.CurrentCommand.Name);
+            Task errorTask = commandObject.OnErrorAsync(context, error);
+            await errorTask;
+            if (!errorTask.IsCompletedSuccessfully)
+            {
+                if (errorTask.Exception!.InnerException is NotImplementedException)
+                {
+                    await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs(context, error));
+                }
+                else
+                {
+                    _logger.LogError(errorTask.Exception, "{CommandName}: Error handler threw an exception.", context.CurrentCommand.Name);
+                    await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs(context, errorTask.Exception!.InnerException!));
+                }
+                return false;
+            }
+
+            return true;
         }
     }
 }

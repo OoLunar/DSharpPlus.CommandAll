@@ -8,16 +8,27 @@ using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 {
+    /// <summary>
+    /// A builder for command overloads.
+    /// </summary>
     public sealed class CommandOverloadBuilder : IBuilder
     {
-        private static readonly Type _commandContextType = typeof(CommandContext);
-
+        /// <inheritdoc cref="CommandOverload.Method"/>
         public MethodInfo Method { get; set; } = null!;
+
+        /// <inheritdoc cref="CommandOverload.Parameters"/>
         public List<CommandParameterBuilder> Parameters { get; set; } = new();
+
+        /// <inheritdoc cref="CommandOverload.Flags"/>
         public CommandOverloadFlags Flags { get; set; }
+
+        /// <inheritdoc cref="CommandOverload.Priority"/>
         public int Priority { get; set; }
+
+        /// <inheritdoc cref="CommandOverload.SlashMetadata"/>
         public CommandSlashMetadataBuilder SlashMetadata { get; set; } = new(true);
 
+        /// <inheritdoc/>
         [MemberNotNull(nameof(Method), nameof(Parameters))]
         public void Verify()
         {
@@ -27,9 +38,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             }
         }
 
+        /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Method), nameof(Parameters))]
         public bool TryVerify() => TryVerify(out _);
 
+        /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Method), nameof(Parameters))]
         public bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
@@ -67,8 +80,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
+        /// <summary>
+        /// Attempts to parse a command overload from a method.
+        /// </summary>
+        /// <param name="method">The method to parse.</param>
         public static CommandOverloadBuilder Parse(MethodInfo methodInfo) => TryParse(methodInfo, out CommandOverloadBuilder? overload, out Exception? error) ? overload : throw error;
+
+        /// <inheritdoc cref="Parse(MethodInfo)"/>
+        /// <param name="builder">The parsed command overload.</param>
+        /// <returns>Whether the overload was parsed successfully.</returns>
         public static bool TryParse(MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder) => TryParse(methodInfo, out builder, out _);
+
+        /// <inheritdoc cref="TryParse(MethodInfo, out CommandOverloadBuilder?)"/>
+        /// <param name="error">The error that occurred while parsing the overload.</param>
         public static bool TryParse(MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (methodInfo is null)
@@ -92,7 +116,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 ParameterInfo parameter = parameters[i];
                 if (i == 0)
                 {
-                    if (!_commandContextType.IsAssignableTo(parameter.ParameterType))
+                    if (!typeof(CommandContext).IsAssignableTo(parameter.ParameterType))
                     {
                         error = new InvalidPropertyStateException(nameof(Parameters), "The command context parameter must not be included in the parameter list!");
                         builder = null;
