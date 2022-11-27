@@ -127,6 +127,10 @@ namespace OoLunar.DSharpPlus.CommandAll
             }
 
             Client = client;
+            if (!Client.Intents.HasFlag(DiscordIntents.MessageContents))
+            {
+                _logger.LogError("The client is missing the MessageContents intent, which is required for text commands to execute.");
+            }
 
             // If the client has already been initialized, register the event handlers.
             if (Client.Guilds.Count != 0)

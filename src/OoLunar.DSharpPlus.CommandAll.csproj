@@ -9,9 +9,13 @@
     <Description>An extension for DSharpPlus to allow for text and slash commands to be used with a single base.</Description>
     <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
     <Authors>OoLunar</Authors>
+    <Version>1.0.0</Version>
+    <PackageProjectUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01183" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01188" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
