@@ -14,7 +14,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         public CommandParsing()
         {
             Extension.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
-            Extension.ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
             Extension.ArgumentConverterManager.TrySaturateParameters(Extension.CommandManager.CommandBuilders.Values.SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
             Extension.CommandManager.BuildCommands();
         }
