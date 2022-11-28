@@ -27,7 +27,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
         public int Priority { get; set; }
 
         /// <inheritdoc cref="CommandOverload.SlashMetadata"/>
-        public CommandSlashMetadataBuilder SlashMetadata { get; set; }
+        public CommandOverloadSlashMetadataBuilder SlashMetadata { get; set; }
 
         /// <inheritdoc/>
         public CommandOverloadBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);

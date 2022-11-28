@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Converters
 {

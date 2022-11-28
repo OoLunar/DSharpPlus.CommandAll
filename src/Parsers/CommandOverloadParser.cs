@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Parsers
 {

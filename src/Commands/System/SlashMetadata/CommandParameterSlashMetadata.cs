@@ -5,7 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
 {
     /// <summary>
     /// Slash command metadata for a command parameter.

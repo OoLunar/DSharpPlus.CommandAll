@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Parsers
 {

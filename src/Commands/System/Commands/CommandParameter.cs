@@ -7,9 +7,10 @@ using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 {
     /// <summary>
     /// A command parameter.

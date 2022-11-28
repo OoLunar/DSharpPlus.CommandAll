@@ -5,6 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
 {

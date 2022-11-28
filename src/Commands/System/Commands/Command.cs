@@ -6,8 +6,9 @@ using DSharpPlus.Entities;
 using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 {
     /// <summary>
     /// A command. This can be a top level command, subcommand and/or group command.

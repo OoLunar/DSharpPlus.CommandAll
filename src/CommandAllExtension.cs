@@ -15,6 +15,7 @@ using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using OoLunar.DSharpPlus.CommandAll.Managers;
 using OoLunar.DSharpPlus.CommandAll.Parsers;

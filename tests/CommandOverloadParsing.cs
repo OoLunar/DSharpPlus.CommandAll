@@ -1,8 +1,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Managers;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Tests
 {
@@ -14,9 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         public CommandOverloadParsing()
         {
             CommandBuilder command = CommandBuilder.Parse(Extension, typeof(Commands.EchoCommand)).First();
-            ArgumentConverterManager argumentConverterManager = new();
-            argumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
-            argumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
+            Extension.ArgumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
             EchoCommand = new Command(command);
         }
 

@@ -7,8 +7,9 @@ using DSharpPlus.Entities;
 using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 {
     /// <summary>
     /// A command overload.
@@ -43,7 +44,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The slash metadata of this overload.
         /// </summary>
-        public readonly CommandSlashMetadata SlashMetadata;
+        public readonly CommandOverloadSlashMetadata SlashMetadata;
 
         /// <summary>
         /// The name that's used when registering this parameter with Discord.

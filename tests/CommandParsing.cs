@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.Tests.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Tests
