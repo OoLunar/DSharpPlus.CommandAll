@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
@@ -30,16 +31,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? NullLogger<CommandManager>.Instance;
 
         /// <inheritdoc />
-        public void AddCommand<T>() where T : BaseCommand => AddCommand(typeof(T));
+        public void AddCommand<T>(CommandAllExtension extension) where T : BaseCommand => AddCommand(extension, typeof(T));
 
         /// <inheritdoc />
-        public void AddCommand(Type type) => AddCommands(new[] { type });
+        public void AddCommand(CommandAllExtension extension, Type type) => AddCommands(extension, new[] { type });
 
         /// <inheritdoc />
-        public void AddCommands(Assembly assembly) => AddCommands(assembly.GetExportedTypes());
+        public void AddCommands(CommandAllExtension extension, Assembly assembly) => AddCommands(extension, assembly.GetExportedTypes());
 
         /// <inheritdoc />
-        public void AddCommands(IEnumerable<Type> types)
+        public void AddCommands(CommandAllExtension extension, IEnumerable<Type> types)
         {
             foreach (Type type in types)
             {
@@ -48,7 +49,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                     continue;
                 }
 
-                if (CommandBuilder.TryParse(type, out IEnumerable<CommandBuilder>? commandBuilders, out Exception? error))
+                if (CommandBuilder.TryParse(extension, type, out IEnumerable<CommandBuilder>? commandBuilders, out Exception? error))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {

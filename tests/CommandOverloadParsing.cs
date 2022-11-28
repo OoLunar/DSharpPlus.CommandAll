@@ -1,20 +1,19 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Managers;
-using OoLunar.DSharpPlus.CommandAll.Parsers;
 
 namespace OoLunar.DSharpPlus.CommandAll.Tests
 {
     [TestClass]
-    public sealed class CommandOverloadParsing
+    public sealed class CommandOverloadParsing : BaseTestClass
     {
-        private readonly ICommandOverloadParser _parser = new CommandOverloadParser();
         private readonly Command EchoCommand;
 
         public CommandOverloadParsing()
         {
-            CommandBuilder command = CommandBuilder.Parse(typeof(Commands.EchoCommand)).First();
+            CommandBuilder command = CommandBuilder.Parse(Extension, typeof(Commands.EchoCommand)).First();
             ArgumentConverterManager argumentConverterManager = new();
             argumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
             argumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
@@ -24,7 +23,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tests
         [TestMethod]
         public void SingleOverload()
         {
-            Assert.IsTrue(_parser.TryParseOverload(EchoCommand, new[] { "hello world" }, out CommandOverload? overload));
+            Assert.IsTrue(Extension.CommandOverloadParser.TryParseOverload(EchoCommand, new[] { "hello world" }, out CommandOverload? overload));
             Assert.IsNotNull(overload);
             Assert.AreEqual(1, overload.Parameters.Count);
             Assert.AreEqual(EchoCommand.Overloads[0], overload);

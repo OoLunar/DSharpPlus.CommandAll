@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
@@ -56,6 +58,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandSlashMetadata SlashMetadata;
 
         /// <summary>
+        /// The name that's used when registering this parameter with Discord.
+        /// </summary>
+        public readonly string SlashName;
+
+        /// <summary>
         /// The command's name concatenated with its parents.
         /// </summary>
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
@@ -89,12 +96,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             builder.Aliases.Add(Name.Camelize());
             builder.Aliases.Add(Name.Underscore());
 
-            Description = builder.Description!;
+            Description = builder.Description.Truncate(100);
             Parent = parent;
             Overloads = builder.Overloads.Select(overloadBuilder => new CommandOverload(overloadBuilder, this)).ToList().AsReadOnly();
             Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();
             Aliases = builder.Aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
+
+            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
+            {
+                CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
+                CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
+                CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
+                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
+            };
+
             SlashMetadata = new(builder.SlashMetadata);
         }
 
@@ -120,7 +136,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
 
             return new DiscordApplicationCommand(
-                command.Name.Underscore(),
+                command.SlashName,
                 command.Description,
                 subCommandAndGroups.Count == 1 ? subCommandAndGroups[0].Options : subCommandAndGroups,
                 null,
@@ -153,7 +169,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
 
             return new DiscordApplicationCommandOption(
-                command.Name.Underscore(),
+                command.SlashName,
                 command.Description,
                 ApplicationCommandOptionType.SubCommandGroup,
                 null, null,

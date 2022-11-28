@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
@@ -10,11 +10,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
     /// </summary>
     public sealed class CommandSlashMetadata
     {
-        /// <summary>
-        /// Whether the metadata is meant for a command or a subcommand.
-        /// </summary>
-        public bool IsSubcommand { get; set; }
-
         /// <summary>
         /// The guild ID to register the command for. If null, the command will be registered globally.
         /// </summary>
@@ -48,7 +43,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandSlashMetadata(CommandSlashMetadataBuilder builder)
         {
             builder.Verify();
-            IsSubcommand = builder.IsSubcommand;
             GuildId = builder.GuildId;
             RequiredPermissions = builder.RequiredPermissions;
             LocalizedNames = builder.LocalizedNames;

@@ -1,24 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
+namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 {
     /// <summary>
     /// A builder for slash parameter metadata.
     /// </summary>
     public sealed class CommandParameterSlashMetadataBuilder : ISlashMetadataBuilder
     {
-        /// <inheritdoc cref="CommandParameterSlashMetadata.LocalizedNames"/>
-        public Dictionary<CultureInfo, string> LocalizedNames { get; set; } = new();
-
-        /// <inheritdoc cref="CommandParameterSlashMetadata.LocalizedDescriptions"/>
-        public Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; } = new();
-
         /// <inheritdoc cref="CommandParameterSlashMetadata.OptionType"/>
         public ApplicationCommandOptionType? OptionType { get; set; }
 
@@ -38,7 +31,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public Type? AutoCompleteProvider { get; set; }
 
         /// <inheritdoc/>
-        public void Verify()
+        public CommandParameterSlashMetadataBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) { }
+
+        /// <inheritdoc/>
+        public override void Verify()
         {
             if (!TryVerify(out Exception? error))
             {
@@ -47,10 +43,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         }
 
         /// <inheritdoc/>
-        public bool TryVerify() => TryVerify(out _);
+        public override bool TryVerify() => TryVerify(out _);
 
         /// <inheritdoc/>
-        public bool TryVerify([NotNullWhen(false)] out Exception? error)
+        public override bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (OptionType is ApplicationCommandOptionType.SubCommand or ApplicationCommandOptionType.SubCommandGroup)
             {

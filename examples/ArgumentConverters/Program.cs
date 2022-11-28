@@ -76,7 +76,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
                 DebugGuildId = debugGuildId // Which guild to register the debug slash commands to.
             });
             extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
-            extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
+            extension.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
 
             await client.ConnectAsync();
             await Task.Delay(-1);

@@ -7,15 +7,16 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
+namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 {
     /// <summary>
     /// A builder for a command parameter.
     /// </summary>
-    public sealed class CommandParameterBuilder : IBuilder
+    public sealed class CommandParameterBuilder : Builder
     {
         /// <inheritdoc cref="CommandParameter.Name"/>
         public string? Name { get; set; }
@@ -39,11 +40,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public ParameterInfo? ParameterInfo { get; set; }
 
         /// <inheritdoc cref="CommandParameter.SlashMetadata"/>
-        public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; } = new();
+        public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; }
+
+        /// <inheritdoc/>
+        public CommandParameterBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);
 
         /// <inheritdoc/>
         [MemberNotNull(nameof(Name), nameof(Description), nameof(ParameterInfo))]
-        public void Verify()
+        public override void Verify()
         {
             if (!TryVerify(out Exception? error))
             {
@@ -53,11 +57,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(ParameterInfo))]
-        public bool TryVerify() => TryVerify(out _);
+        public override bool TryVerify() => TryVerify(out _);
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(ParameterInfo))]
-        public bool TryVerify([NotNullWhen(false)] out Exception? error)
+        public override bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
@@ -126,16 +130,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         /// Attempts to parse a <see cref="CommandParameter"/> from a <see cref="ParameterInfo"/>.
         /// </summary>
         /// <param name="parameterInfo">The <see cref="ParameterInfo"/> to parse.</param>
-        public static CommandParameterBuilder Parse(ParameterInfo parameterInfo) => TryParse(parameterInfo, out CommandParameterBuilder? commandParameterBuilder, out Exception? error) ? commandParameterBuilder : throw error;
+        public static CommandParameterBuilder Parse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo) => TryParse(commandAllExtension, parameterInfo, out CommandParameterBuilder? commandParameterBuilder, out Exception? error) ? commandParameterBuilder : throw error;
 
         /// <inheritdoc cref="Parse(ParameterInfo)"/>
         /// <param name="commandParameterBuilder">The <see cref="CommandParameterBuilder"/> that was parsed.</param>
         /// <returns>Whether or not the <see cref="ParameterInfo"/> was successfully parsed.</returns>
-        public static bool TryParse(ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder) => TryParse(parameterInfo, out builder, out _);
+        public static bool TryParse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder) => TryParse(commandAllExtension, parameterInfo, out builder, out _);
 
         /// <inheritdoc cref="TryParse(ParameterInfo, out CommandParameterBuilder?)"/>
         /// <param name="error">The error that occurred while parsing the <see cref="ParameterInfo"/>.</param>
-        public static bool TryParse(ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder, [NotNullWhen(false)] out Exception? error)
+        public static bool TryParse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (parameterInfo is null)
             {
@@ -144,12 +148,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 return false;
             }
 
-            builder = new()
+            builder = new(commandAllExtension)
             {
                 Name = parameterInfo.Name!,
                 ParameterInfo = parameterInfo,
                 DefaultValue = parameterInfo.DefaultValue is DBNull ? Optional.FromNoValue<object?>() : Optional.FromValue(parameterInfo.DefaultValue),
-                SlashMetadata = new()
+                SlashMetadata = new(commandAllExtension)
             };
 
             foreach (object attribute in parameterInfo.GetCustomAttributes())

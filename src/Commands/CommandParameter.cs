@@ -5,7 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
@@ -60,6 +60,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandParameterSlashMetadata SlashMetadata;
 
         /// <summary>
+        /// The name that's used when registering this parameter with Discord.
+        /// </summary>
+        public readonly string SlashName;
+
+        /// <summary>
         /// Creates a new command parameter.
         /// </summary>
         /// <param name="builder">The builder used to create this parameter.</param>
@@ -81,12 +86,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             ArgumentConverterType = builder.ArgumentConverterType!;
             builder.SlashMetadata.OptionType = ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType? ?? throw new PropertyNullException(nameof(ArgumentConverterType));
             SlashMetadata = new(builder.SlashMetadata);
+            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
+            {
+                CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
+                CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
+                CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
+                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
+            };
         }
 
         public override string ToString() => $"{Overload.Command.FullName} {ParameterInfo.ParameterType.Name} {Name}";
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
-            parameter.Name.Underscore(),
-            parameter.Description,
+            parameter.SlashName,
+            parameter.Description.Truncate(100),
             parameter.SlashMetadata.OptionType,
             parameter.DefaultValue.HasValue,
             parameter.SlashMetadata.Choices,

@@ -6,16 +6,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// A builder for slash command metadata.
     /// </summary>
-    public interface ISlashMetadataBuilder : IBuilder
+    public abstract class ISlashMetadataBuilder : Builder
     {
         /// <summary>
         /// The localized names of the command, subcommand or command parameter.
         /// </summary>
-        Dictionary<CultureInfo, string> LocalizedNames { get; set; }
+        public Dictionary<CultureInfo, string> LocalizedNames { get; set; } = new();
 
         /// <summary>
         /// The localized descriptions of the command, subcommand or command parameter.
         /// </summary>
-        Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; }
+        public Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; } = new();
+
+        /// <inheritdoc/>
+        protected ISlashMetadataBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) { }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
@@ -66,6 +67,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         public readonly ulong? DebugGuildId;
 
         /// <summary>
+        /// The strategy used when naming slash commands. Defaults to <see cref="CommandParameterNamingStrategy.SnakeCase"/>.
+        /// </summary>
+        public readonly CommandParameterNamingStrategy ParameterNamingStrategy;
+
+        /// <summary>
         /// Executed everytime a command is finished executing.
         /// </summary>
         public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
@@ -103,6 +109,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             PrefixParser = configuration.PrefixParser;
             TextArgumentParser = configuration.TextArgumentParser;
             DebugGuildId = configuration.DebugGuildId;
+            ParameterNamingStrategy = configuration.ParameterNamingStrategy;
 
             // Add the default converters to the argument converter manager.
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
@@ -142,6 +149,11 @@ namespace OoLunar.DSharpPlus.CommandAll
                 Client.Ready += DiscordClient_ReadyAsync;
             }
         }
+
+        public void AddCommand<T>() where T : BaseCommand => CommandManager.AddCommand<T>(this);
+        public void AddCommand(Type type) => CommandManager.AddCommand(this, type);
+        public void AddCommands(Assembly assembly) => CommandManager.AddCommands(this, assembly);
+        public void AddCommands(params Type[] types) => CommandManager.AddCommands(this, types);
 
         /// <summary>
         /// Registers the event handlers that are used to handle commands. This is called when the <see cref="Client"/> is ready.
@@ -196,7 +208,7 @@ namespace OoLunar.DSharpPlus.CommandAll
                 return;
             }
 
-            await CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Message, rawArguments));
+            _ = await CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Message, rawArguments));
         }
 
         /// <summary>
@@ -210,7 +222,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             IEnumerable<DiscordInteractionDataOption> options = eventArgs.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand)
             {
-                commandName.AppendFormat(" {0}", options.First().Name);
+                _ = commandName.AppendFormat(" {0}", options.First().Name);
                 options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             }
 

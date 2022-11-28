@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using Serilog;
 using Serilog.Events;
@@ -82,7 +82,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
                 DebugGuildId = debugGuildId // Which guild to register the debug slash commands to.
             });
             extension.ArgumentConverterManager.AddArgumentConverters(typeof(Program).Assembly); // Register all argument converters in the assembly
-            extension.CommandManager.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
+            extension.AddCommands(typeof(Program).Assembly); // Add all commands in this assembly
             extension.ConfigureCommands += TranslateCommands;
 
             await client.ConnectAsync();

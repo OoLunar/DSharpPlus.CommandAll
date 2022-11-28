@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
@@ -29,23 +30,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         /// Searches a singular type for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
         /// </summary>
         /// <typeparam name="T">The type to search for commands.</typeparam>
-        void AddCommand<T>() where T : BaseCommand;
+        void AddCommand<T>(CommandAllExtension extension) where T : BaseCommand;
 
         /// <inheritdoc cref="AddCommand{T}"/>
         /// <param name="type">The type to search for commands.</param>
-        void AddCommand(Type type);
+        void AddCommand(CommandAllExtension extension, Type type);
 
         /// <summary>
         /// Searches an assembly for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
         /// </summary>
         /// <param name="assembly">The assembly to search for commands.</param>
-        void AddCommands(Assembly assembly);
+        void AddCommands(CommandAllExtension extension, Assembly assembly);
 
         /// <summary>
         /// Searches a collection of types for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
         /// </summary>
         /// <param name="types">The types to search for commands.</param>
-        void AddCommands(IEnumerable<Type> types);
+        void AddCommands(CommandAllExtension extension, IEnumerable<Type> types);
 
         /// <summary>
         /// Builds the commands from the <see cref="CommandBuilders"/> dictionary, copying the built commands to the <see cref="Commands"/> dictionary.

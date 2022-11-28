@@ -5,7 +5,7 @@ using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
@@ -46,6 +46,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public readonly CommandSlashMetadata SlashMetadata;
 
         /// <summary>
+        /// The name that's used when registering this parameter with Discord.
+        /// </summary>
+        public readonly string SlashName;
+
+        /// <summary>
         /// Creates a new command overload.
         /// </summary>
         /// <param name="builder">The builder used to create this overload.</param>
@@ -59,13 +64,20 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             Flags = builder.Flags;
             Parameters = builder.Parameters.Select(parameterBuilder => new CommandParameter(parameterBuilder, this)).ToArray();
             SlashMetadata = new(builder.SlashMetadata);
+            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
+            {
+                CommandParameterNamingStrategy.SnakeCase => Command.Name.Underscore(),
+                CommandParameterNamingStrategy.KebabCase => Command.Name.Kebaberize(),
+                CommandParameterNamingStrategy.LowerCase => Command.Name.ToLowerInvariant(),
+                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
+            };
         }
 
         public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.ParameterInfo.ParameterType.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
 
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(
-            overload.Command.Name.Underscore(),
-            overload.Command.Description,
+            overload.SlashName,
+            overload.Command.Description.Truncate(100),
             ApplicationCommandOptionType.SubCommand,
             null, null,
             overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter),

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {

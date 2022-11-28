@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
 using OoLunar.DSharpPlus.CommandAll.Managers;
 using OoLunar.DSharpPlus.CommandAll.Parsers;
@@ -57,6 +58,9 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// The guild id used when registering slash commands in debug mode. If not set, slash commands will not be registered.
         /// </summary>
         public ulong? DebugGuildId { get; set; }
+
+        /// <inheritdoc cref="CommandParameterNamingStrategy"/>
+        public CommandParameterNamingStrategy ParameterNamingStrategy { get; set; } = CommandParameterNamingStrategy.SnakeCase;
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandAllConfiguration"/> to be copied by the <see cref="CommandAllExtension"/>.

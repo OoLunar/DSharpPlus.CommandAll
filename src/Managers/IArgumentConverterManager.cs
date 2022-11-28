@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {

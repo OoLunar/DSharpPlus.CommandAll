@@ -5,16 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 {
     /// <summary>
     /// Used to build a new top level command, subcommand or subcommand group.
     /// </summary>
-    public sealed class CommandBuilder : IBuilder
+    public sealed class CommandBuilder : Builder
     {
         /// <inheritdoc cref="Command.Name"/>
         public string? Name { get; set; }
@@ -35,7 +35,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandFlags Flags { get; set; }
 
         /// <inheritdoc cref="Command.SlashMetadata"/>
-        public CommandSlashMetadataBuilder SlashMetadata { get; set; } = new(false);
+        public CommandSlashMetadataBuilder SlashMetadata { get; set; }
+
+        /// <inheritdoc/>
+        public CommandBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);
 
         /// <summary>
         /// Organizes the command's overloads, sorting it from the overload priority, then by the number of parameters.
@@ -74,7 +77,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
         /// <inheritdoc/>
         [MemberNotNull(nameof(Name), nameof(Description))]
-        public void Verify()
+        public override void Verify()
         {
             if (!TryVerify(out Exception? error))
             {
@@ -84,11 +87,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description))]
-        public bool TryVerify() => TryVerify(out _);
+        public override bool TryVerify() => TryVerify(out _);
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Name), nameof(Description))]
-        public bool TryVerify([NotNullWhen(false)] out Exception? error)
+        public override bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
@@ -143,23 +146,24 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// Parses a type into a command builder through reflection and recursion.
         /// </summary>
         /// <param name="type">The type to parse.</param>
-        public static IEnumerable<CommandBuilder> Parse(Type type) => TryParse(type, 0, out IEnumerable<CommandBuilder>? builders, out Exception? error) ? builders : throw error;
+        /// <param name="commandAllExtension">The command all extension.</param>
+        public static IEnumerable<CommandBuilder> Parse(CommandAllExtension commandAllExtension, Type type) => TryParse(commandAllExtension, type, 0, out IEnumerable<CommandBuilder>? builders, out Exception? error) ? builders : throw error;
 
         /// <inheritdoc cref="Parse(Type)"/>
         /// <param name="builders">The command builders that were parsed.</param>
         /// <returns>Whether or not the type was parsed successfully.</returns>
-        public static bool TryParse(Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders) => TryParse(type, 0, out builders, out _);
+        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders) => TryParse(commandAllExtension, type, 0, out builders, out _);
 
         /// <inheritdoc cref="TryParse(Type, out IEnumerable{CommandBuilder}?)"/>
         /// <param name="error">The error that occurred, if any.</param>
-        public static bool TryParse(Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error) => TryParse(type, 0, out builders, out error);
+        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error) => TryParse(commandAllExtension, type, 0, out builders, out error);
 
         /// <inheritdoc cref="TryParse(Type, out IEnumerable{CommandBuilder}?, out Exception?)"/>
         /// <remarks>
         /// If you cannot comprehend the magic of recursion, you should NOT attempt to modify it. You have been warned.
         /// </remarks>
         /// <param name="recursionLevel">The current level of recursion. Should never exceed 2. Remember this is zero based.</param>
-        private static bool TryParse(Type type, int? recursionLevel, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error)
+        private static bool TryParse(CommandAllExtension commandAllExtension, Type type, int? recursionLevel, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error)
         {
             if (type is null)
             {
@@ -189,7 +193,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 if (method.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
                 {
                     // The method was marked with the command attribute which means there is a user error if it fails.
-                    if (!CommandOverloadBuilder.TryParse(method, out CommandOverloadBuilder? overload, out error))
+                    if (!CommandOverloadBuilder.TryParse(commandAllExtension, method, out CommandOverloadBuilder? overload, out error))
                     {
                         builders = null;
                         return false;
@@ -202,7 +206,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             List<CommandBuilder> commandBuilders = new();
             foreach (IGrouping<string, KeyValuePair<string, CommandOverloadBuilder>> value in overloads.GroupBy(x => x.Key))
             {
-                CommandBuilder builder = new() { Overloads = new(value.Select(x => x.Value)) };
+                CommandBuilder builder = new(commandAllExtension) { Overloads = new(value.Select(x => x.Value)) };
                 builder.NormalizeOverloadPriorities();
                 builder.Name = value.Key;
 
@@ -221,7 +225,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             // Parse subcommands
             foreach (Type subType in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
-                if (!TryParse(subType, recursionLevel + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
+                if (!TryParse(commandAllExtension, subType, recursionLevel + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
                 {
                     builders = null;
                     return false;
@@ -238,7 +242,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             // If the whole thing is a group command and this is the top level, then we need to mark this as a group command. If it isn't, then the subcommand parsing done above will automatically mark the results as a group command for us.
             else if (type.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
             {
-                CommandBuilder builder = new()
+                CommandBuilder builder = new(commandAllExtension)
                 {
                     Name = commandAttribute.Name,
                     Description = type.GetCustomAttribute<DescriptionAttribute>()?.Description,

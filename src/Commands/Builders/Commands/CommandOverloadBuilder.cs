@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
+namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 {
     /// <summary>
     /// A builder for command overloads.
     /// </summary>
-    public sealed class CommandOverloadBuilder : IBuilder
+    public sealed class CommandOverloadBuilder : Builder
     {
         /// <inheritdoc cref="CommandOverload.Method"/>
         public MethodInfo Method { get; set; } = null!;
@@ -26,11 +27,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public int Priority { get; set; }
 
         /// <inheritdoc cref="CommandOverload.SlashMetadata"/>
-        public CommandSlashMetadataBuilder SlashMetadata { get; set; } = new(true);
+        public CommandSlashMetadataBuilder SlashMetadata { get; set; }
+
+        /// <inheritdoc/>
+        public CommandOverloadBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);
 
         /// <inheritdoc/>
         [MemberNotNull(nameof(Method), nameof(Parameters))]
-        public void Verify()
+        public override void Verify()
         {
             if (!TryVerify(out Exception? error))
             {
@@ -40,11 +44,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Method), nameof(Parameters))]
-        public bool TryVerify() => TryVerify(out _);
+        public override bool TryVerify() => TryVerify(out _);
 
         /// <inheritdoc/>
         [MemberNotNullWhen(true, nameof(Method), nameof(Parameters))]
-        public bool TryVerify([NotNullWhen(false)] out Exception? error)
+        public override bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (Method is null)
             {
@@ -84,16 +88,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         /// Attempts to parse a command overload from a method.
         /// </summary>
         /// <param name="method">The method to parse.</param>
-        public static CommandOverloadBuilder Parse(MethodInfo methodInfo) => TryParse(methodInfo, out CommandOverloadBuilder? overload, out Exception? error) ? overload : throw error;
+        public static CommandOverloadBuilder Parse(CommandAllExtension commandAllExtension, MethodInfo methodInfo) => TryParse(commandAllExtension, methodInfo, out CommandOverloadBuilder? overload, out Exception? error) ? overload : throw error;
 
         /// <inheritdoc cref="Parse(MethodInfo)"/>
         /// <param name="builder">The parsed command overload.</param>
         /// <returns>Whether the overload was parsed successfully.</returns>
-        public static bool TryParse(MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder) => TryParse(methodInfo, out builder, out _);
+        public static bool TryParse(CommandAllExtension commandAllExtension, MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder) => TryParse(commandAllExtension, methodInfo, out builder, out _);
 
         /// <inheritdoc cref="TryParse(MethodInfo, out CommandOverloadBuilder?)"/>
         /// <param name="error">The error that occurred while parsing the overload.</param>
-        public static bool TryParse(MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder, [NotNullWhen(false)] out Exception? error)
+        public static bool TryParse(CommandAllExtension commandAllExtension, MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (methodInfo is null)
             {
@@ -108,7 +112,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                 return false;
             }
 
-            builder = new() { Method = methodInfo };
+            builder = new(commandAllExtension) { Method = methodInfo };
             List<CommandParameterBuilder> parameterBuilders = new();
             ParameterInfo[] parameters = methodInfo.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
@@ -128,7 +132,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
                     }
                 }
 
-                if (!CommandParameterBuilder.TryParse(parameter, out CommandParameterBuilder? parameterBuilder, out error))
+                if (!CommandParameterBuilder.TryParse(commandAllExtension, parameter, out CommandParameterBuilder? parameterBuilder, out error))
                 {
                     builder = null;
                     return false;

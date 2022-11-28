@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
