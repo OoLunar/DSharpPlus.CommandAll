@@ -10,7 +10,6 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using Serilog;
 using Serilog.Events;
-using Serilog.Filters;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
@@ -34,10 +33,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
             ServiceCollection services = new();
             services.AddLogging(logger =>
             {
+                string loggingFormat = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
+
                 // Log both to console and the file
                 LoggerConfiguration loggerConfiguration = new();
-                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Debug);
-                loggerConfiguration.WriteTo.Console(outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}", theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
+                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Information)
+                .WriteTo.Console(outputTemplate: loggingFormat, theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
                 {
                     [ConsoleThemeStyle.Text] = "\x1b[0m",
                     [ConsoleThemeStyle.SecondaryText] = "\x1b[90m",
@@ -55,18 +56,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
                     [ConsoleThemeStyle.LevelWarning] = "\x1b[33m",
                     [ConsoleThemeStyle.LevelError] = "\x1b[31m",
                     [ConsoleThemeStyle.LevelFatal] = "\x1b[97;91m"
-                }));
-
-                loggerConfiguration.WriteTo.File(
+                }))
+                .WriteTo.File(
                     $"logs/{DateTime.Now.ToUniversalTime().ToString("yyyy'-'MM'-'dd' 'HH'_'mm'_'ss", CultureInfo.InvariantCulture)}.log",
                     rollingInterval: RollingInterval.Day,
-                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
+                    outputTemplate: loggingFormat
                 );
 
-                loggerConfiguration.Filter.ByExcluding(Matching.FromSource("DSharpPlus"));
-
                 // Set Log.Logger for a static reference to the logger
-                Log.Logger = loggerConfiguration.CreateLogger();
                 logger.AddSerilog(Log.Logger);
             });
 
