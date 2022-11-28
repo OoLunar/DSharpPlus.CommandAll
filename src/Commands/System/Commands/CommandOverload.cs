@@ -5,6 +5,7 @@ using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Humanizer;
+using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
@@ -76,14 +77,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 
         public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.ParameterInfo.ParameterType.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
 
-        public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(
-            overload.SlashName,
-            overload.Command.Description,
-            ApplicationCommandOptionType.SubCommand,
-            null, null,
-            overload.Parameters.SelectMany(parameter => parameter.Flags.HasFlag(CommandParameterFlags.Params) ? parameter.SlashOptions! : new[] { (DiscordApplicationCommandOption)parameter }),
-            null, null, null, null,
-            overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
-            overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value));
+        public static explicit operator DiscordApplicationCommandOption(CommandOverload overload)
+        {
+            IEnumerable<DiscordApplicationCommandOption> parameters = overload.Parameters.SelectMany(parameter => parameter.Flags.HasFlag(CommandParameterFlags.Params) ? parameter.SlashOptions! : new[] { (DiscordApplicationCommandOption)parameter });
+            return parameters.Count() > 25
+                ? throw new InvalidOperationException($"A command overload can't have more than 25 parameters! If you're using {nameof(ParameterLimitAttribute)}, be sure to take it's {nameof(ParameterLimitAttribute.MaximumElementCount)} into count!")
+                : new(
+                    overload.SlashName,
+                    overload.Command.Description,
+                    ApplicationCommandOptionType.SubCommand,
+                    null, null,
+                    parameters,
+                    null, null, null, null,
+                    overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                    overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value)
+                );
+        }
     }
 }

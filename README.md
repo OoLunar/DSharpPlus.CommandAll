@@ -18,7 +18,7 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 | Custom Argument Type Converters   | Yes                 |
 | Per Argument Type Converters      | Yes                 |
 | Built In Help Command             | No                  |
-| Params (Auto Generated Arguments) | No                  |
+| Params (Auto Generated Arguments) | Yes                 |
 | XML Documentation                 | No                  |
 | Translation Classes               | Ish                 |
 

@@ -166,12 +166,11 @@ namespace OoLunar.DSharpPlus.CommandAll
             // Prevent the event handler from being executed multiple times.
             Client.Ready -= DiscordClient_ReadyAsync;
 
-            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
             foreach (CommandBuilder command in CommandManager.CommandBuilders.Values)
             {
                 SaturateParametersRecursively(command);
             }
-
+            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
             CommandManager.BuildCommands();
 
             Client.MessageCreated += DiscordClient_MessageCreatedAsync;

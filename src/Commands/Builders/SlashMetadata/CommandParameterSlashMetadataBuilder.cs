@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using OoLunar.DSharpPlus.CommandAll.Attributes;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
@@ -29,6 +31,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 
         /// <inheritdoc cref="CommandParameterSlashMetadata.AutoCompleteProvider"/>
         public Type? AutoCompleteProvider { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.IsRequired"/>
+        public bool IsRequired { get; set; }
+
+        /// <inheritdoc cref="CommandParameterSlashMetadata.ParameterLimitAttribute"/>
+        public ParameterLimitAttribute? ParameterLimitAttribute { get; set; }
 
         /// <inheritdoc/>
         public CommandParameterSlashMetadataBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) { }

@@ -16,7 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
         /// <remarks>
         /// Only valid for commands, not subcommands.
         /// </remarks>
-        public ulong? GuildId { get; set; }
+        public readonly ulong? GuildId;
 
         /// <summary>
         /// The required permissions for the command to be executed.
@@ -24,17 +24,17 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
         /// <remarks>
         /// Only valid for commands, not subcommands.
         /// </remarks>
-        public Permissions? RequiredPermissions { get; set; }
+        public readonly Permissions? RequiredPermissions;
 
         /// <summary>
         /// The localized names for the command.
         /// </summary>
-        public Dictionary<CultureInfo, string> LocalizedNames { get; set; } = new();
+        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedNames;
 
         /// <summary>
         /// The localized descriptions for the command.
         /// </summary>
-        public Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; } = new();
+        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions;
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandSlashMetadata"/>.
@@ -46,8 +46,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
             builder.NormalizeTranslations();
             GuildId = builder.GuildId;
             RequiredPermissions = builder.RequiredPermissions;
-            LocalizedNames = builder.LocalizedNames;
-            LocalizedDescriptions = builder.LocalizedDescriptions;
+            LocalizedNames = builder.LocalizedNames.AsReadOnly();
+            LocalizedDescriptions = builder.LocalizedDescriptions.AsReadOnly();
         }
     }
 }

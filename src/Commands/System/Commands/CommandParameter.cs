@@ -93,8 +93,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             Flags = builder.Flags;
             DefaultValue = builder.DefaultValue;
             ArgumentConverterType = builder.ArgumentConverterType!;
+
             builder.SlashMetadata.OptionType = ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType? ?? throw new PropertyNullException(nameof(ArgumentConverterType));
+            builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired && !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
+
             SlashName = (builder.CommandAllExtension.ParameterNamingStrategy switch
             {
                 CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
@@ -105,18 +108,32 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 
             if (Flags.HasFlag(CommandParameterFlags.Params))
             {
-                SlashOptions = new DiscordApplicationCommandOption[25 - overload.Method.GetParameters().Length - 1];
+                int minimumRequiredOptions = (SlashMetadata.ParameterLimitAttribute?.MinimumElementCount ?? (overload.Method.GetParameters().Length - 1)) - 1;
+                SlashOptions = new DiscordApplicationCommandOption[(SlashMetadata.ParameterLimitAttribute?.MaximumElementCount ?? 25) - minimumRequiredOptions];
                 for (int i = 0; i < SlashOptions.Length; i++)
                 {
                     // TODO: Respect builder.Extension.ParameterNamingStrategy
-                    SlashName = i switch
-                    {
-                        0 => $"{SlashName}_{i + 1}",
-                        < 10 => SlashName[..^1] + (i + 1),
-                        _ => SlashName[..^2] + (i + 1),
-                    };
-
-                    SlashOptions[i] = (DiscordApplicationCommandOption)this;
+                    SlashOptions[i] = new(
+                        SlashName = i switch
+                        {
+                            0 => $"{SlashName}_{i + 1}",
+                            < 10 => $"{SlashName[..^1]}{i + 1}",
+                            _ => $"{SlashName[..^2]}{i + 1}",
+                        },
+                        Description,
+                        SlashMetadata.OptionType,
+                        i <= minimumRequiredOptions,
+                        SlashMetadata.Choices,
+                        null,
+                        SlashMetadata.ChannelTypes,
+                        ArgumentConverterType is null,
+                        SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? SlashMetadata.MinValue : null,
+                        SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? SlashMetadata.MaxValue : null,
+                        SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                        SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                        SlashMetadata.OptionType is ApplicationCommandOptionType.String ? (int?)SlashMetadata.MinValue : null,
+                        SlashMetadata.OptionType is ApplicationCommandOptionType.String ? (int?)SlashMetadata.MaxValue : null
+                    );
                 }
             }
         }
@@ -137,6 +154,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             parameter.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
             parameter.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
             parameter.SlashMetadata.OptionType is ApplicationCommandOptionType.String ? (int?)parameter.SlashMetadata.MinValue : null,
-            parameter.SlashMetadata.OptionType is ApplicationCommandOptionType.String ? (int?)parameter.SlashMetadata.MaxValue : null);
+            parameter.SlashMetadata.OptionType is ApplicationCommandOptionType.String ? (int?)parameter.SlashMetadata.MaxValue : null
+        );
     }
 }

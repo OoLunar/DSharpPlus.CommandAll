@@ -30,14 +30,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
         /// <inheritdoc cref="CommandParameter.DefaultValue"/>
         public Optional<object?> DefaultValue { get; set; }
 
+        /// <inheritdoc cref="CommandParameter.ParameterInfo"/>
+        public ParameterInfo? ParameterInfo { get; set; }
+
         /// <inheritdoc cref="CommandParameter.ArgumentConverterType"/>
         /// <remarks>
         /// This is could be null if not explicitly set by the user. Before <see cref="CommandAllExtension.ConfigureCommands"/> is called, <see cref="CommandAllExtension.ArgumentConverterManager"/> will be used to find the correct converter, if any. If no converter could be found, the constructor for <see cref="CommandParameter"/> will throw an exception.
         /// </remarks>
         public Type? ArgumentConverterType { get; set; }
-
-        /// <inheritdoc cref="CommandParameter.ParameterInfo"/>
-        public ParameterInfo? ParameterInfo { get; set; }
 
         /// <inheritdoc cref="CommandParameter.SlashMetadata"/>
         public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; }
@@ -173,6 +173,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         break;
                     case ChannelTypesAttribute channelTypes:
                         builder.SlashMetadata.ChannelTypes = channelTypes.ChannelTypes.ToList();
+                        break;
+                    case ParameterLimitAttribute parameterLimit:
+                        builder.SlashMetadata.ParameterLimitAttribute = parameterLimit;
                         break;
                     case ParamArrayAttribute:
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
