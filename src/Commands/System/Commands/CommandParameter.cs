@@ -66,6 +66,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
         public readonly string SlashName;
 
         /// <summary>
+        /// The same parameter repeated multiple times until it reaches the maximum amount of parameters.
+        /// </summary>
+        /// <remarks>
+        /// This only has a value when <see cref="CommandParameterFlags.Params"/> is set.
+        /// </remarks>
+        public readonly DiscordApplicationCommandOption[]? SlashOptions;
+
+        /// <summary>
         /// Creates a new command parameter.
         /// </summary>
         /// <param name="builder">The builder used to create this parameter.</param>
@@ -78,7 +86,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                 throw new PropertyNullException(nameof(builder.ArgumentConverterType));
             }
 
-            Name = builder.Name;
+            Name = builder.Name.Truncate(32, "…");
             Description = builder.Description.Truncate(100, "…");
             Overload = overload ?? throw new ArgumentNullException(nameof(overload));
             ParameterInfo = builder.ParameterInfo!;
@@ -87,21 +95,39 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             ArgumentConverterType = builder.ArgumentConverterType!;
             builder.SlashMetadata.OptionType = ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType? ?? throw new PropertyNullException(nameof(ArgumentConverterType));
             SlashMetadata = new(builder.SlashMetadata);
-            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
+            SlashName = (builder.CommandAllExtension.ParameterNamingStrategy switch
             {
                 CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
                 CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
                 CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
                 _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
-            };
+            }).Truncate(32, "…");
+
+            if (Flags.HasFlag(CommandParameterFlags.Params))
+            {
+                SlashOptions = new DiscordApplicationCommandOption[25 - overload.Method.GetParameters().Length - 1];
+                for (int i = 0; i < SlashOptions.Length; i++)
+                {
+                    // TODO: Respect builder.Extension.ParameterNamingStrategy
+                    SlashName = i switch
+                    {
+                        0 => $"{SlashName}_{i + 1}",
+                        < 10 => SlashName[..^1] + (i + 1),
+                        _ => SlashName[..^2] + (i + 1),
+                    };
+
+                    SlashOptions[i] = (DiscordApplicationCommandOption)this;
+                }
+            }
         }
 
         public override string ToString() => $"{Overload.Command.FullName} {ParameterInfo.ParameterType.Name} {Name}";
+
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.SlashName,
             parameter.Description,
             parameter.SlashMetadata.OptionType,
-            parameter.DefaultValue.HasValue,
+            !parameter.DefaultValue.HasValue,
             parameter.SlashMetadata.Choices,
             null,
             parameter.SlashMetadata.ChannelTypes,

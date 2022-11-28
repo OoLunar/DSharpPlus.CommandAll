@@ -81,7 +81,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             overload.Command.Description,
             ApplicationCommandOptionType.SubCommand,
             null, null,
-            overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter),
+            overload.Parameters.SelectMany(parameter => parameter.Flags.HasFlag(CommandParameterFlags.Params) ? parameter.SlashOptions! : new[] { (DiscordApplicationCommandOption)parameter }),
             null, null, null, null,
             overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
             overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value));

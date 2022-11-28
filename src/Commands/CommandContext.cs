@@ -107,11 +107,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             for (int i = 0; i < arguments.Length; i++)
             {
                 CommandParameter parameter = i < CurrentOverload.Parameters.Count ? CurrentOverload.Parameters[i] : CurrentOverload.Parameters[^1];
-                IOptional optional = Convert(parameter!, arguments[i]);
+                IOptional optional = Convert(parameter!, arguments[i].Value);
                 object? value;
                 if (optional.HasValue)
                 {
-                    _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arguments[i], parameter!.ParameterInfo.ParameterType);
+                    _logger.LogTrace("Successfully converted argument {Argument} to {Type}", arguments[i].Value, parameter!.ParameterInfo.ParameterType);
                     value = optional.RawValue;
                 }
                 else if (parameter!.Flags.HasFlag(CommandParameterFlags.Optional) && parameter.DefaultValue.HasValue)
@@ -151,6 +151,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 Array.Reverse(array);
             }
 
+            _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
         }
 
         /// <summary>
