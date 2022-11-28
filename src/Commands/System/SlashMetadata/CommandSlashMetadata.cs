@@ -43,6 +43,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
         public CommandSlashMetadata(CommandSlashMetadataBuilder builder)
         {
             builder.Verify();
+            builder.NormalizeTranslations();
             GuildId = builder.GuildId;
             RequiredPermissions = builder.RequiredPermissions;
             LocalizedNames = builder.LocalizedNames;

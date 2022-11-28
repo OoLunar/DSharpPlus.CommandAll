@@ -67,6 +67,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
         public CommandParameterSlashMetadata(CommandParameterSlashMetadataBuilder builder)
         {
             builder.Verify();
+            builder.NormalizeTranslations();
             LocalizedNames = builder.LocalizedNames;
             LocalizedDescriptions = builder.LocalizedDescriptions;
             OptionType = builder.OptionType!.Value;

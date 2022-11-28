@@ -97,7 +97,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             builder.Aliases.Add(Name.Camelize());
             builder.Aliases.Add(Name.Underscore());
 
-            Description = builder.Description.Truncate(100);
+            Description = builder.Description.Truncate(100, "…");
             Parent = parent;
             Overloads = builder.Overloads.Select(overloadBuilder => new CommandOverload(overloadBuilder, this)).ToList().AsReadOnly();
             Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();

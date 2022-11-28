@@ -79,7 +79,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             }
 
             Name = builder.Name;
-            Description = builder.Description;
+            Description = builder.Description.Truncate(100, "…");
             Overload = overload ?? throw new ArgumentNullException(nameof(overload));
             ParameterInfo = builder.ParameterInfo!;
             Flags = builder.Flags;
