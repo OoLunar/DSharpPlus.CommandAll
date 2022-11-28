@@ -33,8 +33,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
                 string loggingFormat = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u4}] {SourceContext}: {Message:lj}{NewLine}{Exception}";
 
                 // Log both to console and the file
-                LoggerConfiguration loggerConfiguration = new();
-                loggerConfiguration.MinimumLevel.Is(LogEventLevel.Information)
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration().MinimumLevel.Is(LogEventLevel.Information)
                 .WriteTo.Console(outputTemplate: loggingFormat, theme: new AnsiConsoleTheme(new Dictionary<ConsoleThemeStyle, string>
                 {
                     [ConsoleThemeStyle.Text] = "\x1b[0m",
@@ -61,7 +60,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters
                 );
 
                 // Set Log.Logger for a static reference to the logger
-                logger.AddSerilog(Log.Logger);
+                logger.AddSerilog(loggerConfiguration.CreateLogger());
             });
 
             DiscordClient client = new(new DiscordConfiguration()

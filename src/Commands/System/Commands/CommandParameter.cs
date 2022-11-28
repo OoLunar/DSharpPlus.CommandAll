@@ -99,7 +99,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
         public override string ToString() => $"{Overload.Command.FullName} {ParameterInfo.ParameterType.Name} {Name}";
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.SlashName,
-            parameter.Description.Truncate(100),
+            parameter.Description,
             parameter.SlashMetadata.OptionType,
             parameter.DefaultValue.HasValue,
             parameter.SlashMetadata.Choices,

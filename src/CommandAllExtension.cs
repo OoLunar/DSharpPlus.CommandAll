@@ -113,7 +113,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             ParameterNamingStrategy = configuration.ParameterNamingStrategy;
 
             // Add the default converters to the argument converter manager.
-            ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly.DefinedTypes.Where(type => type.Namespace == "OoLunar.DSharpPlus.CommandAll.Converters"));
+            ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly);
 
             // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
             _logger = ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;

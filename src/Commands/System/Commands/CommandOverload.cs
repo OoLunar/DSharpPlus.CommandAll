@@ -78,7 +78,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload) => new(
             overload.SlashName,
-            overload.Command.Description.Truncate(100),
+            overload.Command.Description,
             ApplicationCommandOptionType.SubCommand,
             null, null,
             overload.Parameters.Select(parameter => (DiscordApplicationCommandOption)parameter),
