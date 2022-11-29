@@ -181,6 +181,15 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
                         builder.DefaultValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, 0);
                         break;
+                    case RemainderTextAttribute:
+                        if (builder.ParameterInfo.ParameterType != typeof(string))
+                        {
+                            error = new InvalidPropertyStateException(nameof(RemainderTextAttribute), $"The {nameof(RemainderTextAttribute)} can only be used on a parameter of type {nameof(String)}.");
+                            return false;
+                        }
+
+                        builder.Flags |= CommandParameterFlags.RemainderText;
+                        break;
                 }
             }
 

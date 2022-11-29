@@ -76,6 +76,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
         public Command(CommandBuilder builder, Command? parent = null)
         {
             builder.Verify();
+
+            Name = builder.Name!.Trim().Pascalize();
+            builder.Aliases.Add(Name.ToLowerInvariant());
+            builder.Aliases.Add(Name.Kebaberize());
+            builder.Aliases.Add(Name.Camelize());
+            builder.Aliases.Add(Name.Underscore());
+
+            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
+            {
+                CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
+                CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
+                CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
+                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
+            };
+
             foreach (string alias in builder.Aliases)
             {
                 if (string.IsNullOrWhiteSpace(alias))
@@ -91,27 +106,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                 builder.Aliases.Add(trimmed.Underscore());
             };
 
-            Name = builder.Name!.Trim().Pascalize();
-            builder.Aliases.Add(Name.ToLowerInvariant());
-            builder.Aliases.Add(Name.Kebaberize());
-            builder.Aliases.Add(Name.Camelize());
-            builder.Aliases.Add(Name.Underscore());
-
             Description = builder.Description.Truncate(100, "…");
             Parent = parent;
             Overloads = builder.Overloads.Select(overloadBuilder => new CommandOverload(overloadBuilder, this)).ToList().AsReadOnly();
             Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();
             Aliases = builder.Aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
-
-            SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
-            {
-                CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
-                CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
-                CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
-                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
-            };
-
             SlashMetadata = new(builder.SlashMetadata);
         }
 
@@ -139,6 +139,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             return new DiscordApplicationCommand(
                 command.SlashName,
                 command.Description,
+                // Check if this is the only subcommand. If it is, promote it to a top level command.
+                // This prevents commands like /ping ping from being registered.
                 subCommandAndGroups.Count == 1 ? subCommandAndGroups[0].Options : subCommandAndGroups,
                 null,
                 ApplicationCommandType.SlashCommand,

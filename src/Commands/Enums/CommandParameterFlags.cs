@@ -22,5 +22,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
         /// This parameter is the last parameter and can take the rest of the input through an array.
         /// </summary>
         Params = 1 << 2,
+
+        /// <summary>
+        /// This parameter is a <see cref="string"/> and can take the rest of the input.
+        /// </summary>
+        RemainderText = 1 << 3,
     }
 }

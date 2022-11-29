@@ -71,11 +71,11 @@ namespace OoLunar.DSharpPlus.CommandAll
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
             IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();
-            ArgumentConverterManager = new ArgumentConverterManager(serviceProvider.GetService<ILogger<ArgumentConverterManager>>());
-            CommandOverloadParser = new CommandOverloadParser(serviceProvider.GetService<ILogger<CommandOverloadParser>>());
+            ArgumentConverterManager = new ArgumentConverterManager(serviceProvider.GetRequiredService<ILogger<ArgumentConverterManager>>());
+            CommandOverloadParser = new CommandOverloadParser(serviceProvider.GetRequiredService<ILogger<CommandOverloadParser>>());
             PrefixParser = new PrefixParser();
-            CommandExecutor = new CommandExecutor(serviceProvider.GetService<ILogger<CommandExecutor>>());
-            CommandManager = new CommandManager(serviceProvider.GetService<ILogger<CommandManager>>());
+            CommandExecutor = new CommandExecutor(serviceProvider.GetRequiredService<ILogger<CommandExecutor>>());
+            CommandManager = new CommandManager(serviceProvider.GetRequiredService<ILogger<CommandManager>>());
             TextArgumentParser = new CommandsNextStyleTextArgumentParser(this);
         }
     }

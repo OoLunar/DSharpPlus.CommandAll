@@ -10,7 +10,6 @@ using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -116,7 +115,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly);
 
             // Attempt to get the user defined logging, otherwise setup a null logger since the D#+ Default Logger is internal.
-            _logger = ServiceProvider.GetService<ILogger<CommandAllExtension>>() ?? NullLogger<CommandAllExtension>.Instance;
+            _logger = ServiceProvider.GetRequiredService<ILogger<CommandAllExtension>>();
         }
 
         /// <summary>
@@ -170,27 +169,33 @@ namespace OoLunar.DSharpPlus.CommandAll
             {
                 SaturateParametersRecursively(command);
             }
+
             await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
             CommandManager.BuildCommands();
-
             Client.MessageCreated += DiscordClient_MessageCreatedAsync;
-            IEnumerable<DiscordApplicationCommand> applicationCommands = CommandManager.BuildSlashCommands();
+
+            // Intentionally run this in a separate task so that the Ready event can finish executing and NOT yell at the user.
+            _ = Task.Run(async () =>
+            {
+                IEnumerable<DiscordApplicationCommand> applicationCommands = CommandManager.BuildSlashCommands();
+
 #if DEBUG
-            // Don't register slash commands if the debug guild id is null.
-            if (DebugGuildId is not null)
-            {
-                await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands);
-            }
-            else
-            {
-                _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
-            }
+                // Don't register slash commands if the debug guild id is null.
+                if (DebugGuildId is not null)
+                {
+                    await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands);
+                }
+                else
+                {
+                    _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
+                }
 #else
             await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
 #endif
 
-            Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
-            _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
+                Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
+                _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
+            });
         }
 
         /// <summary>

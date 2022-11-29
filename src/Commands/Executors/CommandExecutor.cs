@@ -82,6 +82,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
             await errorTask;
             if (!errorTask.IsCompletedSuccessfully)
             {
+                // Not Implemented Exception is the default exception thrown by the error handler when it is not overridden.
+                // Because we don't want to mess up the stack trace, we're explicitly checking for that exception
+                // And returning the error parameter instead.
                 if (errorTask.Exception!.InnerException is NotImplementedException)
                 {
                     await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs(context, error));

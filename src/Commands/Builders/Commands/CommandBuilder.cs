@@ -64,12 +64,18 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 overloads.Insert(overload.Priority, overload);
             }
 
-            // Set only the first element to be slash preferred.
             for (int i = 0; i < overloads.Count; i++)
             {
+                // If this is the first overload
                 if (i == 0)
                 {
+                    // Set the SlashPreferred flag
                     overloads[i].Flags |= CommandOverloadFlags.SlashPreferred;
+                }
+                else
+                {
+                    // Remove the SlashPreferred flag
+                    overloads[i].Flags &= ~CommandOverloadFlags.SlashPreferred;
                 }
             }
             Overloads = overloads;
