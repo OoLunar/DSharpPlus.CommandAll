@@ -25,7 +25,7 @@ jobs:
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
       - name: Package
-        run: dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:DebugType=embedded -c Debug -o build -p:Nightly=${{ github.run_number }}
+        run: dotnet pack -p:DebugType=embedded -c Debug -o build -p:Nightly=${{ github.run_number }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         if: ${{ github.event_name == 'push' }}

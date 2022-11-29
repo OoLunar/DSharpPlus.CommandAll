@@ -3,6 +3,8 @@
     <OutputType>Library</OutputType>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>OoLunar.DSharpPlus.CommandAll</PackageId>
