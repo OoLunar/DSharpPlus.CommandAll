@@ -13,28 +13,36 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
     public sealed partial class DiscordChannelArgumentConverter : IArgumentConverter<DiscordChannel>
     {
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Channel;
-        private static readonly Regex ChannelRegex = ChannelRegexMethod();
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public Task<Optional<DiscordChannel>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {
-            // value can be a raw channel id or a channel mention. The regex will match both.
-            Match match = ChannelRegex.Match(value);
-            if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong channelId))
+            // Attempt to parse the channel id
+            if (!ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong channelId))
             {
-                return Task.FromResult(Optional.FromNoValue<DiscordChannel>());
+                // Value could be a channel mention.
+                Match match = GetChannelRegex().Match(value);
+                if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
+                {
+                    return Task.FromResult(Optional.FromNoValue<DiscordChannel>());
+                }
             }
 
             if (context.IsSlashCommand && context.Interaction!.Data.Resolved.Channels is not null && context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel))
             {
                 return Task.FromResult(Optional.FromValue(channel));
             }
-
-            channel = context.Guild!.GetChannel(channelId);
-            return Task.FromResult(channel is not null ? Optional.FromValue(channel) : Optional.FromNoValue<DiscordChannel>());
+            else if (context.Guild!.GetChannel(channelId) is DiscordChannel guildChannel)
+            {
+                return Task.FromResult(Optional.FromValue(guildChannel));
+            }
+            else
+            {
+                return Task.FromResult(Optional.FromNoValue<DiscordChannel>());
+            }
         }
 
-        [GeneratedRegex(@"(\d+)|^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-        private static partial Regex ChannelRegexMethod();
+        [GeneratedRegex(@"^<#(\d+)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        private static partial Regex GetChannelRegex();
     }
 }

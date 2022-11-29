@@ -14,18 +14,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
     public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
     {
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
-        private static readonly Regex MethodRegex = MessageRegexMethod();
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {
-            // Ensure the message is from Discord, otherwise we won't be able to get it.
-            if (!value.StartsWith("https://discord.com/") || !value.StartsWith("https://discordapp.com/"))
-            {
-                return Optional.FromNoValue<DiscordMessage>();
-            }
-
-            Match match = MethodRegex.Match(value);
+            Match match = GetMessageRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong messageId))
             {
                 return Optional.FromNoValue<DiscordMessage>();
@@ -69,7 +62,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return message is not null ? Optional.FromValue(message) : Optional.FromNoValue<DiscordMessage>();
         }
 
-        [GeneratedRegex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-        private static partial Regex MessageRegexMethod();
+        [GeneratedRegex(@"https://(?:\S+\.)?discord.com/channels/(?:@me|\d{17,20})/\d{17,20}/(?<message>\d{17,20})", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        private static partial Regex GetMessageRegex();
     }
 }

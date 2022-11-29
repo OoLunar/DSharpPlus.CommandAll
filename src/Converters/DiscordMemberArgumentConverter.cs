@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -16,18 +15,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
     public sealed partial class DiscordMemberArgumentConverter : IArgumentConverter<DiscordMember>
     {
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
-        private static readonly Regex MemberRegex = MemberRegexMethod();
         private readonly ILogger<DiscordMemberArgumentConverter> _logger;
 
         public DiscordMemberArgumentConverter(ILogger<DiscordMemberArgumentConverter> logger) => _logger = logger ?? NullLogger<DiscordMemberArgumentConverter>.Instance;
 
-        [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {
-            Match match = MemberRegex.Match(value);
-            if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
+            if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {
-                return Optional.FromNoValue<DiscordMember>();
+                Match match = GetMemberRegex().Match(value);
+                if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
+                {
+                    return Optional.FromNoValue<DiscordMember>();
+                }
             }
 
             if (context.IsSlashCommand && context.Interaction!.Data.Resolved.Members != null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
@@ -38,14 +38,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             try
             {
                 DiscordMember? possiblyCachedMember = await context.Guild!.GetMemberAsync(memberId);
-                if (possiblyCachedMember is not null)
-                {
-                    return Optional.FromValue(possiblyCachedMember);
-                }
-                else
-                {
-                    return Optional.FromNoValue<DiscordMember>();
-                }
+                return possiblyCachedMember is not null ? Optional.FromValue(possiblyCachedMember) : Optional.FromNoValue<DiscordMember>();
             }
             catch (DiscordException error)
             {
@@ -54,7 +47,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             }
         }
 
-        [GeneratedRegex(@"(\d+)|^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-        private static partial Regex MemberRegexMethod();
+        [GeneratedRegex(@"^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        private static partial Regex GetMemberRegex();
     }
 }

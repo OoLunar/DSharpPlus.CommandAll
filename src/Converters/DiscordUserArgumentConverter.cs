@@ -16,7 +16,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
     public sealed partial class DiscordUserArgumentConverter : IArgumentConverter<DiscordUser>
     {
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
-        private static readonly Regex MemberRegex = MemberRegexMethod();
         private readonly ILogger<DiscordUserArgumentConverter> _logger;
 
         public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? NullLogger<DiscordUserArgumentConverter>.Instance;
@@ -24,10 +23,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {
-            Match match = MemberRegex.Match(value);
-            if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
+            if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {
-                return Optional.FromNoValue<DiscordUser>();
+                Match match = GetMemberRegex().Match(value);
+                if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
+                {
+                    return Optional.FromNoValue<DiscordUser>();
+                }
             }
 
             // Attempt to use the resolved members/users from the interaction.
@@ -71,7 +73,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return Optional.FromNoValue<DiscordUser>();
         }
 
-        [GeneratedRegex(@"(\d+)|^<@\\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
-        private static partial Regex MemberRegexMethod();
+        [GeneratedRegex(@"^<@\!?(\d+?)>$", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        private static partial Regex GetMemberRegex();
     }
 }
