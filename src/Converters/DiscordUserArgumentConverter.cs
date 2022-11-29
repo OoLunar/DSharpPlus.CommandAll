@@ -15,7 +15,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordUserArgumentConverter : IArgumentConverter<DiscordUser>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
         private static readonly Regex MemberRegex = MemberRegexMethod();
         private readonly ILogger<DiscordUserArgumentConverter> _logger;
 
