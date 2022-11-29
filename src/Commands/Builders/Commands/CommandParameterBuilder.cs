@@ -198,7 +198,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 builder.Flags |= CommandParameterFlags.Optional;
             }
 
-            return builder.TryVerify(out error);
+            error = null;
+            return true;
         }
 
         public override string ToString() => $"{ParameterInfo!.ParameterType.Name} {Name} ({ParameterInfo.Member})";
