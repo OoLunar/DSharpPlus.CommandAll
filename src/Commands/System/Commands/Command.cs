@@ -78,10 +78,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             builder.Verify();
 
             Name = builder.Name!.Trim().Pascalize();
-            builder.Aliases.Add(Name.ToLowerInvariant());
-            builder.Aliases.Add(Name.Kebaberize());
-            builder.Aliases.Add(Name.Camelize());
-            builder.Aliases.Add(Name.Underscore());
+            List<string> aliases = new()
+            {
+                Name.ToLowerInvariant(),
+                Name.Kebaberize(),
+                Name.Camelize(),
+                Name.Underscore()
+            };
 
             SlashName = builder.CommandAllExtension.ParameterNamingStrategy switch
             {
@@ -99,18 +102,18 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                 }
 
                 string trimmed = alias.Trim();
-                builder.Aliases.Add(trimmed.Pascalize());
-                builder.Aliases.Add(trimmed.Pascalize().ToLowerInvariant());
-                builder.Aliases.Add(trimmed.Kebaberize());
-                builder.Aliases.Add(trimmed.Camelize());
-                builder.Aliases.Add(trimmed.Underscore());
+                aliases.Add(trimmed.Pascalize());
+                aliases.Add(trimmed.Pascalize().ToLowerInvariant());
+                aliases.Add(trimmed.Kebaberize());
+                aliases.Add(trimmed.Camelize());
+                aliases.Add(trimmed.Underscore());
             };
 
             Description = builder.Description.Truncate(100, "…");
             Parent = parent;
             Overloads = builder.Overloads.Select(overloadBuilder => new CommandOverload(overloadBuilder, this)).ToList().AsReadOnly();
             Subcommands = builder.Subcommands.Select(subcommandBuilder => new Command(subcommandBuilder, this)).ToList().AsReadOnly();
-            Aliases = builder.Aliases.Distinct().ToList().AsReadOnly();
+            Aliases = aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
             SlashMetadata = new(builder.SlashMetadata);
         }
