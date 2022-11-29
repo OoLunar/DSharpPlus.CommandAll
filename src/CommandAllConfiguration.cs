@@ -1,7 +1,6 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
 using OoLunar.DSharpPlus.CommandAll.Managers;
@@ -68,7 +67,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="serviceCollection">The services to be built and used by the <see cref="CommandAllExtension"/>.</param>
         public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
         {
-            ServiceCollection = serviceDescriptors ?? new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+            ServiceCollection = serviceDescriptors ?? new ServiceCollection();
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
             IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();

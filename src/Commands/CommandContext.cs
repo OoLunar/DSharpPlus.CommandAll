@@ -146,7 +146,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
             }
 
-            if (NamedArguments.Values.Last() is Array array)
+            if (NamedArguments.Any() && NamedArguments.Values.Last() is Array array)
             {
                 Array.Reverse(array);
             }
@@ -213,7 +213,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     }
                 }
 
-                if (NamedArguments.Values.Last() is Array array)
+                if (NamedArguments.Any() && NamedArguments.Values.Last() is Array array)
                 {
                     Array.Reverse(array);
                 }

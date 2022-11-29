@@ -53,7 +53,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
         /// <remarks>
         /// This is null when <see cref="Overload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
         /// </remarks>
-        public readonly Type ArgumentConverterType;
+        public readonly Type? ArgumentConverterType;
 
         /// <summary>
         /// The slash metadata for this parameter.
@@ -92,9 +92,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             ParameterInfo = builder.ParameterInfo!;
             Flags = builder.Flags;
             DefaultValue = builder.DefaultValue;
-            ArgumentConverterType = builder.ArgumentConverterType!;
+            ArgumentConverterType = builder.ArgumentConverterType;
 
-            builder.SlashMetadata.OptionType = ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType? ?? throw new PropertyNullException(nameof(ArgumentConverterType));
+            builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(null) as ApplicationCommandOptionType?;
             builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired && !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
 

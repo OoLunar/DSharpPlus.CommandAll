@@ -21,6 +21,7 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 | Params (Auto Generated Arguments) | Yes                 |
 | XML Documentation                 | No                  |
 | Translation Classes               | Ish                 |
+| Pre-Execution Checks              | No                  |
 
 # How to use
 Example code can be found in the [Examples Folder](./examples)

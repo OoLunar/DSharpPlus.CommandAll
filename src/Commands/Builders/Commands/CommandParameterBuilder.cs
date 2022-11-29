@@ -78,7 +78,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 error = new PropertyNullException(nameof(ParameterInfo));
                 return false;
             }
-            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.Value!.GetType()))
+            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && DefaultValue.Value is not null && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.Value!.GetType()))
             {
                 error = new InvalidPropertyTypeException(nameof(DefaultValue), DefaultValue.GetType(), ParameterInfo.ParameterType.GetType());
                 return false;
