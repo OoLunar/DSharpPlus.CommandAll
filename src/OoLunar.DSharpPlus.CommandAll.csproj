@@ -9,7 +9,7 @@
     <Description>An extension for DSharpPlus to allow for text and slash commands to be used with a single base.</Description>
     <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
     <Authors>OoLunar</Authors>
-    <Version>1.0.0-rc1</Version>
+    <Version>1.0.0-rc2</Version>
     <PackageProjectUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
