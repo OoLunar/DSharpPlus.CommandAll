@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test
+    name: Build, Test, Post Nightly
     runs-on: self-hosted
     if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
@@ -22,13 +22,15 @@ jobs:
           DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: true
-      - name: Build
-        run: dotnet publish src/OoLunar.DSharpPlus.CommandAll.csproj -c Debug -f net7.0 --self-contained -p:DebugType=embedded
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
+      - name: Package
+        run: dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -p:DebugType=embedded -c Debug -o build -p:Nightly=${{ github.run_number }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         if: ${{ github.event_name == 'push' }}
         with:
-          name: OoLunar.DSharpPlus.CommandAll-${{ github.run_number }}∕${{ github.run_attempt }}
+          name: OoLunar.DSharpPlus.CommandAll-Nightly-${{ github.run_number }}∕${{ github.run_attempt }}
           path: ./src/bin/Debug/net7.0/publish/
+      - name: "Publish Nightly Nuget Packages"
+        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
