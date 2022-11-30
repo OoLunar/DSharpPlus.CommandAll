@@ -28,7 +28,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
             {
                 DiscordGuild guild = client.Guilds[ulong.Parse(guildId)];
                 DiscordChannel channel = guild.Channels[ulong.Parse(channelId)];
-                await channel.ModifyAsync(channel => channel.Topic = $"{channelTopic}\n{Formatter.Bold("Github")}: {githubUrl}\nNuGet: {nugetUrl}\nLatest stable version: {new Uri(new Uri(nugetUrl), latestStableVersion)}\nLatest preview version: {new Uri(new Uri(nugetUrl), latestStableVersion)}");
+                await channel.ModifyAsync(channel => channel.Topic = $"{channelTopic}\n{Formatter.Bold("Github")}: {githubUrl}\n{Formatter.Bold("NuGet")}: {nugetUrl}\n{Formatter.Bold("Latest stable version")}: {new Uri(new Uri(nugetUrl), latestStableVersion)}\n{Formatter.Bold("Latest preview version")}: {new Uri(new Uri(nugetUrl), latestPreviewVersion)}");
                 Environment.Exit(0);
             };
 
