@@ -30,7 +30,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 }
             }
 
-            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Members != null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
+            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Members is not null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
             {
                 return Optional.FromValue(member);
             }

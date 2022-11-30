@@ -24,11 +24,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="configuration">The configuration to use for the extension.</param>
         public static CommandAllExtension UseCommandAll(this DiscordClient client, CommandAllConfiguration? configuration = null)
         {
-            if (client == null)
+            if (client is null)
             {
                 throw new ArgumentNullException(nameof(client));
             }
-            else if (client.GetExtension<CommandAllExtension>() != null)
+            else if (client.GetExtension<CommandAllExtension>() is not null)
             {
                 throw new InvalidOperationException("CommandAll Extension is already initialized.");
             }
@@ -87,7 +87,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="configuration">The configuration to use for the extension.</param>
         public static async Task<IReadOnlyDictionary<int, CommandAllExtension>> UseCommandAllAsync(this DiscordShardedClient shardedClient, CommandAllConfiguration? configuration = null)
         {
-            if (shardedClient == null)
+            if (shardedClient is null)
             {
                 throw new ArgumentNullException(nameof(shardedClient));
             }
@@ -122,7 +122,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// Retrieves the <see cref="CommandAllExtension"/> from the <see cref="DiscordClient"/>.
         /// </summary>
         /// <param name="client">The client to retrieve the extension from.</param>
-        public static CommandAllExtension? GetCommandAllExtension(this DiscordClient client) => client == null
+        public static CommandAllExtension? GetCommandAllExtension(this DiscordClient client) => client is null
             ? throw new ArgumentNullException(nameof(client))
             : client.GetExtension<CommandAllExtension>();
 
@@ -132,7 +132,7 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="shardedClient">The client to retrieve the extension from.</param>
         public static IReadOnlyDictionary<int, CommandAllExtension> GetCommandAllExtensions(this DiscordShardedClient shardedClient)
         {
-            if (shardedClient == null)
+            if (shardedClient is null)
             {
                 throw new ArgumentNullException(nameof(shardedClient));
             }
@@ -141,7 +141,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
             {
                 CommandAllExtension? extension = shard.GetExtension<CommandAllExtension>();
-                if (extension != null)
+                if (extension is not null)
                 {
                     extensions[shard.ShardId] = extension;
                 }

@@ -86,7 +86,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// <summary>
         /// Whether the command was executed via slash command or not.
         /// </summary>
-        public bool IsSlashCommand => Interaction != null;
+        public bool IsSlashCommand => Interaction is not null;
 
         /// <summary>
         /// Used to log complaints.

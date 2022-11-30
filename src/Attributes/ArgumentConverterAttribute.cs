@@ -23,7 +23,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
         /// <exception cref="ArgumentException">Thrown when <paramref name="converterType"/> does not implement <see cref="IArgumentConverter"/>.</exception>
         public ArgumentConverterAttribute(Type parameterConverter)
         {
-            if (parameterConverter == null)
+            if (parameterConverter is null)
             {
                 throw new ArgumentNullException(nameof(parameterConverter));
             }
