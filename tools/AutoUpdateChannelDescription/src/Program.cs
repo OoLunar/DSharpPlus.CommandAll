@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -14,7 +15,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
             string channelId = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID") ?? throw new InvalidOperationException("DISCORD_CHANNEL_ID environment variable is not set.");
             string channelTopic = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_TOPIC") ?? throw new InvalidOperationException("DISCORD_DESCRIPTION environment variable is not set.");
             string latestStableVersion = args.Length == 1 ? args[0] : throw new InvalidOperationException("LATEST_STABLE_VERSION should be the first argument passed.");
-            string latestPreviewVersion = Environment.GetEnvironmentVariable("LATEST_PREVIEW_VERSION") ?? throw new InvalidOperationException("LATEST_PREVIEW_VERSION environment variable is not set.");
             string nugetUrl = Environment.GetEnvironmentVariable("NUGET_URL") ?? throw new InvalidOperationException("NUGET_URL environment variable is not set.");
             string githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
 
@@ -24,16 +24,31 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
                 TokenType = TokenType.Bot
             });
 
-            client.GuildDownloadCompleted += async (client, eventArgs) =>
+            client.GuildDownloadCompleted += (client, eventArgs) =>
             {
                 DiscordGuild guild = client.Guilds[ulong.Parse(guildId)];
                 DiscordChannel channel = guild.Channels[ulong.Parse(channelId)];
-                await channel.ModifyAsync(channel => channel.Topic = $"{channelTopic}\n{Formatter.Bold("Github")}: {githubUrl}\n{Formatter.Bold("NuGet")}: {nugetUrl}\n{Formatter.Bold("Latest stable version")}: {new Uri(new Uri(nugetUrl), latestStableVersion)}\n{Formatter.Bold("Latest preview version")}: {new Uri(new Uri(nugetUrl), latestPreviewVersion)}");
-                Environment.Exit(0);
+
+                // Task.Run in case ratelimit gets hit and event handler is cancelled.
+                _ = Task.Run(async () =>
+                {
+                    await channel.ModifyAsync(channel => channel.Topic = @$"{channelTopic}
+{Formatter.Bold("GitHub")}: {githubUrl}
+{Formatter.Bold("Latest stable version")}: {nugetUrl}/{latestStableVersion}
+{Formatter.Bold("Latest preview version")}: {nugetUrl}/{typeof(CommandAllExtension).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion}");
+                    Environment.Exit(0);
+                });
+
+                return Task.CompletedTask;
             };
 
             await client.ConnectAsync();
-            await Task.Delay(-1);
+
+            // The program should exit ASAP after the channel description is updated.
+            // However it may get caught in a ratelimit, so we'll wait for a bit.
+            // The program will exit after 10 seconds no matter what.
+            // This includes the time it takes to connect to the Discord gateway.
+            await Task.Delay(TimeSpan.FromSeconds(10));
         }
     }
 }
