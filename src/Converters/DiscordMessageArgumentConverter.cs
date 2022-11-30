@@ -35,7 +35,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             }
 
             DiscordChannel? channel = null;
-            if (match.Groups.TryGetValue("guild", out Group? guildGroup) && ulong.TryParse(guildGroup.ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong guildId) && context.Client.Guilds.TryGetValue(guildId, out DiscordGuild? guild) && !guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
+            if (match.Groups.TryGetValue("guild", out Group? guildGroup) && ulong.TryParse(guildGroup.ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong guildId) && context.Client.Guilds.TryGetValue(guildId, out DiscordGuild? guild) && guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
             {
                 channel = guildChannel;
             }
@@ -62,7 +62,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             return message is not null ? Optional.FromValue(message) : Optional.FromNoValue<DiscordMessage>();
         }
 
-        [GeneratedRegex(@"https://(?:\S+\.)?discord.com/channels/(?:@me|\d{17,20})/\d{17,20}/(?<message>\d{17,20})", RegexOptions.Compiled | RegexOptions.ECMAScript)]
+        [GeneratedRegex(@"\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?", RegexOptions.Compiled | RegexOptions.ECMAScript)]
         private static partial Regex GetMessageRegex();
     }
 }
