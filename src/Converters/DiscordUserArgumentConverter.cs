@@ -36,11 +36,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             if (context.IsSlashCommand)
             {
                 // Always attempt to pass the member before falling back on the user in case the dev wants to cast to a member.
-                if (context.Interaction!.Data.Resolved.Members != null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
+                if (context.Interaction!.Data.Resolved?.Members != null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))
                 {
                     return Optional.FromValue(member as DiscordUser);
                 }
-                else if (context.Interaction.Data.Resolved.Users != null && context.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user))
+                else if (context.Interaction.Data.Resolved?.Users != null && context.Interaction.Data.Resolved.Users.TryGetValue(memberId, out DiscordUser? user))
                 {
                     return Optional.FromValue(user);
                 }

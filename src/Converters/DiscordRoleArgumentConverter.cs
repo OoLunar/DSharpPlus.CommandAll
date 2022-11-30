@@ -27,7 +27,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 }
             }
 
-            if (context.IsSlashCommand && context.Interaction!.Data.Resolved.Roles is not null && context.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role))
+            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Roles is not null && context.Interaction.Data.Resolved.Roles.TryGetValue(roleId, out DiscordRole? role))
             {
                 return Task.FromResult(Optional.FromValue(role));
             }

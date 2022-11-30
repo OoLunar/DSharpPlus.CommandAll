@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 return Optional.FromNoValue<DiscordMessage>();
             }
 
-            if (context.IsSlashCommand && context.Interaction!.Data.Resolved.Messages is not null && context.Interaction.Data.Resolved.Messages.TryGetValue(messageId, out DiscordMessage? message))
+            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Messages is not null && context.Interaction.Data.Resolved.Messages.TryGetValue(messageId, out DiscordMessage? message))
             {
                 return Optional.FromValue(message);
             }

@@ -28,7 +28,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 }
             }
 
-            if (context.IsSlashCommand && context.Interaction!.Data.Resolved.Channels is not null && context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel))
+            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Channels is not null && context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel))
             {
                 return Task.FromResult(Optional.FromValue(channel));
             }
