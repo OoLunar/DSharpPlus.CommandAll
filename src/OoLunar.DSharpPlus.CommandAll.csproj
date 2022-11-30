@@ -14,6 +14,7 @@
     <PackageProjectUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</PackageProjectUrl>
     <RepositoryUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
+    <PackageReadmeFile>../README.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup Condition="$(Nightly) != ''">
     <!-- We only check for Nightly here because Version is explicitly defined in the nuget_release workflow. -->
