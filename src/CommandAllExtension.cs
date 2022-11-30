@@ -16,6 +16,7 @@ using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
+using OoLunar.DSharpPlus.CommandAll.Exceptions;
 using OoLunar.DSharpPlus.CommandAll.Managers;
 using OoLunar.DSharpPlus.CommandAll.Parsers;
 
@@ -205,15 +206,20 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to read <see cref="DiscordMessage.Content"/> to parse and execute commands.</param>
         private async Task DiscordClient_MessageCreatedAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
         {
-            // Attempt to parse the prefix, find the command, check if it's disabled, and create a new command context to pass to the command executor.
-            if (!PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString) // Remove the prefix
-                || !CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command) // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
-                || command.Flags.HasFlag(CommandFlags.Disabled)) // Check if the command is disabled due to argument converter issues.
+            // Remove the prefix
+            if (!PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString))
             {
                 return;
             }
-
-            _ = await CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Message, rawArguments));
+            // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
+            else if (!CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command))
+            {
+                await _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, eventArgs.Author as DiscordMember, this, null!, null!), new CommandNotFoundException("Command was not found.", commandString)));
+            }
+            else if (!command.Flags.HasFlag(CommandFlags.Disabled))
+            {
+                _ = await CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Message, rawArguments));
+            }
         }
 
         /// <summary>

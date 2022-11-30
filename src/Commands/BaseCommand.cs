@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands
 {
@@ -27,6 +28,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// If this method throws, the exception will be passed onto <see cref="CommandAllExtension.CommandErrored"/>. If that error handler throws, the exception will be logged.
         /// </remarks>
-        public virtual Task OnErrorAsync(CommandContext context, Exception exception) => Task.FromException(new NotImplementedException("No error handler was provided for this command.", exception));
+        public virtual Task OnErrorAsync(CommandContext context, Exception exception) => Task.FromException(new HandlerNotImplementedException("No error handler was provided for this command.", exception));
     }
 }
