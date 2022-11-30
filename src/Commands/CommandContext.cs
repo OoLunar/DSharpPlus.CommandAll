@@ -164,7 +164,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                         throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
                     }
                 }
-                else if (!parameter.Flags.HasFlag(CommandParameterFlags.Params) || !parameter.Flags.HasFlag(CommandParameterFlags.RemainderText))
+                else if (!parameter.Flags.HasFlag(CommandParameterFlags.Params) && !parameter.Flags.HasFlag(CommandParameterFlags.RemainderText))
                 {
                     _logger.LogTrace("Successfully converted argument {Argument} to {Type}", argument, parameter!.ParameterInfo.ParameterType);
                     result.Add(parameter, optional.RawValue);
@@ -182,11 +182,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
                 if (parameter!.Flags.HasFlag(CommandParameterFlags.Params))
                 {
-                    NamedArguments.Add(parameter, array);
+                    result.Add(parameter, array);
                 }
                 else
                 {
-                    NamedArguments.Add(parameter, string.Join(' ', arguments));
+                    result.Add(parameter, string.Join(' ', arguments));
                 }
             }
 
