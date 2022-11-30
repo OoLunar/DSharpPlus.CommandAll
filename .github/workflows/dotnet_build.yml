@@ -34,3 +34,13 @@ jobs:
           path: ./src/bin/Debug/net7.0/publish/
       - name: "Publish Nightly Nuget Packages"
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+      - name: "Update Discord Channel Topic"
+        run: "LATEST_STABLE_VERSION="$(git describe --abbrev=0 --tags)" dotnet run --project ./tools/AutoUpdateChannelDescription"
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
+          LATEST_NIGHTLY_VERSION: Nightly-${{ github.run_number }}
+          NUGET_URL: ${{ secrets.NUGET_URL }}
+          GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
