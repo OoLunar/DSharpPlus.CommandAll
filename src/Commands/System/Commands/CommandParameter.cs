@@ -95,7 +95,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             ArgumentConverterType = builder.ArgumentConverterType;
 
             builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(null) as ApplicationCommandOptionType?;
-            builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired && !DefaultValue.HasValue;
+            builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
 
             SlashName = (builder.CommandAllExtension.ParameterNamingStrategy switch
@@ -122,7 +122,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                         },
                         Description,
                         SlashMetadata.OptionType,
-                        i <= minimumRequiredOptions,
+                        i <= minimumRequiredOptions, // Required until the minimum amount of parameters is reached.
                         SlashMetadata.Choices,
                         null,
                         SlashMetadata.ChannelTypes,
@@ -144,7 +144,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             parameter.SlashName,
             parameter.Description,
             parameter.SlashMetadata.OptionType,
-            !parameter.DefaultValue.HasValue,
+            parameter.SlashMetadata.IsRequired,
             parameter.SlashMetadata.Choices,
             null,
             parameter.SlashMetadata.ChannelTypes,
