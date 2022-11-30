@@ -13,7 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
             string guildId = Environment.GetEnvironmentVariable("DISCORD_GUILD_ID") ?? throw new InvalidOperationException("DISCORD_GUILD_ID environment variable is not set.");
             string channelId = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID") ?? throw new InvalidOperationException("DISCORD_CHANNEL_ID environment variable is not set.");
             string channelTopic = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_TOPIC") ?? throw new InvalidOperationException("DISCORD_DESCRIPTION environment variable is not set.");
-            string latestStableVersion = Environment.GetEnvironmentVariable("LATEST_STABLE_VERSION") ?? throw new InvalidOperationException("LATEST_STABLE_VERSION environment variable is not set.");
+            string latestStableVersion = args.Length == 1 ? args[0] : throw new InvalidOperationException("LATEST_STABLE_VERSION should be the first argument passed.");
             string latestPreviewVersion = Environment.GetEnvironmentVariable("LATEST_PREVIEW_VERSION") ?? throw new InvalidOperationException("LATEST_PREVIEW_VERSION environment variable is not set.");
             string nugetUrl = Environment.GetEnvironmentVariable("NUGET_URL") ?? throw new InvalidOperationException("NUGET_URL environment variable is not set.");
             string githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
