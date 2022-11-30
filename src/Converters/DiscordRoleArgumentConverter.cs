@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -23,7 +25,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 Match match = GetRoleRegex().Match(value);
                 if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out roleId))
                 {
-                    return Task.FromResult(Optional.FromNoValue<DiscordRole>());
+                    // Attempt to find a role by name, case insensitive.
+                    DiscordRole? namedRole = context.Guild!.Roles.Values.FirstOrDefault(role => role.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+                    return Task.FromResult(namedRole is not null ? Optional.FromValue(namedRole) : Optional.FromNoValue<DiscordRole>());
                 }
             }
 

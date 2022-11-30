@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -28,7 +30,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 Match match = GetMemberRegex().Match(value);
                 if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out memberId))
                 {
-                    return Optional.FromNoValue<DiscordUser>();
+                    // Attempt to find a member by name, case insensitive.
+                    DiscordUser? namedMember = context.Guild!.Members.Values.FirstOrDefault(member => member.DisplayName.Equals(value, StringComparison.OrdinalIgnoreCase));
+                    return namedMember is not null ? Optional.FromValue(namedMember) : Optional.FromNoValue<DiscordUser>();
                 }
             }
 

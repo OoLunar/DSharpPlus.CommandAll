@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus;
@@ -23,7 +25,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 Match match = GetChannelRegex().Match(value);
                 if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
                 {
-                    return Task.FromResult(Optional.FromNoValue<DiscordThreadChannel>());
+                    // Attempt to find a thread channel by name, case insensitive.
+                    DiscordThreadChannel? namedChannel = context.Guild!.Threads.Values.FirstOrDefault(channel => channel.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+                    return Task.FromResult(namedChannel is not null ? Optional.FromValue(namedChannel) : Optional.FromNoValue<DiscordThreadChannel>());
                 }
             }
 
