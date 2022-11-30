@@ -129,7 +129,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             Dictionary<CommandParameter, object?> result = new();
             IList? paramsList = null;
             CommandParameter? parameter = null;
-            for (int i = 0; i < arguments.Length; i++)
+            int i;
+            for (i = 0; i < arguments.Length; i++)
             {
                 IOptional optional;
                 object? argument = arguments[i];
@@ -156,7 +157,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
                     {
                         _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", parameter);
-                        result.Add(parameter, parameter.DefaultValue);
+                        result.Add(parameter, parameter.DefaultValue.Value);
                     }
                     else
                     {
@@ -187,6 +188,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 {
                     NamedArguments.Add(parameter, string.Join(' ', arguments));
                 }
+            }
+
+            while (i < CurrentOverload.Parameters.Count)
+            {
+                parameter = CurrentOverload.Parameters[i];
+                if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
+                {
+                    _logger.LogDebug("Adding parameter {Parameter}'s default value because it was not provided.", parameter);
+                    result.Add(parameter, parameter.DefaultValue.Value);
+                }
+                else
+                {
+                    throw new ArgumentException($"Not enough arguments were provided. Expected {CurrentOverload.Parameters.Count}, got {arguments.Length}.", nameof(arguments));
+                }
+                i++;
             }
 
             return result;
