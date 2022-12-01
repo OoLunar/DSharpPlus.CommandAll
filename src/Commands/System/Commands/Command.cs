@@ -132,11 +132,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 
             foreach (Command subcommand in command.Subcommands)
             {
-                overload = subcommand.Overloads.FirstOrDefault(overload => overload.Flags.HasFlag(CommandOverloadFlags.SlashPreferred));
-                if (overload is not null)
-                {
-                    subCommandAndGroups.Add((DiscordApplicationCommandOption)overload);
-                }
+                subCommandAndGroups.Add((DiscordApplicationCommandOption)subcommand);
             }
 
             return new DiscordApplicationCommand(
