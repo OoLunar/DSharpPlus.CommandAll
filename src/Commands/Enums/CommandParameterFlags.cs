@@ -26,6 +26,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
         /// <summary>
         /// This parameter is a <see cref="string"/> and can take the rest of the input.
         /// </summary>
-        RemainderText = 1 << 3,
+        RemainingText = 1 << 3,
     }
 }
