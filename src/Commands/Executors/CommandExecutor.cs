@@ -59,7 +59,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
                     }
 
                     _logger.LogTrace("{CommandName}: Executing after command async.", context.CurrentCommand.Name);
-                    task = commandObject.AfterExecutionAsync(context).ContinueWith(task => ExecuteErrorHandlerAsync(context, commandObject, task.Exception!), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.RunContinuationsAsynchronously);
+                    task = commandObject.AfterExecutionAsync(context);
                     await task;
                 }
                 catch (TargetInvocationException targetError)
