@@ -89,6 +89,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public bool IsSlashCommand => Interaction is not null;
 
         /// <summary>
+        /// The original response to the message or interaction, if any.
+        /// </summary>
+        /// <remarks>
+        /// Not null when <see cref="IsSlashCommand"/> is false and <see cref="ReplyAsync(DiscordMessageBuilder)"/> has been called.
+        /// </remarks>
+        public DiscordMessage? OriginalResponse { get; private set; }
+
+        /// <summary>
         /// Used to log complaints.
         /// </summary>
         private readonly ILogger<CommandContext> _logger;
@@ -232,15 +240,21 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// </summary>
         /// <remarks>
         /// If the command was invoked via a text command and <paramref name="messageBuilder"/> does not have a reply message set, the message that invoked the command will be set as the reply.
+        /// Additionally if <see cref="DiscordMessageBuilder.Mentions"/> is not set, it will be set to <see cref="Mentions.None"/>.
         /// </remarks>
         /// <param name="messageBuilder">The message to send.</param>
-        public Task ReplyAsync(DiscordMessageBuilder messageBuilder)
+        public async Task ReplyAsync(DiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
             {
+                if (LastInteractionResponseType is not null)
+                {
+                    throw new InvalidOperationException("Cannot respond to a slash command more than once.");
+                }
+
                 _logger.LogDebug("Replying to slash command {Id}.", Interaction!.Id);
                 LastInteractionResponseType = InteractionResponseType.ChannelMessageWithSource;
-                return Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
+                await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
             }
             else
             {
@@ -257,9 +271,17 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     messageBuilder.WithAllowedMentions(Mentions.None);
                 }
 
-                return Channel.SendMessageAsync(messageBuilder);
+                OriginalResponse = await Channel.SendMessageAsync(messageBuilder);
             }
         }
+
+        /// <inheritdoc cref="ReplyAsync(DiscordMessageBuilder)"/>
+        /// <param name="content">The content to send.</param>
+        public Task ReplyAsync(string content) => ReplyAsync(new DiscordMessageBuilder().WithContent(content));
+
+        /// <inheritdoc cref="ReplyAsync(DiscordMessageBuilder)"/>
+        /// <param name="embed">The embed to send.</param>
+        public Task ReplyAsync(DiscordEmbedBuilder embedBuilder) => ReplyAsync(new DiscordMessageBuilder().AddEmbed(embedBuilder));
 
         /// <summary>
         /// Responds to the command by letting the user know that the command is still being processed.
@@ -271,6 +293,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         {
             if (IsSlashCommand)
             {
+                if (LastInteractionResponseType is not null)
+                {
+                    throw new InvalidOperationException("Cannot delay a command that has already responded.");
+                }
+
                 _logger.LogDebug("Delaying slash command {Id}.", Interaction!.Id);
                 LastInteractionResponseType = InteractionResponseType.DeferredChannelMessageWithSource;
                 return Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
@@ -294,19 +321,28 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 if (LastInteractionResponseType is InteractionResponseType.DeferredChannelMessageWithSource)
                 {
                     _logger.LogDebug("Editing deferred slash command {Id}.", Interaction!.Id);
-                    LastInteractionResponseType = InteractionResponseType.DeferredMessageUpdate;
+                    LastInteractionResponseType = InteractionResponseType.UpdateMessage;
                 }
                 else
                 {
                     _logger.LogDebug("Editing slash command {Id}.", Interaction!.Id);
                     LastInteractionResponseType = InteractionResponseType.UpdateMessage;
                 }
-                return Interaction!.CreateResponseAsync(LastInteractionResponseType.Value, new DiscordInteractionResponseBuilder(messageBuilder));
+
+                DiscordWebhookBuilder webhookBuilder = new();
+                webhookBuilder.WithContent(messageBuilder.Content);
+                webhookBuilder.WithTTS(messageBuilder.IsTTS);
+                webhookBuilder.AddEmbeds(messageBuilder.Embeds);
+                webhookBuilder.AddComponents(messageBuilder.Components);
+                webhookBuilder.AddFiles(messageBuilder.Files.ToDictionary(file => file.FileName, file => file.Stream));
+                webhookBuilder.AddMentions(messageBuilder.Mentions);
+
+                return Interaction!.EditOriginalResponseAsync(webhookBuilder);
             }
             else
             {
                 _logger.LogDebug("Editing text command response {Id}.", Message!.Id);
-                return Message!.ModifyAsync(messageBuilder);
+                return OriginalResponse!.ModifyAsync(messageBuilder);
             }
         }
 
@@ -323,7 +359,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             else
             {
                 _logger.LogDebug("Deleting text command response to message id {Id}.", Message!.Id);
-                return Message!.DeleteAsync();
+                return OriginalResponse!.DeleteAsync();
             }
         }
 
