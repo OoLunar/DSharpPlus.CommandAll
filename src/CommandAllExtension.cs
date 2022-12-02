@@ -204,22 +204,32 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// </summary>
         /// <param name="client">Unused.</param>
         /// <param name="eventArgs">Used to read <see cref="DiscordMessage.Content"/> to parse and execute commands.</param>
-        private async Task DiscordClient_MessageCreatedAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
+        private Task DiscordClient_MessageCreatedAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
         {
             // Remove the prefix
             if (!PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString))
             {
-                return;
+                return Task.CompletedTask;
             }
             // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
             else if (!CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command))
             {
-                await _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, eventArgs.Author as DiscordMember, this, null!, null!), new CommandNotFoundException("Command was not found.", commandString)));
+                return _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, eventArgs.Author as DiscordMember, this, null!, null!), new CommandNotFoundException("Command was not found.", commandString)));
             }
             else if (!command.Flags.HasFlag(CommandFlags.Disabled))
             {
-                _ = await CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Message, rawArguments));
+                CommandContext context = new(this, command, eventArgs.Message, rawArguments);
+                try
+                {
+                    return CommandExecutor.ExecuteAsync(context);
+                }
+                catch (Exception error)
+                {
+                    return _commandErrored.InvokeAsync(this, new(context, error));
+                }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -229,6 +239,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to determine if the interaction is an application command and conditionally executes commands with the provided data.</param>
         private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
+            if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand)
+            {
+                return Task.CompletedTask;
+            }
+
             StringBuilder commandName = new(eventArgs.Interaction.Data.Name);
             IEnumerable<DiscordInteractionDataOption> options = eventArgs.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand)
@@ -237,9 +252,22 @@ namespace OoLunar.DSharpPlus.CommandAll
                 options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
             }
 
-            return eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(commandName.ToString(), out _, out Command? command)
-                ? Task.CompletedTask
-                : CommandExecutor.ExecuteAsync(new CommandContext(this, command, eventArgs.Interaction, options));
+            if (!CommandManager.TryFindCommand(commandName.ToString(), out _, out Command? command))
+            {
+                return Task.CompletedTask;
+            }
+            else
+            {
+                CommandContext context = new(this, command, eventArgs.Interaction, options);
+                try
+                {
+                    return CommandExecutor.ExecuteAsync(context);
+                }
+                catch (Exception error)
+                {
+                    return _commandErrored.InvokeAsync(this, new(context, error));
+                }
+            }
         }
 
         /// <summary>
