@@ -314,7 +314,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// Edits the original response to the command.
         /// </summary>
         /// <param name="messageBuilder">The new message content.</param>
-        public Task EditAsync(DiscordMessageBuilder messageBuilder)
+        public async Task EditAsync(DiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
             {
@@ -337,12 +337,19 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 webhookBuilder.AddFiles(messageBuilder.Files.ToDictionary(file => file.FileName, file => file.Stream));
                 webhookBuilder.AddMentions(messageBuilder.Mentions);
 
-                return Interaction!.EditOriginalResponseAsync(webhookBuilder);
+                await Interaction!.EditOriginalResponseAsync(webhookBuilder);
             }
             else
             {
                 _logger.LogDebug("Editing text command response {Id}.", Message!.Id);
-                return OriginalResponse!.ModifyAsync(messageBuilder);
+                if (OriginalResponse is null)
+                {
+                    OriginalResponse = await Message.RespondAsync(messageBuilder);
+                }
+                else
+                {
+                    await OriginalResponse.ModifyAsync(messageBuilder);
+                }
             }
         }
 
