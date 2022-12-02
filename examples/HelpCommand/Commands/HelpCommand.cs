@@ -14,7 +14,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
         [Command("help"), Description("Lists the commands available or provides more information on the requested command.")]
         public static Task EchoAsync(CommandContext context, [Description("The command to search for.")] string? command = null)
         {
-            DiscordMessageBuilder messageBuilder = new();
             if (command is null)
             {
                 DiscordEmbedBuilder embedBuilder = new() { Color = new DiscordColor("#6b73db") };
@@ -22,7 +21,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
                 {
                     embedBuilder.AddField(distinctCommand.Name, distinctCommand.Description);
                 }
-                messageBuilder.AddEmbed(embedBuilder);
+
+                return context.ReplyAsync(embedBuilder);
             }
             else
             {
@@ -39,15 +39,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
                     {
                         embedBuilder.AddField($"Parameter '{parameter.Name}'", parameter.Description);
                     }
-                    messageBuilder.AddEmbed(embedBuilder);
+
+                    return context.ReplyAsync(embedBuilder);
                 }
                 else
                 {
-                    messageBuilder.WithContent($":x: Command {Formatter.InlineCode(Formatter.Sanitize(command))} not found.");
+                    return context.ReplyAsync($":x: Command {Formatter.InlineCode(Formatter.Sanitize(command))} not found.");
                 }
             }
-
-            return context.ReplyAsync(messageBuilder);
         }
     }
 }

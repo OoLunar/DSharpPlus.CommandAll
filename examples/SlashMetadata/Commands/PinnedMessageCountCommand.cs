@@ -13,7 +13,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata.Commands
         public static async Task GetPinnedMessageCountAsync(CommandContext context, [Description("The channel to grab.")] DiscordChannel channel)
         {
             IReadOnlyList<DiscordMessage> messages = await channel.GetPinnedMessagesAsync();
-            await context.ReplyAsync(new() { Content = $"There are {messages.Count} pinned messages in {channel.Mention}." });
+            await context.ReplyAsync($"There are {messages.Count} pinned messages in {channel.Mention}.");
         }
     }
 }
