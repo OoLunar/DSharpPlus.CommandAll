@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{69AC467F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoUpdateChannelDescription", "tools\AutoUpdateChannelDescription\AutoUpdateChannelDescription.csproj", "{6811E3FF-C52C-49E9-8FAD-A38406DB2657}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShardedPingCommand", "examples\ShardedPingCommand\ShardedPingCommand.csproj", "{12E09775-37D0-4CF4-A867-8F3277F04A55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{6811E3FF-C52C-49E9-8FAD-A38406DB2657}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6811E3FF-C52C-49E9-8FAD-A38406DB2657}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6811E3FF-C52C-49E9-8FAD-A38406DB2657}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12E09775-37D0-4CF4-A867-8F3277F04A55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12E09775-37D0-4CF4-A867-8F3277F04A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12E09775-37D0-4CF4-A867-8F3277F04A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12E09775-37D0-4CF4-A867-8F3277F04A55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{06F0E48A-D475-433F-BECB-D29F5DD62CCA} = {6BBB53CE-7077-4F6B-9403-D5B7A9B6A960}
@@ -72,5 +78,6 @@ Global
 		{58714C4A-98BB-4714-931E-A68565DD8F86} = {6BBB53CE-7077-4F6B-9403-D5B7A9B6A960}
 		{5F5E6434-2C2E-4E05-BE88-CE42EBB97979} = {6BBB53CE-7077-4F6B-9403-D5B7A9B6A960}
 		{6811E3FF-C52C-49E9-8FAD-A38406DB2657} = {69AC467F-0F13-4853-AB55-16C567AB7A63}
+		{12E09775-37D0-4CF4-A867-8F3277F04A55} = {6BBB53CE-7077-4F6B-9403-D5B7A9B6A960}
 	EndGlobalSection
 EndGlobal
