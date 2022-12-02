@@ -115,7 +115,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         return false;
                     }
                 }
-                else if (argumentConverterInterface.GenericTypeArguments[0] != ParameterInfo.ParameterType)
+                else if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(ParameterInfo.ParameterType))
                 {
                     error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
                     return false;
@@ -196,6 +196,18 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             if (parameterInfo.IsOptional)
             {
                 builder.Flags |= CommandParameterFlags.Optional;
+            }
+
+            if (parameterInfo.ParameterType.IsEnum)
+            {
+                string[] enumNames = Enum.GetNames(parameterInfo.ParameterType);
+                Array enumValues = Enum.GetValues(parameterInfo.ParameterType);
+
+                for (int i = 0; i < enumNames.Length; i++)
+                {
+                    builder.SlashMetadata.Choices ??= new();
+                    builder.SlashMetadata.Choices.Add(new(enumNames[i], (int)enumValues.GetValue(i)!));
+                }
             }
 
             error = null;
