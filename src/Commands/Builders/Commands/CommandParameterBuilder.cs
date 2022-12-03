@@ -9,6 +9,7 @@ using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Converters;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
@@ -208,6 +209,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                     builder.SlashMetadata.Choices ??= new();
                     builder.SlashMetadata.Choices.Add(new(enumNames[i], (int)enumValues.GetValue(i)!));
                 }
+
+                builder.ArgumentConverterType ??= typeof(EnumArgumentConverter);
             }
 
             error = null;
