@@ -49,16 +49,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
                 }
             }
 
-            // Iterate through all the guilds on the shard to find the user.
-            // We could iterate through all the shards, however I don't know how long it would take (nor do I have a way to measure it)
-            foreach (DiscordGuild guild in context.Client.Guilds.Values)
-            {
-                if (guild.Members.TryGetValue(memberId, out DiscordMember? member))
-                {
-                    return Optional.FromValue(member as DiscordUser);
-                }
-            }
-
             // If we didn't find the user in any guild, try to get the user from the API.
             try
             {

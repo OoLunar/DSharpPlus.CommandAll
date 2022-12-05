@@ -35,15 +35,24 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             }
 
             DiscordChannel? channel = null;
-            if (match.Groups.TryGetValue("guild", out Group? guildGroup) && ulong.TryParse(guildGroup.ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong guildId) && context.Client.Guilds.TryGetValue(guildId, out DiscordGuild? guild) && guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
+            if (match.Groups.TryGetValue("guild", out Group? guildGroup) && ulong.TryParse(guildGroup.ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong guildId) && context.Client.Guilds.TryGetValue(guildId, out DiscordGuild? guild))
             {
-                channel = guildChannel;
+                // Make sure the message belongs to the guild
+                if (guild.Id != context.Guild!.Id)
+                {
+                    return Optional.FromNoValue<DiscordMessage>();
+                }
+                else if (guild.Channels.TryGetValue(channelId, out DiscordChannel? guildChannel))
+                {
+                    channel = guildChannel;
+                }
+                // guildGroup is null which means the link used @me, which means DM's. At this point, we can only get the message if the DM is with the bot.
+                else if (guildGroup is null && channelId == context.Client.CurrentUser.Id)
+                {
+                    channel = context.Client.PrivateChannels.TryGetValue(context.User.Id, out DiscordDmChannel? dmChannel) ? dmChannel : null;
+                }
             }
-            // guildGroup is null which means the link used @me, which means DM's. At this point, we can only get the message if the DM is with the bot.
-            else if (guildGroup is null && channelId == context.Client.CurrentUser.Id)
-            {
-                channel = context.Client.PrivateChannels.TryGetValue(context.User.Id, out DiscordDmChannel? dmChannel) ? dmChannel : null;
-            }
+
 
             if (channel is null)
             {
