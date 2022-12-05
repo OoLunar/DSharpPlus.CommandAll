@@ -25,6 +25,10 @@ jobs:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       - name: Package
         run: dotnet pack -c Debug -o build -p:Nightly=${{ github.run_number }}
       - name: Upload Artifact
