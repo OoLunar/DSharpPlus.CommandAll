@@ -8,7 +8,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
@@ -20,7 +19,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
         private readonly ILogger<DiscordUserArgumentConverter> _logger;
 
-        public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? NullLogger<DiscordUserArgumentConverter>.Instance;
+        public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)

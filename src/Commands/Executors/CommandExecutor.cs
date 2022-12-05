@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
@@ -18,13 +17,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
         /// <summary>
         /// Allows logging of exceptions caused by <see cref="BaseCommand.OnErrorAsync(CommandContext, Exception)"/>.
         /// </summary>
-        private readonly ILogger<CommandExecutor> _logger = NullLogger<CommandExecutor>.Instance;
+        private readonly ILogger<CommandExecutor> _logger;
 
         /// <summary>
         /// Creates a new instance of the <see cref="CommandExecutor"/> class, which runs commands through <see cref="Task.Run(Action, CancellationToken)"/>.
         /// </summary>
         /// <param name="logger">Which logger to use when reporting uncaught exceptions.</param>
-        public CommandExecutor(ILogger<CommandExecutor>? logger = null) => _logger = logger ?? NullLogger<CommandExecutor>.Instance;
+        public CommandExecutor(ILogger<CommandExecutor>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <summary>
         /// Executes a command asynchronously through <see cref="Task.Run(Action, CancellationToken)"/>.

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
@@ -24,12 +23,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         /// <summary>
         /// Used to log when a command is or isn't found.
         /// </summary>
-        private readonly ILogger<CommandManager> _logger = NullLogger<CommandManager>.Instance;
+        private readonly ILogger<CommandManager> _logger;
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandManager"/>.
         /// </summary>
-        public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? NullLogger<CommandManager>.Instance;
+        public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc />
         public void AddCommand<T>(CommandAllExtension extension) where T : BaseCommand => AddCommand(extension, typeof(T));

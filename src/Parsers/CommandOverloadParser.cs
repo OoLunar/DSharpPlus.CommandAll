@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
@@ -14,10 +14,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
         /// <summary>
         /// The logger used to log messages.
         /// </summary>
-        private readonly ILogger<CommandOverloadParser> _logger = NullLogger<CommandOverloadParser>.Instance;
+        private readonly ILogger<CommandOverloadParser> _logger;
 
         /// <inheritdoc/>
-        public CommandOverloadParser(ILogger<CommandOverloadParser>? logger = null) => _logger = logger ?? NullLogger<CommandOverloadParser>.Instance;
+        public CommandOverloadParser(ILogger<CommandOverloadParser>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc/>
         public bool TryParseOverload(Command command, IEnumerable<string> arguments, [NotNullWhen(true)] out CommandOverload? overload)

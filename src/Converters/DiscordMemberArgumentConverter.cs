@@ -7,7 +7,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
@@ -19,7 +18,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
         public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
         private readonly ILogger<DiscordMemberArgumentConverter> _logger;
 
-        public DiscordMemberArgumentConverter(ILogger<DiscordMemberArgumentConverter> logger) => _logger = logger ?? NullLogger<DiscordMemberArgumentConverter>.Instance;
+        public DiscordMemberArgumentConverter(ILogger<DiscordMemberArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         public async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {

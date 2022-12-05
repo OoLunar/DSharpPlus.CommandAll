@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
@@ -20,13 +19,13 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         /// <summary>
         /// Used to log when a type isn't an argument converter or a parameter cannot be assigned an argument converter.
         /// </summary>
-        private readonly ILogger<ArgumentConverterManager> _logger = NullLogger<ArgumentConverterManager>.Instance;
+        private readonly ILogger<ArgumentConverterManager> _logger;
 
         /// <summary>
         /// Creates a new instance of <see cref="ArgumentConverterManager"/>.
         /// </summary>
         /// <param name="logger">The logger to use to overly complain about things.</param>
-        public ArgumentConverterManager(ILogger<ArgumentConverterManager>? logger = null) => _logger = logger ?? NullLogger<ArgumentConverterManager>.Instance;
+        public ArgumentConverterManager(ILogger<ArgumentConverterManager>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc />
         public void AddArgumentConverter<T>() where T : IArgumentConverter => AddArgumentConverter(typeof(T));
