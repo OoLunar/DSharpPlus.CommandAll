@@ -179,7 +179,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
                 else
                 {
-                    paramsList ??= Array.CreateInstance(parameter.ParameterInfo.ParameterType.GetElementType()!, arguments.Length - i);
+                    paramsList ??= Array.CreateInstance(parameter.ParameterInfo.ParameterType.GetElementType() ?? parameter.ParameterInfo.ParameterType, arguments.Length - i);
                     paramsList[arguments.Length - i - 1] = optional.RawValue;
                 }
             }
