@@ -141,14 +141,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             int i = 1; // Start at 1 because the first element is the command name. Incremented after each subcommand is found.
             while (command.Subcommands.Count != 0 && i < split.Length)
             {
+                bool found = false;
                 foreach (Command subcommand in command.Subcommands)
                 {
                     if (subcommand.Aliases.Contains(split[i]))
                     {
+                        found = true;
                         command = subcommand;
                         i++;
                         break;
                     }
+                }
+
+                if (!found)
+                {
+                    rawArguments = null;
+                    return false;
                 }
             }
 
