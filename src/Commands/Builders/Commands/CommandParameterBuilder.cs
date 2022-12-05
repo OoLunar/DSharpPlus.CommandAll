@@ -182,6 +182,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
                         builder.DefaultValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, 0);
                         break;
+                    case RequiredByAttribute requiredBy:
+                        builder.SlashMetadata.IsRequired = requiredBy.RequiredBy.HasFlag(RequiredBy.SlashCommand);
+                        break;
                     case RemainingTextAttribute:
                         if (builder.ParameterInfo.ParameterType != typeof(string))
                         {
