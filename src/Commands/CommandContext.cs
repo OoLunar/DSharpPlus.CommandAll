@@ -281,7 +281,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
         /// <inheritdoc cref="ReplyAsync(DiscordMessageBuilder)"/>
         /// <param name="embed">The embed to send.</param>
-        public Task ReplyAsync(DiscordEmbedBuilder embedBuilder) => ReplyAsync(new DiscordMessageBuilder().AddEmbed(embedBuilder));
+        public Task ReplyAsync(params DiscordEmbedBuilder[] embedBuilders) => ReplyAsync(new DiscordMessageBuilder().AddEmbeds(embedBuilders.Select(embedBuilder => embedBuilder.Build())));
 
         /// <summary>
         /// Responds to the command by letting the user know that the command is still being processed.
@@ -352,6 +352,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
             }
         }
+
+        /// <inheritdoc cref="EditAsync(DiscordMessageBuilder)"/>
+        /// <param name="content">The new message content.</param>
+        public Task EditAsync(string content) => EditAsync(new DiscordMessageBuilder().WithContent(content));
+
+        /// <inheritdoc cref="EditAsync(DiscordMessageBuilder)"/>
+        /// <param name="embed">The new message content.</param>
+        public Task EditAsync(params DiscordEmbedBuilder[] embedBuilders) => EditAsync(new DiscordMessageBuilder().AddEmbeds(embedBuilders.Select(embedBuilder => embedBuilder.Build())));
 
         /// <summary>
         /// Deletes the original response to the command.
