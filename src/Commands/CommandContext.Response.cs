@@ -21,7 +21,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         {
             if (IsSlashCommand)
             {
-                if (LastInteractionResponseType is not InteractionResponseType.Modal)
+                if (LastInteractionResponseType is not null and not InteractionResponseType.Modal)
                 {
                     throw new InvalidOperationException("Cannot respond to a slash command more than once.");
                 }

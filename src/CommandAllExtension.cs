@@ -73,6 +73,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         public readonly CommandParameterNamingStrategy ParameterNamingStrategy;
 
         /// <summary>
+        /// How long <see cref="CommandContext.PromptAsync"/> should wait PER TEXT COMPONENT before timing out. Defaults to 30 seconds per <see cref="TextInputComponent"/>.
+        /// </summary>
+        public readonly TimeSpan PromptTimeout;
+
+        /// <summary>
         /// Executed everytime a command is finished executing.
         /// </summary>
         public event AsyncEventHandler<CommandAllExtension, CommandExecutedEventArgs> CommandExecuted { add => _commandExecuted.Register(value); remove => _commandExecuted.Unregister(value); }
@@ -111,6 +116,7 @@ namespace OoLunar.DSharpPlus.CommandAll
             TextArgumentParser = configuration.TextArgumentParser;
             DebugGuildId = configuration.DebugGuildId;
             ParameterNamingStrategy = configuration.ParameterNamingStrategy;
+            PromptTimeout = configuration.PromptTimeout;
 
             // Add the default converters to the argument converter manager.
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly);

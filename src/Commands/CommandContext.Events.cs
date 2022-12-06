@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -15,17 +15,20 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
     /// </summary>
     public sealed partial class CommandContext
     {
+        public readonly TimeSpan PromptTimeout;
         private string? _expectedId;
-        private Dictionary<string, string> _prompts;
-        private TaskCompletionSource<IEnumerable<string>> _userInputTcs { get; set; } = new();
+        private Dictionary<string, string>? _prompts;
+        private TaskCompletionSource<IEnumerable<string>>? _userInputTcs { get; set; }
+        private CancellationTokenSource? _userInputCts { get; set; }
 
-        public async Task<IEnumerable<string>> PromptAsync(params string[] messages)
+        public async Task<IReadOnlyList<string>?> PromptAsync(params TextInputComponent[] messages)
         {
             if (messages.Length is < 1 or > 5)
             {
                 throw new ArgumentOutOfRangeException(nameof(messages), "Must have between 1 and 5 messages.");
             }
 
+            _userInputTcs = new TaskCompletionSource<IEnumerable<string>>();
             if (IsSlashCommand)
             {
                 if (LastInteractionResponseType is not null)
@@ -42,25 +45,33 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                         CustomId = _expectedId = Guid.NewGuid().ToString()
                     };
 
+                    // Can't add them all at once because it'll be shoved into an action row and break.
                     for (int i = 0; i < messages.Length; i++)
                     {
-                        string message = messages[i];
-                        responseBuilder.AddComponents(new TextInputComponent(message, i.ToString(CultureInfo.InvariantCulture), style: TextInputStyle.Paragraph, min_length: 1));
+                        responseBuilder.AddComponents(messages[i]);
                     }
-
                     Client.ModalSubmitted += HandleModalAsync;
                     await Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
                 }
             }
             else
             {
-                // Sets Response in logic
-                _prompts = messages.ToDictionary(message => message, message => string.Empty);
+                ResetCancellationToken();
+                _prompts = messages.ToDictionary(message => message.Label, message => string.Empty);
                 Client.MessageCreated += HandleMessageAsync;
-                await ReplyAsync(messages[0]);
+
+                // Sets Response in logic
+                await ReplyAsync(messages[0].Label);
             }
 
-            return await _userInputTcs.Task;
+            try
+            {
+                return (await _userInputTcs.Task).ToList().AsReadOnly();
+            }
+            catch (TaskCanceledException)
+            {
+                return null;
+            }
         }
 
         private Task HandleModalAsync(DiscordClient client, ModalSubmitEventArgs eventArgs)
@@ -72,7 +83,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
             Client.ModalSubmitted -= HandleModalAsync;
             Interaction = eventArgs.Interaction;
-            _userInputTcs.SetResult(eventArgs.Values.OrderBy(kvp => kvp.Key).Select(value => value.Value));
+            _userInputTcs!.SetResult(eventArgs.Values.Values.Select(value => value));
             return Task.CompletedTask;
         }
 
@@ -84,7 +95,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
 
             _logger.LogDebug("Handling message {Id}.", eventArgs.Message.Id);
-            for (int i = 0; i < _prompts.Count; i++)
+            for (int i = 0; i < _prompts!.Count; i++)
             {
                 if (_prompts.ElementAt(i).Key == eventArgs.Message.ReferencedMessage.Content)
                 {
@@ -92,14 +103,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     if (i + 1 < _prompts.Count)
                     {
                         await ReplyAsync(_prompts.ElementAt(i + 1).Key);
+                        ResetCancellationToken();
                     }
                     else
                     {
                         Client.MessageCreated -= HandleMessageAsync;
-                        _userInputTcs.SetResult(_prompts.Values);
+                        _userInputTcs!.SetResult(_prompts.Values);
                     }
                 }
             }
+        }
+
+        private void ResetCancellationToken()
+        {
+            _userInputCts ??= new CancellationTokenSource();
+            _userInputCts.TryReset();
+            _userInputCts.CancelAfter(PromptTimeout);
+            _userInputCts.Token.Register(_userInputTcs!.SetCanceled);
         }
     }
 }

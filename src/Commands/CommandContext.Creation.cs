@@ -145,6 +145,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             CurrentOverload = null!; // This will be overriden by both constructors that call this one.
             RawArguments = rawArguments;
             NamedArguments = new Dictionary<CommandParameter, object?>();
+            PromptTimeout = extension.PromptTimeout;
             _logger = extension.ServiceProvider.GetRequiredService<ILogger<CommandContext>>();
         }
 

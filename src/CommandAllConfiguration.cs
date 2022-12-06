@@ -1,4 +1,5 @@
 using System;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -57,6 +58,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// The guild id used when registering slash commands in debug mode. If not set, slash commands will not be registered.
         /// </summary>
         public ulong? DebugGuildId { get; set; }
+
+        /// <summary>
+        /// How long <see cref="CommandContext.PromptAsync"/> should wait PER TEXT COMPONENT before timing out. Defaults to 30 seconds per <see cref="TextInputComponent"/>.
+        /// </summary>
+        public TimeSpan PromptTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <inheritdoc cref="CommandParameterNamingStrategy"/>
         public CommandParameterNamingStrategy ParameterNamingStrategy { get; set; } = CommandParameterNamingStrategy.SnakeCase;

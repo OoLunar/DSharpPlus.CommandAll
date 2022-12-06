@@ -24,7 +24,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Converters
             {
                 // Value could be a channel mention.
                 Match match = GetChannelRegex().Match(value);
-                if (!match.Success || !ulong.TryParse(match.Captures[0].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
+                if (!match.Success || !ulong.TryParse(match.Groups[1].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out channelId))
                 {
                     // Attempt to find a channel by name, case insensitive.
                     DiscordChannel? namedChannel = context.Guild!.Channels.Values.FirstOrDefault(channel => channel.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
