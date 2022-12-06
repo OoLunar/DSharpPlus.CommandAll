@@ -17,7 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// Additionally if <see cref="DiscordMessageBuilder.Mentions"/> is not set, it will be set to <see cref="Mentions.None"/>.
         /// </remarks>
         /// <param name="messageBuilder">The message to send.</param>
-        public async Task ReplyAsync(DiscordMessageBuilder messageBuilder)
+        public async Task ReplyAsync(IDiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
             {
@@ -28,24 +28,25 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
                 _logger.LogDebug("Replying to slash command {Id}.", Interaction!.Id);
                 LastInteractionResponseType = InteractionResponseType.ChannelMessageWithSource;
-                await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
+                await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, (DiscordInteractionResponseBuilder)messageBuilder);
             }
             else
             {
+                DiscordMessageBuilder builder = (DiscordMessageBuilder)messageBuilder;
                 _logger.LogDebug("Replying to message {Id}.", Message!.Id);
-                if (messageBuilder.ReplyId is null)
+                if (builder.ReplyId is null)
                 {
                     _logger.LogTrace("No reply set, setting reply to text command message id {Id}.", Message.Id);
-                    messageBuilder.WithReply(Message.Id);
+                    builder.WithReply(Message.Id);
                 }
 
-                if (messageBuilder.Mentions is null || messageBuilder.Mentions.Count == 0)
+                if (builder.Mentions is null || builder.Mentions.Count == 0)
                 {
                     _logger.LogTrace("No mentions explicitly set when replying to text command message id {Id}, automatically preventing any accidental mentions.", Message.Id);
-                    messageBuilder.WithAllowedMentions(Mentions.None);
+                    builder.WithAllowedMentions(Mentions.None);
                 }
 
-                Response = await Channel.SendMessageAsync(messageBuilder);
+                Response = await Channel.SendMessageAsync(builder);
             }
         }
 
@@ -88,7 +89,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         /// Edits the original response to the command.
         /// </summary>
         /// <param name="messageBuilder">The new message content.</param>
-        public async Task EditAsync(DiscordMessageBuilder messageBuilder)
+        public async Task EditAsync(IDiscordMessageBuilder messageBuilder)
         {
             if (IsSlashCommand)
             {
@@ -103,26 +104,18 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     LastInteractionResponseType = InteractionResponseType.UpdateMessage;
                 }
 
-                DiscordWebhookBuilder webhookBuilder = new();
-                webhookBuilder.WithContent(messageBuilder.Content);
-                webhookBuilder.WithTTS(messageBuilder.IsTTS);
-                webhookBuilder.AddEmbeds(messageBuilder.Embeds);
-                webhookBuilder.AddComponents(messageBuilder.Components);
-                webhookBuilder.AddFiles(messageBuilder.Files.ToDictionary(file => file.FileName, file => file.Stream));
-                webhookBuilder.AddMentions(messageBuilder.Mentions);
-
-                await Interaction!.EditOriginalResponseAsync(webhookBuilder);
+                await Interaction!.EditOriginalResponseAsync((DiscordWebhookBuilder)messageBuilder);
             }
             else
             {
                 _logger.LogDebug("Editing text command response {Id}.", Message!.Id);
                 if (Response is null)
                 {
-                    Response = await Message.RespondAsync(messageBuilder);
+                    Response = await Message.RespondAsync((DiscordMessageBuilder)messageBuilder);
                 }
                 else
                 {
-                    await Response.ModifyAsync(messageBuilder);
+                    await Response.ModifyAsync((DiscordMessageBuilder)messageBuilder);
                 }
             }
         }
