@@ -7,6 +7,7 @@ using System.Reflection;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
@@ -193,7 +194,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             recursionLevel ??= 0;
 
             // Parse overloads
-            List<KeyValuePair<string, CommandOverloadBuilder>> overloads = new();
+            List<(string, IEnumerable<string>, CommandOverloadBuilder)> overloads = new();
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
                 if (method.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
@@ -205,16 +206,20 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         return false;
                     }
 
-                    overloads.Add(new KeyValuePair<string, CommandOverloadBuilder>(commandAttribute.Name, overload));
+                    overloads.Add(new(commandAttribute.Name, commandAttribute.Aliases, overload));
                 }
             }
 
             List<CommandBuilder> commandBuilders = new();
-            foreach (IGrouping<string, KeyValuePair<string, CommandOverloadBuilder>> value in overloads.GroupBy(x => x.Key))
+            foreach (IGrouping<string, (string, IEnumerable<string>, CommandOverloadBuilder)> value in overloads.GroupBy(x => x.Item1))
             {
-                CommandBuilder builder = new(commandAllExtension) { Overloads = new(value.Select(x => x.Value)) };
+                CommandBuilder builder = new(commandAllExtension)
+                {
+                    Name = value.Key,
+                    Aliases = new(value.SelectMany(x => x.Item2)),
+                    Overloads = new(value.Select(x => x.Item3))
+                };
                 builder.NormalizeOverloadPriorities();
-                builder.Name = value.Key;
 
                 // Take the description from the first overload that has it.
                 foreach (CommandOverloadBuilder overload in builder.Overloads)
@@ -251,6 +256,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 CommandBuilder builder = new(commandAllExtension)
                 {
                     Name = commandAttribute.Name,
+                    Aliases = commandAttribute.Aliases.ToList(),
                     Description = type.GetCustomAttribute<DescriptionAttribute>()?.Description,
                     Subcommands = new(commandBuilders),
                 };
