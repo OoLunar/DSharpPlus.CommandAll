@@ -40,7 +40,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
             _ = Task.Run(async () =>
             {
                 // Constructor DI only
-                BaseCommand commandObject = (BaseCommand)ActivatorUtilities.CreateInstance(context.Extension.ServiceProvider, context.CurrentOverload.Method.DeclaringType!);
+                BaseCommand commandObject = (BaseCommand)ActivatorUtilities.CreateInstance(context.ServiceProvider, context.CurrentOverload.Method.DeclaringType!);
                 Task task;
 
                 try

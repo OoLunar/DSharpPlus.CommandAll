@@ -81,6 +81,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public DiscordClient Client => Extension.Client;
 
         /// <summary>
+        /// A new scope for the command context, created from the <see cref="Extension"/>'s <see cref="IServiceProvider"/>.
+        /// </summary>
+        public readonly IServiceProvider ServiceProvider;
+
+        /// <summary>
         /// Whether the command was executed via slash command or not.
         /// </summary>
         public bool IsSlashCommand => Interaction is not null;
@@ -146,6 +151,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             RawArguments = rawArguments;
             NamedArguments = new Dictionary<CommandParameter, object?>();
             PromptTimeout = extension.PromptTimeout;
+            ServiceProvider = extension.ServiceProvider.CreateScope().ServiceProvider;
             _logger = extension.ServiceProvider.GetRequiredService<ILogger<CommandContext>>();
         }
 
@@ -167,7 +173,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 // TODO: Hold onto the argument converters when all the services they ask for are singletons. This can
                 //    probably be done in the ArgumentConverterManager class by calling a method during the READY event.
                 // Attempt to convert the value to the parameter's type.
-                if (ActivatorUtilities.CreateInstance(Extension.ServiceProvider, parameter.ArgumentConverterType!) is not IArgumentConverter converter)
+                if (ActivatorUtilities.CreateInstance(ServiceProvider, parameter.ArgumentConverterType!) is not IArgumentConverter converter)
                 {
                     throw new InvalidOperationException($"Failed to create an instance of {parameter.ArgumentConverterType}. Does the argument converter have a public constructor? Were all the services able to be resolved?");
                 }
