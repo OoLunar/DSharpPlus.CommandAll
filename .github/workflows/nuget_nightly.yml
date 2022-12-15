@@ -31,16 +31,16 @@ jobs:
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       - name: Package
-        run: dotnet build -p:Nightly=$(printf \"%0*d\n\" 5 ${{ github.run_number }}) && dotnet pack -c Debug -o build --no-build
+        run: dotnet pack -c Release -o build -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }})
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: OoLunar.DSharpPlus.CommandAll-Nightly-${{ github.run_number }}∕${{ github.run_attempt }}.zip
-          path: ./src/bin/Debug/net7.0/publish/
+          path: ./build/*
       - name: "Publish Nightly Nuget Packages"
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
       - name: "Update Discord Channel Topic"
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription --no-build -- $(git describe --abbrev=0 --tags)"
+        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }}) -- $(git describe --abbrev=0 --tags)"
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}

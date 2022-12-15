@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="$(Nightly) != ''">
     <!-- We only check for Nightly here because Version is explicitly defined in the nuget_release workflow. -->
-    <Version>1.0.0-Nightly-$(Nightly)</Version>
+    <Version>1.1.0-Nightly-$(Nightly)</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
