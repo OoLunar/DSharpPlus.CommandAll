@@ -11,6 +11,7 @@ using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.Converters;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
@@ -45,6 +46,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 
         /// <inheritdoc cref="CommandParameter.SlashMetadata"/>
         public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; }
+
+        /// <inheritdoc cref="CommandParameter.Overload"/>
+        public CommandOverloadBuilder? OverloadBuilder { get; set; }
 
         /// <inheritdoc/>
         public CommandParameterBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);

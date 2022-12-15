@@ -175,9 +175,34 @@ namespace OoLunar.DSharpPlus.CommandAll
             // Prevent the event handler from being executed multiple times.
             Client.Ready -= DiscordClient_ReadyAsync;
 
-            foreach (CommandBuilder command in CommandManager.CommandBuilders.Values)
+            // Iterate through all the commands and ensure that all the parameters can be converted.
+            foreach (CommandBuilder commandBuilder in CommandManager.CommandBuilders.Values)
             {
-                SaturateParametersRecursively(command);
+                if (!ArgumentConverterManager.TrySaturateParameters(commandBuilder.GetAllParameters(), out IEnumerable<CommandParameterBuilder>? failedParameters))
+                {
+                    foreach (CommandParameterBuilder parameterBuilder in failedParameters!)
+                    {
+                        if (parameterBuilder.OverloadBuilder is null)
+                        {
+                            throw new InvalidOperationException($"OverloadBuilder is null on parameter {parameterBuilder}.");
+                        }
+                        else if (parameterBuilder.OverloadBuilder.Command is null)
+                        {
+                            throw new InvalidOperationException($"Command is null on overload {parameterBuilder.OverloadBuilder}.");
+                        }
+
+                        parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
+                        if (parameterBuilder.OverloadBuilder.Command.Overloads.All(x => x.Flags.HasFlag(CommandOverloadFlags.Disabled)))
+                        {
+                            _logger.LogError("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
+                            parameterBuilder.OverloadBuilder!.Command.Flags |= CommandFlags.Disabled;
+                        }
+                        else if (!parameterBuilder.OverloadBuilder.Command.Flags.HasFlag(CommandFlags.Disabled))
+                        {
+                            _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", parameterBuilder.OverloadBuilder, parameterBuilder);
+                        }
+                    }
+                }
             }
 
             await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));

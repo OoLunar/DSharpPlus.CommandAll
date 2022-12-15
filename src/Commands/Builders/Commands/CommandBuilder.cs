@@ -41,6 +41,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
         /// <inheritdoc cref="Command.SlashMetadata"/>
         public CommandSlashMetadataBuilder SlashMetadata { get; set; }
 
+        /// <inheritdoc cref="Command.Parent"/>
+        public CommandBuilder? Parent { get; set; }
+
+        /// <inheritdoc cref="Command.FullName"/>
+        public string? FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
+
         /// <inheritdoc/>
         public CommandBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);
 
@@ -83,6 +89,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 }
             }
             Overloads = overloads;
+        }
+
+        public IReadOnlyList<CommandParameterBuilder> GetAllParameters()
+        {
+            List<CommandParameterBuilder> parameters = new();
+            foreach (CommandOverloadBuilder overload in Overloads)
+            {
+                parameters.AddRange(overload.Parameters);
+            }
+
+            foreach (CommandBuilder subcommand in Subcommands)
+            {
+                parameters.AddRange(subcommand.GetAllParameters());
+            }
+
+            return parameters.AsReadOnly();
         }
 
         /// <inheritdoc/>
@@ -227,6 +249,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                 // Take the description from the first overload that has it.
                 foreach (CommandOverloadBuilder overload in builder.Overloads)
                 {
+                    overload.Command = builder;
                     if (overload.Method.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute descriptionAttribute)
                     {
                         builder.Description = descriptionAttribute.Description;
@@ -263,6 +286,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                     Description = type.GetCustomAttribute<DescriptionAttribute>()?.Description,
                     Subcommands = new(commandBuilders),
                 };
+
+                foreach (CommandBuilder subcommand in builder.Subcommands)
+                {
+                    subcommand.Parent = builder;
+                }
 
                 builders = new[] { builder };
                 error = null;

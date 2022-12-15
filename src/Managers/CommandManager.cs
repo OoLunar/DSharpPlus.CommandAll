@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
+using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
@@ -79,12 +80,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             {
                 try
                 {
-                    if (!commandBuilder.TryVerify(out Exception? error))
+                    if (commandBuilder.Flags.HasFlag(CommandFlags.Disabled))
+                    {
+                        continue;
+                    }
+                    else if (!commandBuilder.TryVerify(out Exception? error))
                     {
                         _logger.LogError(error, "Failed to verify command builder {CommandBuilder}", commandBuilder);
                         continue;
                     }
-                    else if (commands.TryGetValue(commandBuilder.Name!, out Command? existingCommand))
+                    else if (commands.TryGetValue(commandBuilder.Name, out Command? existingCommand))
                     {
                         _logger.LogError("Command {ExistingCommand} already has the name {ExistingCommandName}. Unable to add {CommandBuilder}", existingCommand, existingCommand.Name, commandBuilder);
                         continue;

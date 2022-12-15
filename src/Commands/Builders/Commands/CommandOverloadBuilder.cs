@@ -7,6 +7,7 @@ using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
+using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
@@ -31,6 +32,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 
         /// <inheritdoc cref="CommandOverload.SlashMetadata"/>
         public CommandOverloadSlashMetadataBuilder SlashMetadata { get; set; }
+
+        /// <inheritdoc cref="CommandOverload.Command"/>
+        public CommandBuilder? Command { get; set; }
 
         /// <inheritdoc/>
         public CommandOverloadBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);
@@ -141,6 +145,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                     return false;
                 }
 
+                parameterBuilder.OverloadBuilder = builder;
                 parameterBuilders.Add(parameterBuilder);
             }
 
