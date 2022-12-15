@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
+using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Managers
 {
@@ -76,27 +77,34 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
             Dictionary<string, Command> commands = new();
             foreach (CommandBuilder commandBuilder in CommandBuilders.Values)
             {
-                if (!commandBuilder.TryVerify(out Exception? error))
+                try
                 {
-                    _logger.LogError(error, "Failed to verify command builder {CommandBuilder}", commandBuilder);
-                    continue;
-                }
-                else if (commands.TryGetValue(commandBuilder.Name!, out Command? existingCommand))
-                {
-                    _logger.LogError("Command {ExistingCommand} already has the name {ExistingCommandName}. Unable to add {CommandBuilder}", existingCommand, existingCommand.Name, commandBuilder);
-                    continue;
-                }
-
-                Command command = new(commandBuilder);
-                commands.Add(command.Name, command);
-                foreach (string alias in command.Aliases)
-                {
-                    if (commands.TryGetValue(alias, out Command? existingAliasCommand))
+                    if (!commandBuilder.TryVerify(out Exception? error))
                     {
-                        _logger.LogError("Command {ExistingAliasCommand} already has the alias {ExistingAliasCommandAlias}. Unable to add {CommandBuilder}", existingAliasCommand, alias, commandBuilder);
+                        _logger.LogError(error, "Failed to verify command builder {CommandBuilder}", commandBuilder);
                         continue;
                     }
-                    commands.Add(alias, command);
+                    else if (commands.TryGetValue(commandBuilder.Name!, out Command? existingCommand))
+                    {
+                        _logger.LogError("Command {ExistingCommand} already has the name {ExistingCommandName}. Unable to add {CommandBuilder}", existingCommand, existingCommand.Name, commandBuilder);
+                        continue;
+                    }
+
+                    Command command = new(commandBuilder);
+                    commands.Add(command.Name, command);
+                    foreach (string alias in command.Aliases)
+                    {
+                        if (commands.TryGetValue(alias, out Command? existingAliasCommand))
+                        {
+                            _logger.LogError("Command {ExistingAliasCommand} already has the alias {ExistingAliasCommandAlias}. Unable to add {CommandBuilder}", existingAliasCommand, alias, commandBuilder);
+                            continue;
+                        }
+                        commands.Add(alias, command);
+                    }
+                }
+                catch (CommandAllException error)
+                {
+                    _logger.LogError(error, "Failed to build command builder {CommandBuilder}", commandBuilder);
                 }
             }
 
