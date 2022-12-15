@@ -5,6 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
 {
@@ -84,7 +85,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
             builder.NormalizeTranslations();
             LocalizedNames = builder.LocalizedNames.AsReadOnly();
             LocalizedDescriptions = builder.LocalizedDescriptions.AsReadOnly();
-            OptionType = builder.OptionType!.Value;
+            OptionType = builder.OptionType ?? throw new PropertyNullException(nameof(builder.OptionType));
             Choices = builder.Choices?.AsReadOnly();
             ChannelTypes = builder.ChannelTypes?.AsReadOnly();
             MinValue = builder.MinValue;
