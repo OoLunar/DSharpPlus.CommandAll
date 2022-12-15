@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tools
+namespace OoLunar.DSharpPlus.CommandAll.Tools.AutoUpdateChannelDescription
 {
     public sealed class Program
     {
@@ -26,16 +28,30 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
 
             client.GuildDownloadCompleted += (client, eventArgs) =>
             {
-                DiscordGuild guild = client.Guilds[ulong.Parse(guildId)];
-                DiscordChannel channel = guild.Channels[ulong.Parse(channelId)];
+                DiscordGuild guild = client.Guilds[ulong.Parse(guildId, NumberStyles.Number, CultureInfo.InvariantCulture)];
+                DiscordChannel channel = guild.Channels[ulong.Parse(channelId, NumberStyles.Number, CultureInfo.InvariantCulture)];
 
                 // Task.Run in case ratelimit gets hit and event handler is cancelled.
                 _ = Task.Run(async () =>
                 {
-                    await channel.ModifyAsync(channel => channel.Topic = @$"{channelTopic}
+                    try
+                    {
+                        await channel.ModifyAsync(channel =>
+                        {
+                            string nightlyVersion = typeof(CommandAllExtension).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+                            channel.AuditLogReason = $"Updating channel topic to match stable version {latestStableVersion} and nightly version {nightlyVersion}.";
+                            channel.Topic = @$"{channelTopic}
 {Formatter.Bold("GitHub")}: {githubUrl}
 {Formatter.Bold("Latest stable version")}: {nugetUrl}/{latestStableVersion}
-{Formatter.Bold("Latest preview version")}: {nugetUrl}/{typeof(CommandAllExtension).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion}");
+{Formatter.Bold("Latest preview version")}: {nugetUrl}/{nightlyVersion}";
+                        });
+                    }
+                    catch (DiscordException error)
+                    {
+                        Console.WriteLine($"Error: HTTP {error.WebResponse.ResponseCode}, {error.WebResponse.Response}");
+                    }
+
+                    await client.DisconnectAsync();
                     Environment.Exit(0);
                 });
 
@@ -48,7 +64,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Tools
             // However it may get caught in a ratelimit, so we'll wait for a bit.
             // The program will exit after 10 seconds no matter what.
             // This includes the time it takes to connect to the Discord gateway.
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await Task.Delay(TimeSpan.FromSeconds(30));
         }
     }
 }
