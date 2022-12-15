@@ -31,7 +31,7 @@ jobs:
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       - name: Package
-        run: dotnet build -p:Nightly=-p:BuildNumber=$(printf \"%0*d\n\" 5 ${{ github.run_number }}) && dotnet pack -c Debug -o build --no-build
+        run: dotnet build -p:Nightly=$(printf \"%0*d\n\" 5 ${{ github.run_number }}) && dotnet pack -c Debug -o build --no-build
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
