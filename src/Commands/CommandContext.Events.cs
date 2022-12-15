@@ -16,9 +16,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
     public sealed partial class CommandContext
     {
         public readonly TimeSpan PromptTimeout;
-        private string? _expectedId;
+        private static readonly Dictionary<object, CommandContext> _currentTcs = new();
         private Dictionary<string, string>? _prompts;
-        private TaskCompletionSource<IEnumerable<string>>? _userInputTcs { get; set; }
+        private TaskCompletionSource<List<string>>? _userInputTcs { get; set; }
         private CancellationTokenSource? _userInputCts { get; set; }
 
         public async Task<IReadOnlyList<string>?> PromptAsync(params TextInputComponent[] messages)
@@ -28,7 +28,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 throw new ArgumentOutOfRangeException(nameof(messages), "Must have between 1 and 5 messages.");
             }
 
-            _userInputTcs = new TaskCompletionSource<IEnumerable<string>>();
+            _userInputTcs = new TaskCompletionSource<List<string>>();
             if (IsSlashCommand)
             {
                 if (LastInteractionResponseType is not null)
@@ -42,7 +42,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     DiscordInteractionResponseBuilder responseBuilder = new()
                     {
                         Title = "Just a bit more information...",
-                        CustomId = _expectedId = Guid.NewGuid().ToString()
+                        CustomId = Guid.NewGuid().ToString()
                     };
 
                     // Can't add them all at once because it'll be shoved into an action row and break.
@@ -50,7 +50,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     {
                         responseBuilder.AddComponents(messages[i]);
                     }
-                    Client.ModalSubmitted += HandleModalAsync;
+
+                    _currentTcs.Add(Interaction!.Id, this);
                     await Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
                 }
             }
@@ -58,10 +59,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             {
                 ResetCancellationToken();
                 _prompts = messages.ToDictionary(message => message.Label, message => string.Empty);
-                Client.MessageCreated += HandleMessageAsync;
 
                 // Sets Response in logic
                 await ReplyAsync(messages[0].Label);
+                _currentTcs.Add(Response!.Id, this);
             }
 
             try
@@ -74,41 +75,39 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
         }
 
-        private Task HandleModalAsync(DiscordClient client, ModalSubmitEventArgs eventArgs)
+        internal static Task HandleModalAsync(DiscordClient client, ModalSubmitEventArgs eventArgs)
         {
-            if (eventArgs.Interaction.Data.CustomId != _expectedId)
+            if (!_currentTcs.TryGetValue(eventArgs.Interaction.Data.CustomId, out CommandContext? context))
             {
                 return Task.CompletedTask;
             }
 
-            Client.ModalSubmitted -= HandleModalAsync;
-            Interaction = eventArgs.Interaction;
-            _userInputTcs!.SetResult(eventArgs.Values.Values.Select(value => value));
+            context.Interaction = eventArgs.Interaction;
+            context._userInputTcs!.SetResult(eventArgs.Values.Values.Select(value => value).ToList());
             return Task.CompletedTask;
         }
 
-        private async Task HandleMessageAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
+        internal static async Task HandleMessageAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
         {
-            if (eventArgs.Author.Id != User.Id || eventArgs.Message.ReferencedMessage is null || eventArgs.Message.ReferencedMessage.Id != Response!.Id)
+            if (eventArgs.Message.ReferencedMessage is null || !_currentTcs.TryGetValue(eventArgs.Message.ReferencedMessage.Id, out CommandContext? context) || eventArgs.Author.Id != context.User.Id)
             {
                 return;
             }
 
-            _logger.LogDebug("Handling message {Id}.", eventArgs.Message.Id);
-            for (int i = 0; i < _prompts!.Count; i++)
+            context._logger.LogDebug("Handling message {Id}.", eventArgs.Message.Id);
+            for (int i = 0; i < context._prompts!.Count; i++)
             {
-                if (_prompts.ElementAt(i).Key == eventArgs.Message.ReferencedMessage.Content)
+                if (context._prompts.ElementAt(i).Key == eventArgs.Message.ReferencedMessage.Content)
                 {
-                    _prompts[_prompts.ElementAt(i).Key] = eventArgs.Message.Content;
-                    if (i + 1 < _prompts.Count)
+                    context._prompts[context._prompts.ElementAt(i).Key] = eventArgs.Message.Content;
+                    if (i + 1 < context._prompts.Count)
                     {
-                        await ReplyAsync(_prompts.ElementAt(i + 1).Key);
-                        ResetCancellationToken();
+                        await context.ReplyAsync(context._prompts.ElementAt(i + 1).Key);
+                        context.ResetCancellationToken();
                     }
                     else
                     {
-                        Client.MessageCreated -= HandleMessageAsync;
-                        _userInputTcs!.SetResult(_prompts.Values);
+                        context._userInputTcs!.SetResult(context._prompts.Values.ToList());
                     }
                 }
             }

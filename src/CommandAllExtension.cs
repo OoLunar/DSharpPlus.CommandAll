@@ -146,6 +146,9 @@ namespace OoLunar.DSharpPlus.CommandAll
                 _logger.LogError("The client is missing the MessageContents intent, which is required for text commands to execute.");
             }
 
+            Client.MessageCreated += CommandContext.HandleMessageAsync;
+            Client.ModalSubmitted += CommandContext.HandleModalAsync;
+
             // If the client has already been initialized, register the event handlers.
             if (Client.Guilds.Count != 0)
             {
@@ -197,7 +200,7 @@ namespace OoLunar.DSharpPlus.CommandAll
                     _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
                 }
 #else
-            await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
+                await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
 #endif
 
                 Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
@@ -251,11 +254,17 @@ namespace OoLunar.DSharpPlus.CommandAll
             }
 
             StringBuilder commandName = new(eventArgs.Interaction.Data.Name);
-            IEnumerable<DiscordInteractionDataOption> options = eventArgs.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
-            while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand)
+            DiscordInteractionDataOption[] options = eventArgs.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
+            while (options.Any())
             {
-                _ = commandName.AppendFormat(" {0}", options.First().Name);
-                options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+                DiscordInteractionDataOption firstOption = options[0];
+                if (firstOption.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
+                {
+                    break;
+                }
+
+                _ = commandName.AppendFormat(" {0}", firstOption.Name);
+                options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
             }
 
             if (!CommandManager.TryFindCommand(commandName.ToString(), out _, out Command? command))
