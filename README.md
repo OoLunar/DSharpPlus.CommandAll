@@ -1,4 +1,4 @@
-# OoLunar.CommandAll
+# OoLunar.DSharpPlus.CommandAll
 Because not everyone can decide between slash commands and text commands.
 
 # What is it?
