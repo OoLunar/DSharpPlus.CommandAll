@@ -3,11 +3,15 @@ on:
   release:
     types: ["published"]
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   nuget-release:
     name: Nuget Release
     runs-on: self-hosted
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
+    if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
@@ -18,9 +22,7 @@ jobs:
         with:
           dotnet-version: 7
         env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/../.dotnet
       - name: "Build Nuget Packages"
         run: "mkdir build && dotnet pack -c Release -o build -p:Version=${{ github.event.release.tag_name }}"
       - name: "Publish Nuget Packages"
@@ -28,7 +30,7 @@ jobs:
       - name: "Upload Nuget Packages To Github Actions"
         uses: actions/upload-artifact@v3
         with:
-          name: PR Nuget Packages
+          name: OoLunar.DSharpPlus.CommandAll-${{ github.event.release.tag_name }}.zip
           path: build/*
       - name: "Upload Nuget Packages To Github Release"
         uses: "ncipollo/release-action@v1"
