@@ -1,4 +1,4 @@
-name: .NET Build
+name: Test PR
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
     steps:
-      - name: "Checkout"
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'

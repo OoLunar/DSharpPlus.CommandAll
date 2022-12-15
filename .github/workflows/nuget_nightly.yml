@@ -1,4 +1,4 @@
-name: .NET Build
+name: Build And Test
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: self-hosted
     if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
     steps:
-      - name: "Checkout"
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
@@ -37,10 +37,10 @@ jobs:
         with:
           name: OoLunar.DSharpPlus.CommandAll-Nightly-${{ github.run_number }}∕${{ github.run_attempt }}.zip
           path: ./build/*
-      - name: "Publish Nightly Nuget Packages"
-        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
-      - name: "Update Discord Channel Topic"
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }}) -- $(git describe --abbrev=0 --tags)"
+      - name: Publish Nightly Nuget Packages
+        run: dotnet nuget push "build/*" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+      - name: Update Discord Channel Topic
+        run: dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }}) -- $(git describe --abbrev=0 --tags)
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
