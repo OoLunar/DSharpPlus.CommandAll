@@ -307,6 +307,26 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 
         public override string ToString() => $"{Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")} - {Description}";
         public override bool Equals(object? obj) => obj is CommandBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && EqualityComparer<List<CommandOverloadBuilder>>.Default.Equals(Overloads, builder.Overloads) && EqualityComparer<List<CommandBuilder>>.Default.Equals(Subcommands, builder.Subcommands) && EqualityComparer<List<string>>.Default.Equals(Aliases, builder.Aliases) && Flags == builder.Flags && EqualityComparer<CommandSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
-        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Name, Description, Overloads, Subcommands, Aliases, Flags, SlashMetadata);
+        public override int GetHashCode()
+        {
+            HashCode hashCode = new();
+            hashCode.Add(CommandAllExtension);
+            if (Name is not null)
+            {
+                hashCode.Add(Name);
+            }
+
+            if (Description is not null)
+            {
+                hashCode.Add(Description);
+            }
+
+            hashCode.Add(Overloads);
+            hashCode.Add(Subcommands);
+            hashCode.Add(Aliases);
+            hashCode.Add(Flags);
+            hashCode.Add(SlashMetadata);
+            return hashCode.ToHashCode();
+        }
     }
 }

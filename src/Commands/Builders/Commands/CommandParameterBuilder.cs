@@ -229,6 +229,38 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 
         public override string ToString() => $"{(ParameterInfo is null ? "null" : ParameterInfo.Name)} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
         public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && DefaultValue.Equals(builder.DefaultValue) && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
-        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Name, Description, Flags, DefaultValue, ParameterInfo, ArgumentConverterType, SlashMetadata);
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(CommandAllExtension);
+
+            if (Name is not null)
+            {
+                hash.Add(Name);
+            }
+
+            if (Description is not null)
+            {
+                hash.Add(Description);
+            }
+
+            if (DefaultValue.IsDefined(out object? value))
+            {
+                hash.Add(value);
+            }
+
+            if (ParameterInfo is not null)
+            {
+                hash.Add(ParameterInfo);
+            }
+
+            if (ArgumentConverterType is not null)
+            {
+                hash.Add(ArgumentConverterType);
+            }
+
+            hash.Add(SlashMetadata);
+            return hash.ToHashCode();
+        }
     }
 }

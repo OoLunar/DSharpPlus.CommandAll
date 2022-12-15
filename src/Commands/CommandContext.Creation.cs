@@ -247,25 +247,60 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             HashCode hash = new();
             hash.Add(Channel);
             hash.Add(User);
-            hash.Add(Interaction);
-            hash.Add(Message);
-            hash.Add(Guild);
-            hash.Add(Member);
+
+            if (IsSlashCommand)
+            {
+                hash.Add(Interaction);
+            }
+            else
+            {
+                hash.Add(Message);
+            }
+
+            if (Guild is not null)
+            {
+                hash.Add(Guild);
+                hash.Add(Member);
+            }
+
             hash.Add(Extension);
             hash.Add(CurrentCommand);
             hash.Add(CurrentOverload);
             hash.Add(NamedArguments);
             hash.Add(RawArguments);
-            hash.Add(LastInteractionResponseType);
+
+            if (LastInteractionResponseType is not null)
+            {
+                hash.Add(LastInteractionResponseType);
+            }
+
             hash.Add(Client);
             hash.Add(ServiceProvider);
             hash.Add(IsSlashCommand);
-            hash.Add(Response);
+
+            if (Response is not null)
+            {
+                hash.Add(Response);
+            }
+
             hash.Add(_logger);
             hash.Add(PromptTimeout);
-            hash.Add(_prompts);
-            hash.Add(_userInputTcs);
-            hash.Add(_userInputCts);
+
+            if (_prompts is not null)
+            {
+                hash.Add(_prompts);
+            }
+
+            if (_userInputTcs is not null)
+            {
+                hash.Add(_userInputTcs);
+            }
+
+            if (_userInputCts is not null)
+            {
+                hash.Add(_userInputCts);
+            }
+
             return hash.ToHashCode();
         }
     }

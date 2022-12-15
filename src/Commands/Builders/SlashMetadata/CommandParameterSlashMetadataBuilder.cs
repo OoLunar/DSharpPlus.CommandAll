@@ -127,14 +127,44 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
             hash.Add(CommandAllExtension);
             hash.Add(LocalizedNames);
             hash.Add(LocalizedDescriptions);
-            hash.Add(OptionType);
-            hash.Add(Choices);
-            hash.Add(ChannelTypes);
-            hash.Add(MinValue);
-            hash.Add(MaxValue);
-            hash.Add(AutoCompleteProvider);
+
+            if (OptionType.HasValue)
+            {
+                hash.Add(OptionType.Value);
+            }
+
+            if (Choices is not null)
+            {
+                hash.Add(Choices);
+            }
+
+            if (ChannelTypes is not null)
+            {
+                hash.Add(ChannelTypes);
+            }
+
+            if (MinValue is not null)
+            {
+                hash.Add(MinValue);
+            }
+
+            if (MaxValue is not null)
+            {
+                hash.Add(MaxValue);
+            }
+
+            if (AutoCompleteProvider is not null)
+            {
+                hash.Add(AutoCompleteProvider);
+            }
+
             hash.Add(IsRequired);
-            hash.Add(ParameterLimitAttribute);
+
+            if (ParameterLimitAttribute is not null)
+            {
+                hash.Add(ParameterLimitAttribute);
+            }
+
             return hash.ToHashCode();
         }
     }

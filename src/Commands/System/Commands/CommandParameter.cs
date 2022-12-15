@@ -150,11 +150,25 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             hash.Add(Overload);
             hash.Add(ParameterInfo);
             hash.Add(Flags);
-            hash.Add(DefaultValue);
-            hash.Add(ArgumentConverterType);
+
+            if (DefaultValue.IsDefined(out object? value))
+            {
+                hash.Add(value);
+            }
+
+            if (ArgumentConverterType is not null)
+            {
+                hash.Add(ArgumentConverterType);
+            }
+
             hash.Add(SlashMetadata);
             hash.Add(SlashName);
-            hash.Add(SlashOptions);
+
+            if (SlashOptions is not null)
+            {
+                hash.Add(SlashOptions);
+            }
+
             return hash.ToHashCode();
         }
 

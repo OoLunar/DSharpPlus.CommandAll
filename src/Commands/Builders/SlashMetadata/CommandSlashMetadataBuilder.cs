@@ -37,6 +37,24 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 
         public override string ToString() => $"{(GuildId.HasValue ? $"GuildId: {GuildId.Value}, " : "")}{(RequiredPermissions.HasValue ? $"RequiredPermissions: {RequiredPermissions.Value}, " : "")})";
         public override bool Equals(object? obj) => obj is CommandSlashMetadataBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, builder.LocalizedNames) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, builder.LocalizedDescriptions) && GuildId == builder.GuildId && RequiredPermissions == builder.RequiredPermissions;
-        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, LocalizedNames, LocalizedDescriptions, GuildId, RequiredPermissions);
+        public override int GetHashCode()
+        {
+            HashCode hashCode = new();
+            hashCode.Add(CommandAllExtension);
+            hashCode.Add(LocalizedNames);
+            hashCode.Add(LocalizedDescriptions);
+
+            if (GuildId.HasValue)
+            {
+                hashCode.Add(GuildId.Value);
+            }
+
+            if (RequiredPermissions.HasValue)
+            {
+                hashCode.Add(RequiredPermissions.Value);
+            }
+
+            return hashCode.ToHashCode();
+        }
     }
 }

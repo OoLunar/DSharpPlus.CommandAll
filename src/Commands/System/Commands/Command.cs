@@ -128,7 +128,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             HashCode hash = new();
             hash.Add(Name);
             hash.Add(Description);
-            hash.Add(Parent);
+
+            if (Parent is not null)
+            {
+                hash.Add(Parent);
+            }
+
             hash.Add(Overloads);
             hash.Add(Subcommands);
             hash.Add(Aliases);

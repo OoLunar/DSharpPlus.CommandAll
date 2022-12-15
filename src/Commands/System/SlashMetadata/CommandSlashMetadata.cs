@@ -72,6 +72,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
             return stringBuilder.ToString();
         }
         public override bool Equals(object? obj) => obj is CommandSlashMetadata metadata && GuildId == metadata.GuildId && RequiredPermissions == metadata.RequiredPermissions && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions);
-        public override int GetHashCode() => HashCode.Combine(GuildId, RequiredPermissions, LocalizedNames, LocalizedDescriptions);
+        public override int GetHashCode()
+        {
+            HashCode hashCode = new();
+            hashCode.Add(LocalizedNames);
+            hashCode.Add(LocalizedDescriptions);
+
+            if (GuildId.HasValue)
+            {
+                hashCode.Add(GuildId.Value);
+            }
+
+            if (RequiredPermissions.HasValue)
+            {
+                hashCode.Add(RequiredPermissions.Value);
+            }
+
+            return hashCode.ToHashCode();
+        }
     }
 }
