@@ -115,7 +115,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                 SlashOptions = new DiscordApplicationCommandOption[(SlashMetadata.ParameterLimitAttribute?.MaximumElementCount ?? 25) - minimumRequiredOptions];
                 for (int i = 0; i < SlashOptions.Length; i++)
                 {
-                    // TODO: Respect builder.Extension.ParameterNamingStrategy
                     SlashOptions[i] = new(
                         SlashName = i switch
                         {
