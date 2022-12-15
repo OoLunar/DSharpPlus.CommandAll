@@ -28,11 +28,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
 
                 _logger.LogDebug("Replying to slash command {Id}.", Interaction!.Id);
                 LastInteractionResponseType = InteractionResponseType.ChannelMessageWithSource;
-                await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, (DiscordInteractionResponseBuilder)messageBuilder);
+                await Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
             }
             else
             {
-                DiscordMessageBuilder builder = (DiscordMessageBuilder)messageBuilder;
+                DiscordMessageBuilder builder = new(messageBuilder);
                 _logger.LogDebug("Replying to message {Id}.", Message!.Id);
                 if (builder.ReplyId is null)
                 {
@@ -104,18 +104,30 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                     LastInteractionResponseType = InteractionResponseType.UpdateMessage;
                 }
 
-                await Interaction!.EditOriginalResponseAsync((DiscordWebhookBuilder)messageBuilder);
+                await Interaction!.EditOriginalResponseAsync(new DiscordWebhookBuilder(messageBuilder));
             }
             else
             {
                 _logger.LogDebug("Editing text command response {Id}.", Message!.Id);
                 if (Response is null)
                 {
-                    Response = await Message.RespondAsync((DiscordMessageBuilder)messageBuilder);
+                    DiscordMessageBuilder builder = new(messageBuilder);
+                    if (builder.ReplyId is null)
+                    {
+                        _logger.LogTrace("No reply set, setting reply to text command message id {Id}.", Message.Id);
+                        builder.WithReply(Message.Id);
+                    }
+
+                    if (builder.Mentions is null || builder.Mentions.Count == 0)
+                    {
+                        _logger.LogTrace("No mentions explicitly set when replying to text command message id {Id}, automatically preventing any accidental mentions.", Message.Id);
+                        builder.WithAllowedMentions(Mentions.None);
+                    }
+                    Response = await Message.RespondAsync(builder);
                 }
                 else
                 {
-                    await Response.ModifyAsync((DiscordMessageBuilder)messageBuilder);
+                    await Response.ModifyAsync(new DiscordMessageBuilder(messageBuilder));
                 }
             }
         }
@@ -144,6 +156,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 return Response!.DeleteAsync();
             }
         }
+
+        public Task<DiscordMessage> GetOriginalResponse() => IsSlashCommand ? Interaction!.GetOriginalResponseAsync() : Task.FromResult(Response!);
 
         public override string? ToString() => $"{CurrentCommand.FullName} {RawArguments} ({(IsSlashCommand ? Interaction!.Id : Message!.Id)})";
     }
