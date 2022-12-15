@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -12,6 +14,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
     /// <summary>
     /// A builder for command overloads.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class CommandOverloadBuilder : Builder
     {
         /// <inheritdoc cref="CommandOverload.Method"/>
@@ -158,5 +161,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             error = null;
             return true;
         }
+
+        public override string ToString() => $"{Method.Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")}, Priority: {Priority}, Parameters: {Parameters.Humanize()}";
+        public override bool Equals(object? obj) => obj is CommandOverloadBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<MethodInfo>.Default.Equals(Method, builder.Method) && EqualityComparer<List<CommandParameterBuilder>>.Default.Equals(Parameters, builder.Parameters) && Flags == builder.Flags && Priority == builder.Priority && EqualityComparer<CommandOverloadSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
+        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Method, Parameters, Flags, Priority, SlashMetadata);
     }
 }

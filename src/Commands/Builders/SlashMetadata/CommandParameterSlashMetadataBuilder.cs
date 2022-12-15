@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
@@ -12,7 +15,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
     /// <summary>
     /// A builder for slash parameter metadata.
     /// </summary>
-    public sealed class CommandParameterSlashMetadataBuilder : ISlashMetadataBuilder
+    [DebuggerDisplay("ToString(),nq")]
+    public sealed class CommandParameterSlashMetadataBuilder : SlashMetadataBuilder
     {
         /// <inheritdoc cref="CommandParameterSlashMetadata.OptionType"/>
         public ApplicationCommandOptionType? OptionType { get; set; }
@@ -113,6 +117,25 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 
             error = null;
             return true;
+        }
+
+        public override string ToString() => $"{nameof(CommandParameterSlashMetadataBuilder)}: {(OptionType.HasValue ? OptionType.Value.Humanize() : string.Empty)}, Is Required: {IsRequired}";
+        public override bool Equals(object? obj) => obj is CommandParameterSlashMetadataBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, builder.LocalizedNames) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, builder.LocalizedDescriptions) && OptionType == builder.OptionType && EqualityComparer<List<DiscordApplicationCommandOptionChoice>?>.Default.Equals(Choices, builder.Choices) && EqualityComparer<List<ChannelType>?>.Default.Equals(ChannelTypes, builder.ChannelTypes) && EqualityComparer<object?>.Default.Equals(MinValue, builder.MinValue) && EqualityComparer<object?>.Default.Equals(MaxValue, builder.MaxValue) && EqualityComparer<Type?>.Default.Equals(AutoCompleteProvider, builder.AutoCompleteProvider) && IsRequired == builder.IsRequired && EqualityComparer<ParameterLimitAttribute?>.Default.Equals(ParameterLimitAttribute, builder.ParameterLimitAttribute);
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(CommandAllExtension);
+            hash.Add(LocalizedNames);
+            hash.Add(LocalizedDescriptions);
+            hash.Add(OptionType);
+            hash.Add(Choices);
+            hash.Add(ChannelTypes);
+            hash.Add(MinValue);
+            hash.Add(MaxValue);
+            hash.Add(AutoCompleteProvider);
+            hash.Add(IsRequired);
+            hash.Add(ParameterLimitAttribute);
+            return hash.ToHashCode();
         }
     }
 }

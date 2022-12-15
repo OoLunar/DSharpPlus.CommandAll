@@ -9,7 +9,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// A builder for slash command metadata.
     /// </summary>
-    public abstract class ISlashMetadataBuilder : Builder
+    public abstract class SlashMetadataBuilder : Builder
     {
         /// <summary>
         /// The localized names of the command, subcommand or command parameter.
@@ -22,7 +22,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
         public Dictionary<CultureInfo, string> LocalizedDescriptions { get; set; } = new();
 
         /// <inheritdoc/>
-        protected ISlashMetadataBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) { }
+        protected SlashMetadataBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) { }
 
         /// <summary>
         /// Edits the localizations to abide by <see cref="CommandAllExtension.ParameterNamingStrategy"/>. Additionally truncates names to 32 characters and the descriptions to 100 characters.

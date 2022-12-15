@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Exceptions;
@@ -12,6 +14,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
     /// <summary>
     /// Slash command metadata for a command parameter.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class CommandParameterSlashMetadata
     {
         /// <summary>
@@ -93,6 +96,24 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
             AutoCompleteProvider = builder.AutoCompleteProvider;
             IsRequired = builder.IsRequired;
             ParameterLimitAttribute = builder.ParameterLimitAttribute;
+        }
+
+        public override string ToString() => $"{nameof(CommandParameterSlashMetadataBuilder)}: {OptionType.Humanize()}, Is Required: {IsRequired}";
+        public override bool Equals(object? obj) => obj is CommandParameterSlashMetadata metadata && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions) && OptionType == metadata.OptionType && EqualityComparer<IReadOnlyList<DiscordApplicationCommandOptionChoice>?>.Default.Equals(Choices, metadata.Choices) && EqualityComparer<IReadOnlyList<ChannelType>?>.Default.Equals(ChannelTypes, metadata.ChannelTypes) && EqualityComparer<object?>.Default.Equals(MinValue, metadata.MinValue) && EqualityComparer<object?>.Default.Equals(MaxValue, metadata.MaxValue) && EqualityComparer<Type?>.Default.Equals(AutoCompleteProvider, metadata.AutoCompleteProvider) && IsRequired == metadata.IsRequired && EqualityComparer<ParameterLimitAttribute?>.Default.Equals(ParameterLimitAttribute, metadata.ParameterLimitAttribute);
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(LocalizedNames);
+            hash.Add(LocalizedDescriptions);
+            hash.Add(OptionType);
+            hash.Add(Choices);
+            hash.Add(ChannelTypes);
+            hash.Add(MinValue);
+            hash.Add(MaxValue);
+            hash.Add(AutoCompleteProvider);
+            hash.Add(IsRequired);
+            hash.Add(ParameterLimitAttribute);
+            return hash.ToHashCode();
         }
     }
 }

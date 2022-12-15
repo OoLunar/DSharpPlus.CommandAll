@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +19,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
     /// <summary>
     /// A builder for a command parameter.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class CommandParameterBuilder : Builder
     {
         /// <inheritdoc cref="CommandParameter.Name"/>
@@ -220,6 +223,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             return true;
         }
 
-        public override string ToString() => $"{ParameterInfo!.ParameterType.Name} {Name} ({ParameterInfo.Member})";
+        public override string ToString() => $"{(ParameterInfo is null ? "null" : ParameterInfo.Name)} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
+        public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && DefaultValue.Equals(builder.DefaultValue) && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
+        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Name, Description, Flags, DefaultValue, ParameterInfo, ArgumentConverterType, SlashMetadata);
     }
 }

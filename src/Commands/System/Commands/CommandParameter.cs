@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus;
@@ -15,6 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command parameter.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class CommandParameter
     {
         /// <summary>
@@ -138,7 +141,23 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             }
         }
 
-        public override string ToString() => $"{Overload.Command.FullName} {ParameterInfo.ParameterType.Name} {Name}";
+        public override string ToString() => $"{ParameterInfo.Name} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
+        public override bool Equals(object? obj) => obj is CommandParameter parameter && Name == parameter.Name && Description == parameter.Description && EqualityComparer<CommandOverload>.Default.Equals(Overload, parameter.Overload) && EqualityComparer<ParameterInfo>.Default.Equals(ParameterInfo, parameter.ParameterInfo) && Flags == parameter.Flags && DefaultValue.Equals(parameter.DefaultValue) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, parameter.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadata>.Default.Equals(SlashMetadata, parameter.SlashMetadata) && SlashName == parameter.SlashName && EqualityComparer<DiscordApplicationCommandOption[]?>.Default.Equals(SlashOptions, parameter.SlashOptions);
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(Name);
+            hash.Add(Description);
+            hash.Add(Overload);
+            hash.Add(ParameterInfo);
+            hash.Add(Flags);
+            hash.Add(DefaultValue);
+            hash.Add(ArgumentConverterType);
+            hash.Add(SlashMetadata);
+            hash.Add(SlashName);
+            hash.Add(SlashOptions);
+            return hash.ToHashCode();
+        }
 
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.SlashName,

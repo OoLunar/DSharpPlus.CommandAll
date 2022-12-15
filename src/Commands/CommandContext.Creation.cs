@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -237,6 +238,35 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
             }
 
             return result;
+        }
+
+        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && EqualityComparer<IDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && RawArguments == context.RawArguments && LastInteractionResponseType == context.LastInteractionResponseType && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && IsSlashCommand == context.IsSlashCommand && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && PromptTimeout.Equals(context.PromptTimeout) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts);
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(Channel);
+            hash.Add(User);
+            hash.Add(Interaction);
+            hash.Add(Message);
+            hash.Add(Guild);
+            hash.Add(Member);
+            hash.Add(Extension);
+            hash.Add(CurrentCommand);
+            hash.Add(CurrentOverload);
+            hash.Add(NamedArguments);
+            hash.Add(RawArguments);
+            hash.Add(LastInteractionResponseType);
+            hash.Add(Client);
+            hash.Add(ServiceProvider);
+            hash.Add(IsSlashCommand);
+            hash.Add(Response);
+            hash.Add(_logger);
+            hash.Add(PromptTimeout);
+            hash.Add(_prompts);
+            hash.Add(_userInputTcs);
+            hash.Add(_userInputCts);
+            return hash.ToHashCode();
         }
     }
 }

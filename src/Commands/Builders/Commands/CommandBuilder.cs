@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using Humanizer;
 using OoLunar.DSharpPlus.CommandAll.Attributes;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
@@ -15,6 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
     /// <summary>
     /// Used to build a new top level command, subcommand or subcommand group.
     /// </summary>
+    [DebuggerDisplay("{ToString()},nq")]
     public sealed class CommandBuilder : Builder
     {
         /// <inheritdoc cref="Command.Name"/>
@@ -274,6 +277,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             }
         }
 
-        public override string? ToString() => $"Command Builder, {Name} {(Flags.HasFlag(CommandFlags.Disabled) ? "Disabled " : "")}({Overloads.Count} overloads, {Subcommands.Count} subcommands)";
+        public override string ToString() => $"{Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")} - {Description}";
+        public override bool Equals(object? obj) => obj is CommandBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && EqualityComparer<List<CommandOverloadBuilder>>.Default.Equals(Overloads, builder.Overloads) && EqualityComparer<List<CommandBuilder>>.Default.Equals(Subcommands, builder.Subcommands) && EqualityComparer<List<string>>.Default.Equals(Aliases, builder.Aliases) && Flags == builder.Flags && EqualityComparer<CommandSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
+        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Name, Description, Overloads, Subcommands, Aliases, Flags, SlashMetadata);
     }
 }

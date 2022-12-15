@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -13,6 +14,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command. This can be a top level command, subcommand and/or group command.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class Command
     {
         /// <summary>
@@ -118,7 +120,24 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             SlashMetadata = new(builder.SlashMetadata);
         }
 
-        public override string? ToString() => $"{FullName} {(Flags.HasFlag(CommandFlags.Disabled) ? "Disabled " : "")}({Overloads.Count} overloads, {Subcommands.Count} subcommands)";
+
+        public override string ToString() => $"{FullName}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")} - {Description}";
+        public override bool Equals(object? obj) => obj is Command command && Name == command.Name && Description == command.Description && EqualityComparer<Command?>.Default.Equals(Parent, command.Parent) && EqualityComparer<IReadOnlyList<CommandOverload>>.Default.Equals(Overloads, command.Overloads) && EqualityComparer<IReadOnlyList<Command>>.Default.Equals(Subcommands, command.Subcommands) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(Aliases, command.Aliases) && Flags == command.Flags && EqualityComparer<CommandSlashMetadata>.Default.Equals(SlashMetadata, command.SlashMetadata) && SlashName == command.SlashName && FullName == command.FullName;
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(Name);
+            hash.Add(Description);
+            hash.Add(Parent);
+            hash.Add(Overloads);
+            hash.Add(Subcommands);
+            hash.Add(Aliases);
+            hash.Add(Flags);
+            hash.Add(SlashMetadata);
+            hash.Add(SlashName);
+            hash.Add(FullName);
+            return hash.ToHashCode();
+        }
 
         public static explicit operator DiscordApplicationCommand(Command command)
         {

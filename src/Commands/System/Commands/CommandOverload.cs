@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus;
@@ -15,6 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command overload.
     /// </summary>
+    [DebuggerDisplay("ToString(),nq")]
     public sealed class CommandOverload
     {
         /// <summary>
@@ -75,7 +77,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             };
         }
 
-        public override string ToString() => $"{Command.FullName} {string.Join(" ", Parameters.Select(parameter => parameter.ParameterInfo.ParameterType.Name))}{(Flags.HasFlag(CommandOverloadFlags.Disabled) ? " Disabled " : "")}";
+        public override string ToString() => $"{Command.FullName}, {Method.Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")}, Priority: {Priority}, Parameters: {Parameters.Humanize()}";
+        public override bool Equals(object? obj) => obj is CommandOverload overload && EqualityComparer<Command>.Default.Equals(Command, overload.Command) && EqualityComparer<MethodInfo>.Default.Equals(Method, overload.Method) && EqualityComparer<IReadOnlyList<CommandParameter>>.Default.Equals(Parameters, overload.Parameters) && Flags == overload.Flags && Priority == overload.Priority && EqualityComparer<CommandOverloadSlashMetadata>.Default.Equals(SlashMetadata, overload.SlashMetadata) && SlashName == overload.SlashName;
+        public override int GetHashCode() => HashCode.Combine(Command, Method, Parameters, Flags, Priority, SlashMetadata, SlashName);
 
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload)
         {

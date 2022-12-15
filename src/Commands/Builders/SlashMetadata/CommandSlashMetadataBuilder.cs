@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using DSharpPlus;
 
 namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
@@ -7,7 +10,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
     /// <summary>
     /// A builder for slash command metadata.
     /// </summary>
-    public sealed class CommandSlashMetadataBuilder : ISlashMetadataBuilder
+    [DebuggerDisplay("ToString(),nq")]
+    public sealed class CommandSlashMetadataBuilder : SlashMetadataBuilder
     {
         /// <inheritdoc cref="CommandSlashMetadata.GuildId"/>
         public ulong? GuildId { get; set; }
@@ -30,5 +34,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
             error = null;
             return true;
         }
+
+        public override string ToString() => $"{(GuildId.HasValue ? $"GuildId: {GuildId.Value}, " : "")}{(RequiredPermissions.HasValue ? $"RequiredPermissions: {RequiredPermissions.Value}, " : "")})";
+        public override bool Equals(object? obj) => obj is CommandSlashMetadataBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, builder.LocalizedNames) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, builder.LocalizedDescriptions) && GuildId == builder.GuildId && RequiredPermissions == builder.RequiredPermissions;
+        public override int GetHashCode() => HashCode.Combine(CommandAllExtension, LocalizedNames, LocalizedDescriptions, GuildId, RequiredPermissions);
     }
 }
