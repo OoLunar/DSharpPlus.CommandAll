@@ -23,7 +23,7 @@ jobs:
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
       - name: Package
-        run: dotnet pack -c Debug -o build -p:Nightly=${{ github.run_number }}
+        run: dotnet pack -c Debug -o build -p:Nightly=$(printf \"%0*d\n\" 5 ${{ github.run_number }})
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
