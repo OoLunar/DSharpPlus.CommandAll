@@ -20,6 +20,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
 
         /// <inheritdoc />
+        public IReadOnlyDictionary<ulong, Command> SlashCommandsIndex { get; private set; } = new Dictionary<ulong, Command>();
+
+        /// <inheritdoc />
         public Dictionary<string, CommandBuilder> CommandBuilders { get; set; } = new();
 
         /// <summary>
@@ -216,6 +219,20 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
 
             rawArguments = string.Join(' ', split.Skip(i));
             return true;
+        }
+
+        /// <inheritdoc />
+        public void RegisterSlashCommands(IEnumerable<DiscordApplicationCommand> commands)
+        {
+            Dictionary<ulong, Command> commandsById = new();
+            foreach (DiscordApplicationCommand command in commands)
+            {
+                if (Commands.TryGetValue(command.Name, out Command? existingCommand))
+                {
+                    commandsById[command.Id] = existingCommand;
+                }
+            }
+            SlashCommandsIndex = commandsById.AsReadOnly();
         }
     }
 }

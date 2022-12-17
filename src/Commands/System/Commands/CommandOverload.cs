@@ -16,7 +16,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command overload.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandOverload
     {
         /// <summary>
@@ -83,19 +83,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
 
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload)
         {
+            if (overload.Parameters.Count > 25)
+            {
+                throw new InvalidOperationException($"A command overload can't have more than 25 parameters! If you're using {nameof(ParameterLimitAttribute)}, be sure to take it's {nameof(ParameterLimitAttribute.MaximumElementCount)} into count!");
+            }
+
             IEnumerable<DiscordApplicationCommandOption> parameters = overload.Parameters.SelectMany(parameter => parameter.Flags.HasFlag(CommandParameterFlags.Params) ? parameter.SlashOptions! : new[] { (DiscordApplicationCommandOption)parameter });
-            return parameters.Count() > 25
-                ? throw new InvalidOperationException($"A command overload can't have more than 25 parameters! If you're using {nameof(ParameterLimitAttribute)}, be sure to take it's {nameof(ParameterLimitAttribute.MaximumElementCount)} into count!")
-                : new(
-                    overload.SlashName,
-                    overload.Command.Description,
-                    ApplicationCommandOptionType.SubCommand,
-                    null, null,
-                    parameters,
-                    null, null, null, null,
-                    overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
-                    overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value)
-                );
+            return new(
+                overload.SlashName,
+                overload.Command.Description,
+                ApplicationCommandOptionType.SubCommand,
+                null, null,
+                parameters,
+                null, null, null, null,
+                overload.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
+                overload.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value)
+            );
         }
     }
 }

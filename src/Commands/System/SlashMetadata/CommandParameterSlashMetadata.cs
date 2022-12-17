@@ -14,7 +14,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
     /// <summary>
     /// Slash command metadata for a command parameter.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandParameterSlashMetadata
     {
         /// <summary>

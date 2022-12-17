@@ -9,7 +9,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
     /// <summary>
     /// The metadata used when registering a command as a slash command.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandOverloadSlashMetadata
     {
         /// <summary>

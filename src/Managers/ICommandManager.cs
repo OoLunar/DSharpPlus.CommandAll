@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using OoLunar.DSharpPlus.CommandAll.Commands;
 using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
@@ -21,6 +22,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         /// An empty <see cref="IReadOnlyDictionary{TKey, TValue}"/> until <see cref="BuildCommands"/> is called.
         /// </remarks>
         IReadOnlyDictionary<string, Command> Commands { get; }
+
+        /// <summary>
+        /// The commands registered to this manager.
+        /// </summary>
+        /// <remarks>
+        /// An empty <see cref="IReadOnlyDictionary{TKey, TValue}"/> until <see cref="DiscordClient.Ready"/> is called and <see cref="DiscordClient.BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable{DiscordApplicationCommand})"/> has returned.
+        /// </remarks>
+        IReadOnlyDictionary<ulong, Command> SlashCommandsIndex { get; }
 
         /// <summary>
         /// The dictionary that contains builders for commands.
@@ -71,5 +80,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
         /// <inheritdoc cref="TryFindCommand(string, out string?, out Command?)"/>
         /// <param name="commandBuilder">The command builder that was found.</param>
         bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out CommandBuilder? commandBuilder);
+
+        /// <summary>
+        /// Fills the <see cref="SlashCommandsIndex"/> dictionary with the commands from <see cref="Commands"/>.
+        /// </summary>
+        /// <param name="commands">The commands to fill the index with.</param>
+        void RegisterSlashCommands(IEnumerable<DiscordApplicationCommand> commands);
     }
 }

@@ -51,7 +51,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Parsers
                 }
 
                 // If there were more arguments provided than parameters, skip the overload
-                if (argCount > i && parameter is not null && (!parameter.Flags.HasFlag(CommandParameterFlags.Params) || !parameter.Flags.HasFlag(CommandParameterFlags.RemainingText)))
+                if (argCount > i && parameter is not null && !(parameter.Flags.HasFlag(CommandParameterFlags.Params) || parameter.Flags.HasFlag(CommandParameterFlags.RemainingText)))
                 {
                     _logger.LogDebug("Skipping overload {Overload} because it has more arguments than parameters", commandOverload);
                     skipOverload = true;

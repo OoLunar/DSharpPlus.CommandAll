@@ -17,7 +17,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command parameter.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandParameter
     {
         /// <summary>
@@ -124,7 +124,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                         },
                         Description,
                         SlashMetadata.OptionType,
-                        i <= minimumRequiredOptions, // Required until the minimum amount of parameters is reached.
+                        i < minimumRequiredOptions, // Required until the minimum amount of parameters is reached.
                         SlashMetadata.Choices,
                         null,
                         SlashMetadata.ChannelTypes,

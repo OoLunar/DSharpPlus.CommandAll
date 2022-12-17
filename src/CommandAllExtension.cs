@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -218,14 +217,14 @@ namespace OoLunar.DSharpPlus.CommandAll
                 // Don't register slash commands if the debug guild id is null.
                 if (DebugGuildId is not null)
                 {
-                    await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands);
+                    CommandManager.RegisterSlashCommands(await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands));
                 }
                 else
                 {
                     _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
                 }
 #else
-                await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands);
+                CommandManager.RegisterSlashCommands(await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands));
 #endif
 
                 Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
@@ -273,12 +272,11 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to determine if the interaction is an application command and conditionally executes commands with the provided data.</param>
         private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
-            if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand)
+            if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.SlashCommandsIndex.TryGetValue(eventArgs.Interaction.Data.Id, out Command? command))
             {
                 return Task.CompletedTask;
             }
 
-            StringBuilder commandName = new(eventArgs.Interaction.Data.Name);
             DiscordInteractionDataOption[] options = eventArgs.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
             while (options.Any())
             {
@@ -288,25 +286,18 @@ namespace OoLunar.DSharpPlus.CommandAll
                     break;
                 }
 
-                _ = commandName.AppendFormat(" {0}", firstOption.Name);
+                command = command.Subcommands.First(x => x.Aliases.Contains(firstOption.Name));
                 options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
             }
 
-            if (!CommandManager.TryFindCommand(commandName.ToString(), out _, out Command? command))
+            CommandContext context = new(this, command, eventArgs.Interaction, options);
+            try
             {
-                return Task.CompletedTask;
+                return CommandExecutor.ExecuteAsync(context);
             }
-            else
+            catch (Exception error)
             {
-                CommandContext context = new(this, command, eventArgs.Interaction, options);
-                try
-                {
-                    return CommandExecutor.ExecuteAsync(context);
-                }
-                catch (Exception error)
-                {
-                    return _commandErrored.InvokeAsync(this, new(context, error));
-                }
+                return _commandErrored.InvokeAsync(this, new(context, error));
             }
         }
 
@@ -319,32 +310,5 @@ namespace OoLunar.DSharpPlus.CommandAll
         /// <param name="sender">The extension.</param>
         /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
         private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
-
-        /// <summary>
-        /// Attempts to add argument converters to all parameters in the command.
-        /// </summary>
-        /// <param name="command">The command whose parameters to add argument converters too.</param>
-        private void SaturateParametersRecursively(CommandBuilder commandBuilder)
-        {
-            foreach (CommandOverloadBuilder commandOverloadBuilder in commandBuilder.Overloads)
-            {
-                if (!ArgumentConverterManager.TrySaturateParameters(commandOverloadBuilder.Parameters, out IEnumerable<CommandParameterBuilder>? failedParameters))
-                {
-                    commandOverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
-                    _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", commandOverloadBuilder, failedParameters);
-                }
-            }
-
-            foreach (CommandBuilder subBuilder in commandBuilder.Subcommands)
-            {
-                SaturateParametersRecursively(subBuilder);
-            }
-
-            if (commandBuilder.Overloads.Any() && commandBuilder.Overloads.All(overload => overload.Flags.HasFlag(CommandOverloadFlags.Disabled)))
-            {
-                commandBuilder.Flags |= CommandFlags.Disabled;
-                _logger.LogWarning("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
-            }
-        }
     }
 }

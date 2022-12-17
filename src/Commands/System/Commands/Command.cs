@@ -14,7 +14,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
     /// <summary>
     /// A command. This can be a top level command, subcommand and/or group command.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class Command
     {
         /// <summary>
