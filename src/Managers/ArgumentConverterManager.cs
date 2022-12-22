@@ -68,7 +68,8 @@ namespace OoLunar.DSharpPlus.CommandAll.Managers
                 if (parameter.ArgumentConverterType is null)
                 {
                     // Try finding a default type converter for the parameter type.
-                    if (!_typeConverters.TryGetValue(parameter.ParameterInfo!.ParameterType, out Type? converterType) && (!parameter.ParameterInfo.ParameterType.IsArray || !_typeConverters.TryGetValue(parameter.ParameterInfo!.ParameterType.GetElementType()!, out converterType)))
+                    Type parameterType = Nullable.GetUnderlyingType(parameter.ParameterInfo!.ParameterType) ?? parameter.ParameterInfo.ParameterType;
+                    if (!_typeConverters.TryGetValue(parameterType, out Type? converterType) && (!parameterType.IsArray || !_typeConverters.TryGetValue(parameterType.GetElementType()!, out converterType)))
                     {
                         failed.Add(parameter);
                         _logger.LogTrace("Could not find an argument converter for parameter {Parameter}", parameter);

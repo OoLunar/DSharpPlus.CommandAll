@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus;
@@ -123,7 +124,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                         return false;
                     }
                 }
-                else if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(ParameterInfo.ParameterType))
+                else if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(Nullable.GetUnderlyingType(ParameterInfo.ParameterType) ?? ParameterInfo.ParameterType))
                 {
                     error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
                     return false;
@@ -212,12 +213,12 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
             if (parameterInfo.ParameterType.IsEnum)
             {
                 string[] enumNames = Enum.GetNames(parameterInfo.ParameterType);
-                Array enumValues = Enum.GetValues(parameterInfo.ParameterType);
+                Array enumValues = Enum.GetValuesAsUnderlyingType(parameterInfo.ParameterType);
 
                 for (int i = 0; i < enumNames.Length; i++)
                 {
                     builder.SlashMetadata.Choices ??= new();
-                    builder.SlashMetadata.Choices.Add(new(enumNames[i], (int)enumValues.GetValue(i)!));
+                    builder.SlashMetadata.Choices.Add(new(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture)));
                 }
 
                 builder.ArgumentConverterType ??= typeof(EnumArgumentConverter);
