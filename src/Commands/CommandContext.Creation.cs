@@ -110,7 +110,29 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
         {
             CurrentOverload = currentCommand.Overloads[0];
-            NamedArguments = ConvertArgs(options.Select(option => option.Value?.ToString() ?? throw new NotImplementedException($"Option {option} has a null value!")).ToArray());
+            Dictionary<string, string?> optionsDict = new();
+            foreach (CommandParameter parameter in CurrentOverload.Parameters)
+            {
+                DiscordInteractionDataOption? option = options.FirstOrDefault(o => o.Name == parameter.SlashName);
+                if (option is not null)
+                {
+                    optionsDict.Add(parameter.SlashName, option.Value?.ToString());
+                }
+                else
+                {
+                    if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
+                    {
+                        optionsDict.Add(parameter.SlashName, null);
+                        continue;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Missing required option {parameter.SlashName}.");
+                    }
+                }
+            }
+
+            NamedArguments = ConvertArgs(optionsDict.Values.ToArray()!);
             _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
         }
 
@@ -180,7 +202,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
                 }
 
                 _logger.LogTrace("Converting argument {Argument} to {Type}", argument, parameter.ParameterInfo.ParameterType);
-                Task<IOptional> optionalTask = converter.ConvertAsync(this, parameter, argument.ToString() ?? string.Empty);
+                Task<IOptional> optionalTask = converter.ConvertAsync(this, parameter, argument?.ToString() ?? string.Empty);
                 optionalTask.Wait();
                 optional = optionalTask.IsCompletedSuccessfully ? optionalTask.Result : throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
 
