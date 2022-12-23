@@ -64,9 +64,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
         public readonly CommandParameterSlashMetadata SlashMetadata;
 
         /// <summary>
-        /// The name that's used when registering this parameter with Discord.
+        /// The slash names for this parameter. While normally containing a single element, it may have multiple elements if the parameter is a <see cref="CommandParameterFlags.Params"/> parameter.
         /// </summary>
-        public readonly string SlashName;
+        public readonly IReadOnlyList<string> SlashNames;
 
         /// <summary>
         /// The same parameter repeated multiple times until it reaches the maximum amount of parameters.
@@ -101,13 +101,16 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
 
-            SlashName = (builder.CommandAllExtension.ParameterNamingStrategy switch
+            List<string> slashNames = new()
             {
-                CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
-                CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
-                CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
-                _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
-            }).Truncate(32, "…");
+                (builder.CommandAllExtension.ParameterNamingStrategy switch
+                {
+                    CommandParameterNamingStrategy.SnakeCase => Name.Underscore(),
+                    CommandParameterNamingStrategy.KebabCase => Name.Kebaberize(),
+                    CommandParameterNamingStrategy.LowerCase => Name.ToLowerInvariant(),
+                    _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
+                }).Truncate(32, "…")
+            };
 
             if (Flags.HasFlag(CommandParameterFlags.Params))
             {
@@ -115,13 +118,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                 SlashOptions = new DiscordApplicationCommandOption[(SlashMetadata.ParameterLimitAttribute?.MaximumElementCount ?? 25) - minimumRequiredOptions];
                 for (int i = 0; i < SlashOptions.Length; i++)
                 {
-                    SlashOptions[i] = new(
-                        SlashName = i switch
+                    if (i == 0)
+                    {
+                        slashNames[0] = $"{slashNames[0]}_{i + 1}";
+                    }
+                    else
+                    {
+                        slashNames.Add(i switch
                         {
-                            0 => $"{SlashName}_{i + 1}",
-                            < 10 => $"{SlashName[..^1]}{i + 1}",
-                            _ => $"{SlashName[..^2]}{i + 1}",
-                        },
+                            < 10 => $"{slashNames[i - 1][..^1]}{i + 1}",
+                            _ => $"{slashNames[i - 1][..^2]}{i + 1}",
+                        });
+                    }
+
+
+                    SlashOptions[i] = new(
+                        slashNames[i],
                         Description,
                         SlashMetadata.OptionType,
                         i < minimumRequiredOptions, // Required until the minimum amount of parameters is reached.
@@ -138,10 +150,11 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
                     );
                 }
             }
+
+            SlashNames = slashNames.AsReadOnly();
         }
 
         public override string ToString() => $"{ParameterInfo.Name} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
-        public override bool Equals(object? obj) => obj is CommandParameter parameter && Name == parameter.Name && Description == parameter.Description && EqualityComparer<CommandOverload>.Default.Equals(Overload, parameter.Overload) && EqualityComparer<ParameterInfo>.Default.Equals(ParameterInfo, parameter.ParameterInfo) && Flags == parameter.Flags && DefaultValue.Equals(parameter.DefaultValue) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, parameter.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadata>.Default.Equals(SlashMetadata, parameter.SlashMetadata) && SlashName == parameter.SlashName && EqualityComparer<DiscordApplicationCommandOption[]?>.Default.Equals(SlashOptions, parameter.SlashOptions);
         public override int GetHashCode()
         {
             HashCode hash = new();
@@ -162,7 +175,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             }
 
             hash.Add(SlashMetadata);
-            hash.Add(SlashName);
+            hash.Add(SlashNames);
 
             if (SlashOptions is not null)
             {
@@ -172,8 +185,10 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
             return hash.ToHashCode();
         }
 
+        public override bool Equals(object? obj) => obj is CommandParameter parameter && Name == parameter.Name && Description == parameter.Description && EqualityComparer<CommandOverload>.Default.Equals(Overload, parameter.Overload) && EqualityComparer<ParameterInfo>.Default.Equals(ParameterInfo, parameter.ParameterInfo) && Flags == parameter.Flags && DefaultValue.Equals(parameter.DefaultValue) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, parameter.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadata>.Default.Equals(SlashMetadata, parameter.SlashMetadata) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(SlashNames, parameter.SlashNames) && EqualityComparer<DiscordApplicationCommandOption[]?>.Default.Equals(SlashOptions, parameter.SlashOptions);
+
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
-            parameter.SlashName,
+            parameter.SlashNames[0],
             parameter.Description,
             parameter.SlashMetadata.OptionType,
             parameter.SlashMetadata.IsRequired,

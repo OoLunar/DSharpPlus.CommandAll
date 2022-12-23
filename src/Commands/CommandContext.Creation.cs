@@ -110,29 +110,29 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands
         public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
         {
             CurrentOverload = currentCommand.Overloads[0];
-            Dictionary<string, string?> optionsDict = new();
+
+            Dictionary<string, string?> parameters = new();
             foreach (CommandParameter parameter in CurrentOverload.Parameters)
             {
-                DiscordInteractionDataOption? option = options.FirstOrDefault(o => o.Name == parameter.SlashName);
-                if (option is not null)
+                foreach (string name in parameter.SlashNames)
                 {
-                    optionsDict.Add(parameter.SlashName, option.Value?.ToString());
-                }
-                else
-                {
-                    if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
+                    foreach (DiscordInteractionDataOption option in options)
                     {
-                        optionsDict.Add(parameter.SlashName, null);
-                        continue;
+                        if (option.Name == name)
+                        {
+                            parameters.Add(name, option.Value?.ToString());
+                            break;
+                        }
                     }
-                    else
+
+                    if (!parameters.ContainsKey(name) && !parameter.Flags.HasFlag(CommandParameterFlags.TrimExcess))
                     {
-                        throw new ArgumentException($"Missing required option {parameter.SlashName}.");
+                        parameters.Add(name, null);
                     }
                 }
             }
 
-            NamedArguments = ConvertArgs(optionsDict.Values.ToArray()!);
+            NamedArguments = ConvertArgs(parameters.Values.ToArray()!);
             _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
         }
 

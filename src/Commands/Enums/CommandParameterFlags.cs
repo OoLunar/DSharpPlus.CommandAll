@@ -27,5 +27,9 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
         /// This parameter is a <see cref="string"/> and can take the rest of the input.
         /// </summary>
         RemainingText = 1 << 3,
+
+        /// <summary>
+        /// This flag is directly tied with <see cref="Params"/>. If this flag is set, the parameter will trim the element's default value from the array.
+        TrimExcess = 1 << 4,
     }
 }

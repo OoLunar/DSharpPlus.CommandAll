@@ -183,9 +183,6 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
                     case ChannelTypesAttribute channelTypes:
                         builder.SlashMetadata.ChannelTypes = channelTypes.ChannelTypes.ToList();
                         break;
-                    case ParameterLimitAttribute parameterLimit:
-                        builder.SlashMetadata.ParameterLimitAttribute = parameterLimit;
-                        break;
                     case ParamArrayAttribute:
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
                         builder.DefaultValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, 0);
@@ -202,6 +199,22 @@ namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
 
                         builder.Flags |= CommandParameterFlags.RemainingText;
                         break;
+                }
+            }
+
+            if (builder.Flags.HasFlag(CommandParameterFlags.Params))
+            {
+                builder.Flags |= CommandParameterFlags.TrimExcess;
+
+                if (parameterInfo.GetCustomAttribute<ParameterLimitAttribute>() is ParameterLimitAttribute parameterLimit)
+                {
+                    builder.SlashMetadata.ParameterLimitAttribute = parameterLimit;
+
+                    // Add TrimExcess unless explicitly set to false
+                    if (!parameterLimit.TrimExcess)
+                    {
+                        builder.Flags &= ~CommandParameterFlags.TrimExcess;
+                    }
                 }
             }
 

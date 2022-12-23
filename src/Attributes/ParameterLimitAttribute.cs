@@ -19,9 +19,14 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
         public readonly int MaximumElementCount;
 
         /// <summary>
+        /// Whether or not to trim the excess elements from the parameter.
+        /// </summary>
+        public readonly bool TrimExcess = true;
+
+        /// <summary>
         /// Determines the minimum and maximum values that a parameter can accept.
         /// </summary>
-        public ParameterLimitAttribute(int minimum = 0, int maximum = 25)
+        public ParameterLimitAttribute(int minimum = 0, int maximum = 25, bool trimExcess = true)
         {
             if (minimum < 0)
             {
@@ -38,6 +43,7 @@ namespace OoLunar.DSharpPlus.CommandAll.Attributes
 
             MinimumElementCount = minimum;
             MaximumElementCount = maximum;
+            TrimExcess = trimExcess;
         }
     }
 }

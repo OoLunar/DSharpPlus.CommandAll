@@ -149,5 +149,7 @@ namespace OoLunar.DSharpPlus.CommandAll
 
             return extensions.AsReadOnly();
         }
+
+        private static object? GetDefaultValue(this Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
     }
 }
