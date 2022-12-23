@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <summary>
     /// Attempts to parse multiple arguments from a singular string.

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tests
+namespace DSharpPlus.CommandAll.Tests
 {
     [TestClass]
     public sealed class TextArgumentParsing : BaseTestClass

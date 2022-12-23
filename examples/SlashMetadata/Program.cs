@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.EventArgs;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata
+namespace DSharpPlus.CommandAll.Examples.SlashMetadata
 {
     public sealed class Program
     {

@@ -4,15 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     public sealed partial class CommandContext
     {

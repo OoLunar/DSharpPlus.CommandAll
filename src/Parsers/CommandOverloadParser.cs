@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Enums;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <inheritdoc cref="ICommandOverloadParser"/>
     public class CommandOverloadParser : ICommandOverloadParser

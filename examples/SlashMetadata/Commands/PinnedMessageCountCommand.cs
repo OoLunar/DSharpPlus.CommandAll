@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata.Commands
+namespace DSharpPlus.CommandAll.Examples.SlashMetadata.Commands
 {
     public sealed class PinnedMessageCountCommand : BaseCommand
     {

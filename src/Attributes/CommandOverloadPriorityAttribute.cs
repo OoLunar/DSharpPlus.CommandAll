@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// Determines which overload should be picked first when multiple overloads are available. The overloads are sorted by the priority's highest number, then by the highest number of parameters to the lowest number of parameters.

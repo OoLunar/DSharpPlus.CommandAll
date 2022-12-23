@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Managers
+namespace DSharpPlus.CommandAll.Managers
 {
     /// <inheritdoc cref="ICommandManager" />
     public class CommandManager : ICommandManager

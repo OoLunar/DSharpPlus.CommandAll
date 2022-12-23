@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Arguments;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// Attempts to parse a parameter with the specified converter.

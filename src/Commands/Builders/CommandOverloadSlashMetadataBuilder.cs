@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 {
     /// <summary>
     /// A builder for slash subcommand/group metadata.

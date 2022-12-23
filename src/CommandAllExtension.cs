@@ -4,22 +4,21 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Commands.Executors;
+using DSharpPlus.CommandAll.EventArgs;
+using DSharpPlus.CommandAll.Exceptions;
+using DSharpPlus.CommandAll.Managers;
+using DSharpPlus.CommandAll.Parsers;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
-using OoLunar.DSharpPlus.CommandAll.EventArgs;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
-using OoLunar.DSharpPlus.CommandAll.Managers;
-using OoLunar.DSharpPlus.CommandAll.Parsers;
 
-namespace OoLunar.DSharpPlus.CommandAll
+namespace DSharpPlus.CommandAll
 {
     /// <summary>
     /// Because not everyone can decide between slash commands and text commands.

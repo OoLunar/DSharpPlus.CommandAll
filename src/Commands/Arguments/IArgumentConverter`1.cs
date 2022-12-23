@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Arguments
+namespace DSharpPlus.CommandAll.Commands.Arguments
 {
     /// <summary>
     /// Represents a converter that converts a string into an object.

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands.System.SlashMetadata
 {
     /// <summary>
     /// The metadata used when registering a command as a slash command.

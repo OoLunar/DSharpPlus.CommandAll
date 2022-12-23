@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Exceptions;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands
+namespace DSharpPlus.CommandAll.Commands.Builders
 {
     /// <summary>
     /// A builder for command overloads.

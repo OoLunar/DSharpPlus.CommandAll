@@ -1,10 +1,10 @@
 using System.Reflection;
+using DSharpPlus.CommandAll.Parsers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using OoLunar.DSharpPlus.CommandAll.Parsers;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tests
+namespace DSharpPlus.CommandAll.Tests
 {
     public class BaseTestClass
     {

@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using DSharpPlus.Entities;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// A command overload.

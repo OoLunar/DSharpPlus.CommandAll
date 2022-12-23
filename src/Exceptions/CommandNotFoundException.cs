@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Exceptions
+namespace DSharpPlus.CommandAll.Exceptions
 {
     public sealed class CommandNotFoundException : CommandAllException
     {

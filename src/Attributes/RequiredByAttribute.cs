@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// Specifies when a parameter isn't null.

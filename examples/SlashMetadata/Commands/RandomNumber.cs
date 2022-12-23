@@ -1,10 +1,10 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.SlashMetadata.Commands
+namespace DSharpPlus.CommandAll.Examples.SlashMetadata.Commands
 {
     public sealed class RandomNumberCommand : BaseCommand
     {

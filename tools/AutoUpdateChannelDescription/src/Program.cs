@@ -1,12 +1,11 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tools.AutoUpdateChannelDescription
+namespace DSharpPlus.CommandAll.Tools.AutoUpdateChannelDescription
 {
     public sealed class Program
     {

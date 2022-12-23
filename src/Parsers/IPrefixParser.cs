@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <summary>
     /// Attempts to locate and remove the prefix from a text command.

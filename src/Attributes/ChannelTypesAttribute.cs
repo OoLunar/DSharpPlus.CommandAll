@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using DSharpPlus;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// Determines the channel types that a parameter can accept.

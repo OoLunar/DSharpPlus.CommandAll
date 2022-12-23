@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <inheritdoc cref="IPrefixParser"/>
     /// <remarks>

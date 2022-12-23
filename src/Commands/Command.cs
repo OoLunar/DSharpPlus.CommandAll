@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using DSharpPlus.Entities;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.System.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// A command. This can be a top level command, subcommand and/or group command.

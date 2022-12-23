@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// The context of a command.

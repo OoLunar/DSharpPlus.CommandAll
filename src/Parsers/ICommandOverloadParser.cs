@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
+using DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <summary>
     /// Determines which overload of a command should be used by the text command.

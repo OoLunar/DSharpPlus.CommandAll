@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Builders;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Managers
+namespace DSharpPlus.CommandAll.Managers
 {
     /// <inheritdoc cref="IArgumentConverterManager" />
     public class ArgumentConverterManager : IArgumentConverterManager

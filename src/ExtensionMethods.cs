@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace OoLunar.DSharpPlus.CommandAll
+namespace DSharpPlus.CommandAll
 {
     /// <summary>
     /// Extension methods used by the <see cref="CommandAllExtension"/> for the <see cref="DiscordClient"/>.

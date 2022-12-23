@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.System.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands.System.SlashMetadata
 {
     /// <summary>
     /// Slash command metadata for a command parameter.

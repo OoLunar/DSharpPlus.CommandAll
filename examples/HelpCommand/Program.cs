@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
-using DSharpPlus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand
+namespace DSharpPlus.CommandAll.Examples.HelpCommand
 {
     public sealed class Program
     {

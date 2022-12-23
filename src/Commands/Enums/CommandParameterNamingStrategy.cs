@@ -1,4 +1,4 @@
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
+namespace DSharpPlus.CommandAll.Commands.Enums
 {
     /// <summary>
     /// The naming strategy to be used when registering a command parameter as a slash command.

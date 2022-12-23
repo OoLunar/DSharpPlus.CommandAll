@@ -3,13 +3,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.EventArgs;
+using DSharpPlus.CommandAll.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.EventArgs;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
+namespace DSharpPlus.CommandAll.Commands.Executors
 {
     /// <inheritdoc cref="ICommandExecutor"/>
     public class CommandExecutor : ICommandExecutor

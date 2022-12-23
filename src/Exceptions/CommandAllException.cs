@@ -1,7 +1,7 @@
 using System;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Builders;
 
-namespace OoLunar.DSharpPlus.CommandAll.Exceptions
+namespace DSharpPlus.CommandAll.Exceptions
 {
     /// <summary>
     /// Thrown when an exception occurs while parsing with any <see cref="Builder"/>.

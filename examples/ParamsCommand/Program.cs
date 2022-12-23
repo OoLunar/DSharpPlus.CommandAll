@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DSharpPlus;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.ParamsCommand
+namespace DSharpPlus.CommandAll.Examples.ParamsCommand
 {
     public sealed class Program
     {

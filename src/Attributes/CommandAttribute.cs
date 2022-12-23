@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// Marks a class or method as a (sub)command or group.

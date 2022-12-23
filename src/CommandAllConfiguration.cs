@@ -1,13 +1,13 @@
 using System;
+using DSharpPlus.CommandAll.Commands.Enums;
+using DSharpPlus.CommandAll.Commands.Executors;
+using DSharpPlus.CommandAll.Managers;
+using DSharpPlus.CommandAll.Parsers;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
-using OoLunar.DSharpPlus.CommandAll.Commands.Executors;
-using OoLunar.DSharpPlus.CommandAll.Managers;
-using OoLunar.DSharpPlus.CommandAll.Parsers;
 
-namespace OoLunar.DSharpPlus.CommandAll
+namespace DSharpPlus.CommandAll
 {
     /// <summary>
     /// The configuration copied to an instance of <see cref="CommandAllExtension"/>.

@@ -1,13 +1,11 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.HelpCommand.Commands
+namespace DSharpPlus.CommandAll.Examples.HelpCommand.Commands
 {
     public sealed class HelpCommand : BaseCommand
     {

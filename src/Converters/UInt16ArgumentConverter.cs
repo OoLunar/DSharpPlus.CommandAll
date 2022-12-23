@@ -1,11 +1,9 @@
 using System.Threading.Tasks;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Converters
 {
     public sealed class UInt16ArgumentConverter : IArgumentConverter<ushort>
     {

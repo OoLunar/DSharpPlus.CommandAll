@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
+namespace DSharpPlus.CommandAll.Commands.Builders
 {
     /// <summary>
     /// A pattern used to build objects.

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using DSharpPlus.CommandAll.Commands.Enums;
 using Humanizer;
-using OoLunar.DSharpPlus.CommandAll.Commands.Enums;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders
+namespace DSharpPlus.CommandAll.Commands.Builders
 {
     /// <summary>
     /// A builder for slash command metadata.

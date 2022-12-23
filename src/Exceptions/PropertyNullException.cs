@@ -1,4 +1,4 @@
-namespace OoLunar.DSharpPlus.CommandAll.Exceptions
+namespace DSharpPlus.CommandAll.Exceptions
 {
     /// <summary>
     /// Thrown when a property has an unexpected null value.

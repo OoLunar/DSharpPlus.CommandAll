@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OoLunar.DSharpPlus.CommandAll.Parsers
+namespace DSharpPlus.CommandAll.Parsers
 {
     /// <inheritdoc cref="ITextArgumentParser"/>
     public class CommandsNextStyleTextArgumentParser : ITextArgumentParser

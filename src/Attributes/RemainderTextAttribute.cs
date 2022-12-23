@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Attributes
+namespace DSharpPlus.CommandAll.Attributes
 {
     /// <summary>
     /// A marker attribute that indicates that the parameter should take the rest of the input.

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Tests.Commands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
-using OoLunar.DSharpPlus.CommandAll.Tests.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tests
+namespace DSharpPlus.CommandAll.Tests
 {
     [TestClass]
     public sealed class CommandParsing : BaseTestClass

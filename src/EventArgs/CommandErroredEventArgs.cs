@@ -1,8 +1,8 @@
 using System;
+using DSharpPlus.CommandAll.Commands;
 using Emzi0767.Utilities;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.EventArgs
+namespace DSharpPlus.CommandAll.EventArgs
 {
     /// <summary>
     /// Represents an event that is fired when a command errored.

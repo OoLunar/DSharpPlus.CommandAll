@@ -1,11 +1,10 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using DSharpPlus;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.ArgumentConverters.Commands
+namespace DSharpPlus.CommandAll.Examples.ArgumentConverters.Commands
 {
     [Command("ulid"), Description("Commands for manipulating Ulids.")]
     public sealed class UlidCommands : BaseCommand

@@ -1,10 +1,10 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Attributes;
+using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Attributes;
-using OoLunar.DSharpPlus.CommandAll.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Tests.Commands
+namespace DSharpPlus.CommandAll.Tests.Commands
 {
     public sealed class EchoCommand : BaseCommand
     {

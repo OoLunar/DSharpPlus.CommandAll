@@ -1,8 +1,8 @@
 using System;
+using DSharpPlus.CommandAll.Managers;
 using Emzi0767.Utilities;
-using OoLunar.DSharpPlus.CommandAll.Managers;
 
-namespace OoLunar.DSharpPlus.CommandAll.EventArgs
+namespace DSharpPlus.CommandAll.EventArgs
 {
     /// <summary>
     /// Represents an event that is fired when the commands need to be configured.

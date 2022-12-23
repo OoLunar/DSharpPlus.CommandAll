@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using DSharpPlus;
+using DSharpPlus.CommandAll.Commands;
+using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.Entities;
-using OoLunar.DSharpPlus.CommandAll.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
-using OoLunar.DSharpPlus.CommandAll.Commands.System.Commands;
 
-namespace OoLunar.DSharpPlus.CommandAll.Managers
+namespace DSharpPlus.CommandAll.Managers
 {
     /// <summary>
     /// Manages commands, allowing them to be built, registered, and searched.

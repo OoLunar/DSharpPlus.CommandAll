@@ -1,6 +1,6 @@
 using System;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Enums
+namespace DSharpPlus.CommandAll.Commands.Enums
 {
     /// <summary>
     /// Flags for commands.

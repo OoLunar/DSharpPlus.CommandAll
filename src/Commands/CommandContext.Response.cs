@@ -1,11 +1,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     public sealed partial class CommandContext
     {

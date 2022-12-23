@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Executors
+namespace DSharpPlus.CommandAll.Commands.Executors
 {
     /// <summary>
     /// It executes commands. :/

@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using OoLunar.DSharpPlus.CommandAll.Exceptions;
+using DSharpPlus.CommandAll.Exceptions;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// A marker class used to indicate that this type is a top level command.

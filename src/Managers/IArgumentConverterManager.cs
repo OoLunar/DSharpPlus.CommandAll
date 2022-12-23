@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using OoLunar.DSharpPlus.CommandAll.Commands.Arguments;
-using OoLunar.DSharpPlus.CommandAll.Commands.Builders.Commands;
+using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Builders;
 
-namespace OoLunar.DSharpPlus.CommandAll.Managers
+namespace DSharpPlus.CommandAll.Managers
 {
     /// <summary>
     /// Manages argument converters, allowing them to be registered and searched.

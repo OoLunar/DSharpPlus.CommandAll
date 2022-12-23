@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using DSharpPlus;
 
-namespace OoLunar.DSharpPlus.CommandAll.Examples.PingCommand
+namespace DSharpPlus.CommandAll.Examples.PingCommand
 {
     public sealed class Program
     {

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using DSharpPlus;
 
-namespace OoLunar.DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
 {
     /// <summary>
     /// A builder for slash command metadata.
