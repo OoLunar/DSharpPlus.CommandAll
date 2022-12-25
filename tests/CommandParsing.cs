@@ -47,7 +47,7 @@ namespace DSharpPlus.CommandAll.Tests
         [TestMethod]
         public void InvalidMultiLevelCommand()
         {
-            Assert.IsFalse(CommandBuilder.TryParse(Extension, typeof(InvalidMultiLevelCommand), out IEnumerable<CommandBuilder>? builders, out Exception? error));
+            Assert.IsFalse(CommandBuilder.TryParse(Extension, typeof(InvalidMultiLevelCommand), out IReadOnlyList<CommandBuilder>? builders, out Exception? error));
             Assert.IsNull(builders);
             Assert.IsInstanceOfType(error, typeof(InvalidOperationException));
         }
@@ -55,7 +55,7 @@ namespace DSharpPlus.CommandAll.Tests
         [TestMethod]
         public void InvalidGroupCommand()
         {
-            Assert.IsFalse(CommandBuilder.TryParse(Extension, typeof(InvalidGroupCommand), out IEnumerable<CommandBuilder>? builders, out Exception? error));
+            Assert.IsFalse(CommandBuilder.TryParse(Extension, typeof(InvalidGroupCommand), out IReadOnlyList<CommandBuilder>? builders, out Exception? error));
             Assert.IsNull(builders);
             Assert.IsInstanceOfType(error, typeof(ArgumentNullException));
         }
