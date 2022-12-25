@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Converters
@@ -29,7 +30,7 @@ namespace DSharpPlus.CommandAll.Converters
                 }
             }
 
-            if (context.IsSlashCommand && context.Interaction!.Data.Resolved?.Channels is not null && context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel) && channel is DiscordThreadChannel threadChannel)
+            if (context.InvocationType == CommandInvocationType.SlashCommand && context.Interaction!.Data.Resolved?.Channels is not null && context.Interaction.Data.Resolved.Channels.TryGetValue(channelId, out DiscordChannel? channel) && channel is DiscordThreadChannel threadChannel)
             {
                 return Task.FromResult(Optional.FromValue(threadChannel));
             }

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,7 @@ namespace DSharpPlus.CommandAll.Converters
             }
 
             // Attempt to use the resolved members/users from the interaction.
-            if (context.IsSlashCommand)
+            if (context.InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Always attempt to pass the member before falling back on the user in case the dev wants to cast to a member.
                 if (context.Interaction!.Data.Resolved?.Members is not null && context.Interaction.Data.Resolved.Members.TryGetValue(memberId, out DiscordMember? member))

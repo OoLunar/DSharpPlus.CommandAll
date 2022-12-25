@@ -15,6 +15,42 @@ namespace DSharpPlus.CommandAll.Commands
     public sealed partial class CommandContext
     {
         /// <summary>
+        /// Used to log complaints.
+        /// </summary>
+        private readonly ILogger<CommandContext> _logger;
+
+        /// <summary>
+        /// A new scope for the command context, created from the <see cref="Extension"/>'s <see cref="IServiceProvider"/>.
+        /// </summary>
+        public readonly IServiceProvider ServiceProvider;
+
+        /// <summary>
+        /// The <see cref="CommandAllExtension"/> instance that handled the command parsing and execution.
+        /// </summary>
+        public readonly CommandAllExtension Extension;
+
+        /// <summary>
+        /// The <see cref="Command"/> that is being executed.
+        /// </summary>
+        public Command CurrentCommand => CurrentOverload.Command;
+
+        /// <summary>
+        /// The <see cref="CommandOverload"/> that is being executed.
+        /// </summary>
+        public readonly CommandOverload CurrentOverload;
+
+        /// <summary>
+        /// How the command was invoked.
+        /// </summary>
+        public readonly CommandInvocationType InvocationType;
+
+        /// <summary>
+        /// The arguments that were passed to the command.
+        /// </summary>
+        public IReadOnlyDictionary<CommandParameter, object?> NamedArguments => _namedArguments.AsReadOnly();
+        private readonly Dictionary<CommandParameter, object?> _namedArguments;
+
+        /// <summary>
         /// The channel the command was executed in.
         /// </summary>
         public readonly DiscordChannel Channel;
@@ -25,16 +61,6 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly DiscordUser User;
 
         /// <summary>
-        /// The interaction that triggered the command, if the command was executed via slash command.
-        /// </summary>
-        public DiscordInteraction? Interaction { get; private set; }
-
-        /// <summary>
-        /// The message that triggered the command, if the command was executed via a text command.
-        /// </summary>
-        public readonly DiscordMessage? Message;
-
-        /// <summary>
         /// The guild that the command was executed in, if any.
         /// </summary>
         public readonly DiscordGuild? Guild;
@@ -42,32 +68,25 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The <see cref="User"/> as a <see cref="DiscordMember"/>, if the command was executed in a guild.
         /// </summary>
-        public readonly DiscordMember? Member;
+        public DiscordMember? Member => User as DiscordMember;
 
         /// <summary>
-        /// The <see cref="CommandAllExtension"/> instance that handled the command parsing and execution.
+        /// The message that triggered the command, if the command was executed via a text command.
         /// </summary>
-        public readonly CommandAllExtension Extension;
+        public readonly DiscordMessage? Message;
 
         /// <summary>
-        /// The <see cref="Command"/> that is being executed.
+        /// The original response to the message or interaction, if any.
         /// </summary>
-        public readonly Command CurrentCommand;
+        /// <remarks>
+        /// Not null when <see cref="IsSlashCommand"/> is false and <see cref="ReplyAsync(DiscordMessageBuilder)"/> has been called.
+        /// </remarks>
+        public DiscordMessage? Response { get; private set; }
 
         /// <summary>
-        /// The <see cref="CommandOverload"/> that is being executed.
+        /// The interaction that triggered the command, if the command was executed via slash command.
         /// </summary>
-        public readonly CommandOverload CurrentOverload;
-
-        /// <summary>
-        /// The arguments that were passed to the command.
-        /// </summary>
-        public readonly IDictionary<CommandParameter, object?> NamedArguments;
-
-        /// <summary>
-        /// The arguments that were passed to the command, in a string form.
-        /// </summary>
-        public readonly string RawArguments;
+        public DiscordInteraction? Interaction { get; private set; }
 
         /// <summary>
         /// If the interaction has been responded to, the value will be what interaction response type was used. Will often be <see cref="InteractionResponseType.DeferredChannelMessageWithSource"/> or <see cref="InteractionResponseType.DeferredMessageUpdate"/>.
@@ -80,35 +99,10 @@ namespace DSharpPlus.CommandAll.Commands
         public DiscordClient Client => Extension.Client;
 
         /// <summary>
-        /// A new scope for the command context, created from the <see cref="Extension"/>'s <see cref="IServiceProvider"/>.
-        /// </summary>
-        public readonly IServiceProvider ServiceProvider;
-
-        /// <summary>
-        /// Whether the command was executed via slash command or not.
-        /// </summary>
-        public bool IsSlashCommand => Interaction is not null;
-
-        /// <summary>
-        /// The original response to the message or interaction, if any.
-        /// </summary>
-        /// <remarks>
-        /// Not null when <see cref="IsSlashCommand"/> is false and <see cref="ReplyAsync(DiscordMessageBuilder)"/> has been called.
-        /// </remarks>
-        public DiscordMessage? Response { get; private set; }
-
-        /// <summary>
-        /// Used to log complaints.
-        /// </summary>
-        private readonly ILogger<CommandContext> _logger;
-
-        /// <summary>
         /// Creates a new <see cref="CommandContext"/> from a slash command interaction.
         /// </summary>
-        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, interaction.User as DiscordMember, extension, currentCommand, string.Empty)
+        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordInteraction interaction, IEnumerable<DiscordInteractionDataOption> options) : this(interaction.Channel, interaction.User, interaction, null, interaction.Guild, extension, currentCommand.Overloads[0], CommandInvocationType.SlashCommand)
         {
-            CurrentOverload = currentCommand.Overloads[0];
-
             Dictionary<string, string?> parameters = new();
             foreach (CommandParameter parameter in CurrentOverload.Parameters)
             {
@@ -130,14 +124,14 @@ namespace DSharpPlus.CommandAll.Commands
                 }
             }
 
-            NamedArguments = ConvertArgs(parameters.Values.ToArray()!);
-            _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
+            _namedArguments = ConvertArgs(parameters.Values.ToArray()!);
+            _logger.LogTrace("Successfully parsed arguments {Arguments}", _namedArguments);
         }
 
         /// <summary>
         /// Creates a new <see cref="CommandContext"/> from a text command message.
         /// </summary>
-        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordMessage message, string rawArguments) : this(message.Channel, message.Author, null, message, message.Channel.Guild, message.Author as DiscordMember, extension, currentCommand, rawArguments)
+        public CommandContext(CommandAllExtension extension, Command currentCommand, DiscordMessage message, string rawArguments) : this(message.Channel, message.Author, null, message, message.Channel.Guild, extension, null!, CommandInvocationType.TextCommand)
         {
             if (!extension.TextArgumentParser.TryExtractArguments(extension, rawArguments, out IReadOnlyList<string> arguments))
             {
@@ -150,30 +144,27 @@ namespace DSharpPlus.CommandAll.Commands
             else
             {
                 CurrentOverload = overload;
-                NamedArguments = ConvertArgs(arguments.ToArray());
-                _logger.LogTrace("Successfully parsed arguments {Arguments}", NamedArguments);
+                _namedArguments = ConvertArgs(arguments.ToArray());
+                _logger.LogTrace("Successfully parsed arguments {Arguments}", _namedArguments);
             }
         }
 
         /// <summary>
         /// Attempts to create a <see cref="CommandContext"/>. This constructor can be used to create a fake context for testing purposes.
         /// </summary>
-        public CommandContext(DiscordChannel channel, DiscordUser user, DiscordInteraction? interaction, DiscordMessage? message, DiscordGuild? guild, DiscordMember? member, CommandAllExtension extension, Command currentCommand, string rawArguments)
+        public CommandContext(DiscordChannel channel, DiscordUser user, DiscordInteraction? interaction, DiscordMessage? message, DiscordGuild? guild, CommandAllExtension extension, CommandOverload currentOverload, CommandInvocationType invocationType = CommandInvocationType.VirtualCommand)
         {
+            ServiceProvider = extension.ServiceProvider.CreateScope().ServiceProvider;
+            Extension = extension;
+            CurrentOverload = currentOverload;
+            _namedArguments = new();
+            InvocationType = invocationType;
             Channel = channel;
             User = user;
             Interaction = interaction;
             Message = message;
             Guild = guild;
-            Member = member;
-            Extension = extension;
-            CurrentCommand = currentCommand;
-            CurrentOverload = null!; // This will be overriden by both constructors that call this one.
-            RawArguments = rawArguments;
-            NamedArguments = new Dictionary<CommandParameter, object?>();
-            PromptTimeout = extension.PromptTimeout;
-            ServiceProvider = extension.ServiceProvider.CreateScope().ServiceProvider;
-            _logger = extension.ServiceProvider.GetRequiredService<ILogger<CommandContext>>();
+            _logger = ServiceProvider.GetRequiredService<ILogger<CommandContext>>();
         }
 
         private Dictionary<CommandParameter, object?> ConvertArgs(object[] arguments)
@@ -260,67 +251,32 @@ namespace DSharpPlus.CommandAll.Commands
             return result;
         }
 
-        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && EqualityComparer<IDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && RawArguments == context.RawArguments && LastInteractionResponseType == context.LastInteractionResponseType && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && IsSlashCommand == context.IsSlashCommand && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && PromptTimeout.Equals(context.PromptTimeout) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts);
-
+        public override string ToString() => $"CommandContext: {User} - {InvocationType} - {CurrentCommand} - {CurrentOverload}";
+        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && EqualityComparer<CommandInvocationType>.Default.Equals(InvocationType, context.InvocationType) && EqualityComparer<IReadOnlyDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && EqualityComparer<Dictionary<CommandParameter, object?>>.Default.Equals(_namedArguments, context._namedArguments) && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && LastInteractionResponseType == context.LastInteractionResponseType && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && PromptTimeout.Equals(context.PromptTimeout) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts);
         public override int GetHashCode()
         {
             HashCode hash = new();
-            hash.Add(Channel);
-            hash.Add(User);
-
-            if (IsSlashCommand)
-            {
-                hash.Add(Interaction);
-            }
-            else
-            {
-                hash.Add(Message);
-            }
-
-            if (Guild is not null)
-            {
-                hash.Add(Guild);
-                hash.Add(Member);
-            }
-
+            hash.Add(_logger);
+            hash.Add(ServiceProvider);
             hash.Add(Extension);
             hash.Add(CurrentCommand);
             hash.Add(CurrentOverload);
+            hash.Add(InvocationType);
             hash.Add(NamedArguments);
-            hash.Add(RawArguments);
-
-            if (LastInteractionResponseType is not null)
-            {
-                hash.Add(LastInteractionResponseType);
-            }
-
+            hash.Add(_namedArguments);
+            hash.Add(Channel);
+            hash.Add(User);
+            hash.Add(Guild);
+            hash.Add(Member);
+            hash.Add(Message);
+            hash.Add(Response);
+            hash.Add(Interaction);
+            hash.Add(LastInteractionResponseType);
             hash.Add(Client);
-            hash.Add(ServiceProvider);
-            hash.Add(IsSlashCommand);
-
-            if (Response is not null)
-            {
-                hash.Add(Response);
-            }
-
-            hash.Add(_logger);
             hash.Add(PromptTimeout);
-
-            if (_prompts is not null)
-            {
-                hash.Add(_prompts);
-            }
-
-            if (_userInputTcs is not null)
-            {
-                hash.Add(_userInputTcs);
-            }
-
-            if (_userInputCts is not null)
-            {
-                hash.Add(_userInputCts);
-            }
-
+            hash.Add(_prompts);
+            hash.Add(_userInputTcs);
+            hash.Add(_userInputCts);
             return hash.ToHashCode();
         }
     }
