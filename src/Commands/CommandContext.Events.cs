@@ -105,7 +105,7 @@ namespace DSharpPlus.CommandAll.Commands
             }
 
             // Set the interaction response type to Modal
-            ResponseType |= ContextResponseType.Modal;
+            ResponseType |= ContextResponseType.Prompt;
 
             // Return the result of the Task from the TaskCompletionSource, or null if the timeout had occured
             try

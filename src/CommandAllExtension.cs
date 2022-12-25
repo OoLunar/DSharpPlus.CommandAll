@@ -246,7 +246,7 @@ namespace DSharpPlus.CommandAll
             // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
             else if (!CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command))
             {
-                return _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, eventArgs.Author as DiscordMember, this, null!), new CommandNotFoundException("Command was not found.", commandString)));
+                return _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, this, null!, CommandInvocationType.TextCommand), new CommandNotFoundException("Command was not found.", commandString)));
             }
             else if (!command.Flags.HasFlag(CommandFlags.Disabled))
             {
