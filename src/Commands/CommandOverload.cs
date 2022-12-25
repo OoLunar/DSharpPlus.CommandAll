@@ -6,7 +6,6 @@ using System.Reflection;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Commands.Enums;
-using DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using DSharpPlus.Entities;
 using Humanizer;
 

@@ -19,7 +19,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// A builder for a command parameter.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandParameterBuilder : Builder
     {
         /// <inheritdoc cref="CommandParameter.Name"/>
@@ -133,19 +133,26 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
+        /// <inheritdoc cref="TryParse(CommandAllExtension, ParameterInfo, out CommandParameterBuilder?, out Exception?)"/>
         /// <summary>
-        /// Attempts to parse a <see cref="CommandParameter"/> from a <see cref="ParameterInfo"/>.
+        /// Parses a <see cref="CommandParameterBuilder"/> from a <see cref="ParameterInfo"/>.
         /// </summary>
-        /// <param name="parameterInfo">The <see cref="ParameterInfo"/> to parse.</param>
+        /// <returns>The parsed <see cref="CommandParameterBuilder"/>.</returns>
         public static CommandParameterBuilder Parse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo) => TryParse(commandAllExtension, parameterInfo, out CommandParameterBuilder? commandParameterBuilder, out Exception? error) ? commandParameterBuilder : throw error;
 
-        /// <inheritdoc cref="Parse(ParameterInfo)"/>
-        /// <param name="commandParameterBuilder">The <see cref="CommandParameterBuilder"/> that was parsed.</param>
-        /// <returns>Whether or not the <see cref="ParameterInfo"/> was successfully parsed.</returns>
+        /// <inheritdoc cref="TryParse(CommandAllExtension, ParameterInfo, out CommandParameterBuilder?, out Exception?)"/>
         public static bool TryParse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder) => TryParse(commandAllExtension, parameterInfo, out builder, out _);
 
-        /// <inheritdoc cref="TryParse(ParameterInfo, out CommandParameterBuilder?)"/>
-        /// <param name="error">The error that occurred while parsing the <see cref="ParameterInfo"/>.</param>
+        /// <summary>
+        /// Attempts to parse a <see cref="CommandParameterBuilder"/> from a <see cref="ParameterInfo"/>.
+        /// </summary>
+        /// <param name="commandAllExtension">The <see cref="CommandAllExtension"/> to use when grabbing configuration values.</param>
+        /// <param name="parameterInfo">The <see cref="ParameterInfo"/> to parse from.</param>
+        /// <param name="builder">The <see cref="CommandParameterBuilder"/> that was parsed.</param>
+        /// <param name="error">The <see cref="Exception"/> that was found when parsing the <see cref="CommandOverloadBuilder"/>. Not thrown.</param>
+        /// <returns>Whether or not the <see cref="CommandParameterBuilder"/> was parsed successfully.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="parameterInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidPropertyStateException">The <see cref="CommandParameterBuilder"/> has an invalid state. See the error message for more details.</exception>
         public static bool TryParse(CommandAllExtension commandAllExtension, ParameterInfo parameterInfo, [NotNullWhen(true)] out CommandParameterBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (parameterInfo is null)

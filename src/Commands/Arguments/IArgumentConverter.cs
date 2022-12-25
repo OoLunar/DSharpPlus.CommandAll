@@ -22,6 +22,7 @@ namespace DSharpPlus.CommandAll.Commands.Arguments
         /// <param name="context">The context of the command.</param>
         /// <param name="parameter">The parameter that is being converted.</param>
         /// <param name="value">The string to convert.</param>
+        /// <returns>The converted object, wrapped in an <see cref="IOptional"/> to indicate whether the conversion was successful or not.</returns>
         Task<IOptional> ConvertAsync(CommandContext context, CommandParameter parameter, string value);
     }
 }

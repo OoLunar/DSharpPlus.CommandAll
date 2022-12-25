@@ -53,7 +53,7 @@ namespace DSharpPlus.CommandAll.Managers
                     continue;
                 }
 
-                if (CommandBuilder.TryParse(extension, type, out IEnumerable<CommandBuilder>? commandBuilders, out Exception? error))
+                if (CommandBuilder.TryParse(extension, type, out IReadOnlyList<CommandBuilder>? commandBuilders, out Exception? error))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {

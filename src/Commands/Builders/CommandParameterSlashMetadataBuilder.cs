@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using DSharpPlus.CommandAll.Attributes;
-using DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -14,7 +13,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
     /// <summary>
     /// A builder for slash parameter metadata.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandParameterSlashMetadataBuilder : SlashMetadataBuilder
     {
         /// <inheritdoc cref="CommandParameterSlashMetadata.OptionType"/>

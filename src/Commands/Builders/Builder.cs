@@ -26,15 +26,14 @@ namespace DSharpPlus.CommandAll.Commands.Builders
         /// </summary>
         public abstract void Verify();
 
-        /// <summary>
-        /// Attempts to verify the builder's data, returning whether it succeeded.
-        /// </summary>
+        /// <inheritdoc cref="TryVerify(out Exception?)"/>
         public abstract bool TryVerify();
 
         /// <summary>
         /// Attempts to verify the builder's data, returning whether it succeeded.
         /// </summary>
-        /// <param name="exception">The exception that was thrown, if any.</param>
+        /// <param name="error">The exception that was thrown, if any.</param>
+        /// <returns>Whether the builder's data is valid.</returns>
         public abstract bool TryVerify([NotNullWhen(false)] out Exception? error);
     }
 }

@@ -8,7 +8,7 @@ using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Humanizer;
 
-namespace DSharpPlus.CommandAll.Commands.System.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// Slash command metadata for a command parameter.

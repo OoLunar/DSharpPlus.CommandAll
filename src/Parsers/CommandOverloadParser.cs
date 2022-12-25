@@ -16,7 +16,10 @@ namespace DSharpPlus.CommandAll.Parsers
         /// </summary>
         private readonly ILogger<CommandOverloadParser> _logger;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Creates a new instance of <see cref="CommandOverloadParser"/>.
+        /// </summary>
+        /// <param name="logger">The logger used to log messages.</param>
         public CommandOverloadParser(ILogger<CommandOverloadParser>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc/>

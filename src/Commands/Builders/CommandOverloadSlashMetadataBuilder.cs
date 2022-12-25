@@ -10,7 +10,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
     /// <summary>
     /// A builder for slash subcommand/group metadata.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandOverloadSlashMetadataBuilder : SlashMetadataBuilder
     {
         /// <inheritdoc/>

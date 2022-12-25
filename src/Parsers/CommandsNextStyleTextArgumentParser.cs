@@ -7,7 +7,9 @@ namespace DSharpPlus.CommandAll.Parsers
     /// <inheritdoc cref="ITextArgumentParser"/>
     public class CommandsNextStyleTextArgumentParser : ITextArgumentParser
     {
+        /// <summary>
         /// The characters that can be used to quote arguments. Defaults to <see cref="CommandAllConfiguration.QuoteCharacters"/>.
+        /// </summary>
         private readonly char[] _quoteCharacters;
 
         /// <summary>

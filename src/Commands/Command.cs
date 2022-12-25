@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Commands.Enums;
-using DSharpPlus.CommandAll.Commands.System.SlashMetadata;
 using DSharpPlus.Entities;
 using Humanizer;
 
@@ -76,6 +75,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <param name="parent">The command's parent, if any.</param>
         public Command(CommandBuilder builder, Command? parent = null)
         {
+            builder.NormalizeOverloadPriorities();
             builder.Verify();
 
             Name = builder.Name!.Trim().Pascalize();

@@ -16,7 +16,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// Used to build a new top level command, subcommand or subcommand group.
     /// </summary>
-    [DebuggerDisplay("{ToString()},nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandBuilder : Builder
     {
         /// <inheritdoc cref="Command.Name"/>
@@ -87,6 +87,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     overloads[i].Flags &= ~CommandOverloadFlags.SlashPreferred;
                 }
             }
+
             Overloads = overloads;
         }
 
@@ -173,28 +174,32 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
+        /// <inheritdoc cref="TryParse(CommandAllExtension, Type, out IReadOnlyList{CommandBuilder}?, out Exception?)"/>
         /// <summary>
-        /// Parses a type into a command builder through reflection and recursion.
+        /// Parses a <see cref="CommandBuilder"/> from a <see cref="Type"/>.
         /// </summary>
+        /// <returns>Multiple <see cref="CommandBuilder"/>s that were found in the <paramref name="type"/>.</returns>
+        public static IReadOnlyList<CommandBuilder> Parse(CommandAllExtension commandAllExtension, Type type) => TryParse(commandAllExtension, type, 0, out IReadOnlyList<CommandBuilder>? builders, out Exception? error) ? builders : throw error;
+
+        /// <inheritdoc cref="TryParse(CommandAllExtension, Type, int?, out IReadOnlyList{CommandBuilder}?, out Exception?)"/>
+        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IReadOnlyList<CommandBuilder>? builders) => TryParse(commandAllExtension, type, 0, out builders, out _);
+
+        /// <inheritdoc cref="TryParse(CommandAllExtension, Type, int?, out IReadOnlyList{CommandBuilder}?, out Exception?)"/>
+        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IReadOnlyList<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error) => TryParse(commandAllExtension, type, 0, out builders, out error);
+
+        /// <summary>
+        /// Attempts to parse multiple command builders from a type through reflection and recursion.
+        /// </summary>
+        /// <param name="commandAllExtension">The <see cref="CommandAllExtension"/> to use when grabbing configuration values.</param>
         /// <param name="type">The type to parse.</param>
-        /// <param name="commandAllExtension">The command all extension.</param>
-        public static IEnumerable<CommandBuilder> Parse(CommandAllExtension commandAllExtension, Type type) => TryParse(commandAllExtension, type, 0, out IEnumerable<CommandBuilder>? builders, out Exception? error) ? builders : throw error;
-
-        /// <inheritdoc cref="Parse(Type)"/>
+        /// <param name="recursionLevel">The current recursion level.</param>
         /// <param name="builders">The command builders that were parsed.</param>
+        /// <param name="error">The <see cref="Exception"/> that was found when parsing the type. Not thrown.</param>
         /// <returns>Whether or not the type was parsed successfully.</returns>
-        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders) => TryParse(commandAllExtension, type, 0, out builders, out _);
-
-        /// <inheritdoc cref="TryParse(Type, out IEnumerable{CommandBuilder}?)"/>
-        /// <param name="error">The error that occurred, if any.</param>
-        public static bool TryParse(CommandAllExtension commandAllExtension, Type type, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error) => TryParse(commandAllExtension, type, 0, out builders, out error);
-
-        /// <inheritdoc cref="TryParse(Type, out IEnumerable{CommandBuilder}?, out Exception?)"/>
-        /// <remarks>
-        /// If you cannot comprehend the magic of recursion, you should NOT attempt to modify it. You have been warned.
-        /// </remarks>
-        /// <param name="recursionLevel">The current level of recursion. Should never exceed 2. Remember this is zero based.</param>
-        private static bool TryParse(CommandAllExtension commandAllExtension, Type type, int? recursionLevel, [NotNullWhen(true)] out IEnumerable<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error)
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidCastException">Thrown when <paramref name="type"/> is not assignable from <see cref="BaseCommand"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there is a subgroup of a subgroup. See the diagram in https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups for correct layouts.</exception>
+        private static bool TryParse(CommandAllExtension commandAllExtension, Type type, int? recursionLevel, [NotNullWhen(true)] out IReadOnlyList<CommandBuilder>? builders, [NotNullWhen(false)] out Exception? error)
         {
             if (type is null)
             {
@@ -261,11 +266,12 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             // Parse subcommands
             foreach (Type subType in type.GetNestedTypes(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
-                if (!TryParse(commandAllExtension, subType, recursionLevel + 1, out IEnumerable<CommandBuilder>? subBuilders, out error))
+                if (!TryParse(commandAllExtension, subType, recursionLevel + 1, out IReadOnlyList<CommandBuilder>? subBuilders, out error))
                 {
                     builders = null;
                     return false;
                 }
+
                 commandBuilders.AddRange(subBuilders);
             }
 
@@ -298,7 +304,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             // If there are many commands
             else
             {
-                builders = commandBuilders;
+                builders = commandBuilders.AsReadOnly();
                 error = null;
                 return true;
             }

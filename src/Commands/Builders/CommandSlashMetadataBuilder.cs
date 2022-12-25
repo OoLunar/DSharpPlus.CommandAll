@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
     /// <summary>
     /// A builder for slash command metadata.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandSlashMetadataBuilder : SlashMetadataBuilder
     {
         /// <inheritdoc cref="CommandSlashMetadata.GuildId"/>

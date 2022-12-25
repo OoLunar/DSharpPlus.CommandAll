@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// A builder for command overloads.
     /// </summary>
-    [DebuggerDisplay("ToString(),nq")]
+    [DebuggerDisplay("{ToString(),nq}")]
     public sealed class CommandOverloadBuilder : Builder
     {
         /// <inheritdoc cref="CommandOverload.Method"/>
@@ -90,19 +90,24 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
+        /// <inheritdoc cref="TryParse(CommandAllExtension, MethodInfo, out CommandOverloadBuilder?, out Exception?)"/>
         /// <summary>
-        /// Attempts to parse a command overload from a method.
+        /// Parses a <see cref="CommandOverloadBuilder"/> from a <see cref="MethodInfo"/>.
         /// </summary>
-        /// <param name="method">The method to parse.</param>
+        /// <returns>The <see cref="CommandOverloadBuilder"/> that was parsed.</returns>
         public static CommandOverloadBuilder Parse(CommandAllExtension commandAllExtension, MethodInfo methodInfo) => TryParse(commandAllExtension, methodInfo, out CommandOverloadBuilder? overload, out Exception? error) ? overload : throw error;
 
-        /// <inheritdoc cref="Parse(MethodInfo)"/>
-        /// <param name="builder">The parsed command overload.</param>
-        /// <returns>Whether the overload was parsed successfully.</returns>
+        /// <inheritdoc cref="TryParse(CommandAllExtension, MethodInfo, out CommandOverloadBuilder?, out Exception?)"/>
         public static bool TryParse(CommandAllExtension commandAllExtension, MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder) => TryParse(commandAllExtension, methodInfo, out builder, out _);
 
-        /// <inheritdoc cref="TryParse(MethodInfo, out CommandOverloadBuilder?)"/>
-        /// <param name="error">The error that occurred while parsing the overload.</param>
+        /// <summary>
+        /// Attempts to parse a <see cref="CommandOverloadBuilder"/> from a <see cref="MethodInfo"/>.
+        /// </summary>
+        /// <param name="commandAllExtension">The <see cref="CommandAllExtension"/> to use when grabbing configuration values.</param>
+        /// <param name="methodInfo">The <see cref="MethodInfo"/> to parse from.</param>
+        /// <param name="builder">The <see cref="CommandOverloadBuilder"/> that was parsed.</param>
+        /// <param name="error">The <see cref="Exception"/> that was found when parsing the <see cref="CommandOverloadBuilder"/>. Not thrown.</param>
+        /// <returns>Whether or not the <see cref="CommandOverloadBuilder"/> was parsed successfully.</returns>
         public static bool TryParse(CommandAllExtension commandAllExtension, MethodInfo methodInfo, [NotNullWhen(true)] out CommandOverloadBuilder? builder, [NotNullWhen(false)] out Exception? error)
         {
             if (methodInfo is null)

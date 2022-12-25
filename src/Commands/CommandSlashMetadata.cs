@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 
-namespace DSharpPlus.CommandAll.Commands.System.SlashMetadata
+namespace DSharpPlus.CommandAll.Commands
 {
     /// <summary>
     /// The metadata used when registering a command as a slash command.
