@@ -62,7 +62,7 @@ namespace DSharpPlus.CommandAll.Commands
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Check if there was a response, or if the response WASN'T a deferred response
-                if (LastInteractionResponseType is null or not InteractionResponseType.DeferredChannelMessageWithSource)
+                if (ResponseType.HasFlag(ContextResponseType.Created))
                 {
                     throw new InvalidOperationException("Cannot respond to a slash command more than once.");
                 }
@@ -105,7 +105,7 @@ namespace DSharpPlus.CommandAll.Commands
             }
 
             // Set the interaction response type to Modal
-            LastInteractionResponseType = InteractionResponseType.Modal;
+            ResponseType |= ContextResponseType.Modal;
 
             // Return the result of the Task from the TaskCompletionSource, or null if the timeout had occured
             try

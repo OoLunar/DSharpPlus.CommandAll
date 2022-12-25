@@ -31,12 +31,12 @@ namespace DSharpPlus.CommandAll.Commands
             {
                 // Slash commands can only respond once, though we make an exception for modals since
                 // PromptAsync will replace the orignal interaction.
-                if (LastInteractionResponseType is not null and not InteractionResponseType.Modal)
+                if (ResponseType.HasFlag(ContextResponseType.Created))
                 {
                     throw new InvalidOperationException("Cannot respond to a slash command more than once.");
                 }
 
-                LastInteractionResponseType = InteractionResponseType.ChannelMessageWithSource;
+                ResponseType |= ContextResponseType.Created;
                 await Interaction!.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
             }
             else if (InvocationType == CommandInvocationType.TextCommand)
@@ -65,18 +65,18 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// If <see cref="InvocationType"/> is a <see cref="CommandInvocationType.TextCommand"/>, the bot will instead start "typing" in the channel for roughly 15 seconds.
         /// </remarks>
-        /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and <see cref="LastInteractionResponseType"/> is not null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and <see cref="ResponseType"/> is not null.</exception>
         public Task DelayAsync()
         {
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Ensure that the command has not already responded
-                if (LastInteractionResponseType is not null)
+                if (ResponseType != ContextResponseType.None)
                 {
                     throw new InvalidOperationException("Cannot delay a command that has already responded.");
                 }
 
-                LastInteractionResponseType = InteractionResponseType.DeferredChannelMessageWithSource;
+                ResponseType |= ContextResponseType.Delayed;
                 return Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             }
             else
@@ -95,12 +95,7 @@ namespace DSharpPlus.CommandAll.Commands
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Ensure that the command has responded with a deferred response
-                if (LastInteractionResponseType is not InteractionResponseType.DeferredChannelMessageWithSource and not InteractionResponseType.DeferredMessageUpdate)
-                {
-                    throw new InvalidOperationException("Cannot edit a command that has not responded with a deferred response.");
-                }
-
-                LastInteractionResponseType = InteractionResponseType.UpdateMessage;
+                ResponseType |= ContextResponseType.Updated;
                 await Interaction!.EditOriginalResponseAsync(new DiscordWebhookBuilder(messageBuilder));
             }
             else
@@ -142,7 +137,7 @@ namespace DSharpPlus.CommandAll.Commands
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Ensure the slash command has responded before making the rest requests
-                return LastInteractionResponseType is not InteractionResponseType.ChannelMessageWithSource and not InteractionResponseType.UpdateMessage
+                return ResponseType is ContextResponseType.None or ContextResponseType.Delayed
                     ? Task.FromResult<DiscordMessage?>(null)
                     : Interaction!.GetOriginalResponseAsync();
             }

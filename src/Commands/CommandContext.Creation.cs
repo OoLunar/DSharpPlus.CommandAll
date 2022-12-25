@@ -30,6 +30,11 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly CommandAllExtension Extension;
 
         /// <summary>
+        /// The client attached to the <see cref="Extension"/>.
+        /// </summary>
+        public DiscordClient Client => Extension.Client;
+
+        /// <summary>
         /// The <see cref="Command"/> that is being executed.
         /// </summary>
         public Command CurrentCommand => CurrentOverload.Command;
@@ -76,6 +81,11 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly DiscordMessage? Message;
 
         /// <summary>
+        /// The interaction that triggered the command, if the command was executed via slash command.
+        /// </summary>
+        public DiscordInteraction? Interaction { get; private set; }
+
+        /// <summary>
         /// The original response to the message or interaction, if any.
         /// </summary>
         /// <remarks>
@@ -84,19 +94,9 @@ namespace DSharpPlus.CommandAll.Commands
         public DiscordMessage? Response { get; private set; }
 
         /// <summary>
-        /// The interaction that triggered the command, if the command was executed via slash command.
-        /// </summary>
-        public DiscordInteraction? Interaction { get; private set; }
-
-        /// <summary>
         /// If the interaction has been responded to, the value will be what interaction response type was used. Will often be <see cref="InteractionResponseType.DeferredChannelMessageWithSource"/> or <see cref="InteractionResponseType.DeferredMessageUpdate"/>.
         /// </summary>
-        public InteractionResponseType? LastInteractionResponseType { get; private set; }
-
-        /// <summary>
-        /// The client attached to the <see cref="Extension"/>.
-        /// </summary>
-        public DiscordClient Client => Extension.Client;
+        public ContextResponseType ResponseType { get; private set; }
 
         /// <summary>
         /// Creates a new <see cref="CommandContext"/> from a slash command interaction.
@@ -252,7 +252,7 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"CommandContext: {User} - {InvocationType} - {CurrentCommand} - {CurrentOverload}";
-        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && EqualityComparer<CommandInvocationType>.Default.Equals(InvocationType, context.InvocationType) && EqualityComparer<IReadOnlyDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && EqualityComparer<Dictionary<CommandParameter, object?>>.Default.Equals(_namedArguments, context._namedArguments) && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && LastInteractionResponseType == context.LastInteractionResponseType && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && PromptTimeout.Equals(context.PromptTimeout) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts);
+        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && InvocationType == context.InvocationType && EqualityComparer<IReadOnlyDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && EqualityComparer<Dictionary<CommandParameter, object?>>.Default.Equals(_namedArguments, context._namedArguments) && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && EqualityComparer<ContextResponseType>.Default.Equals(ResponseType, context.ResponseType) && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts) && PromptTimeout.Equals(context.PromptTimeout);
         public override int GetHashCode()
         {
             HashCode hash = new();
@@ -271,7 +271,7 @@ namespace DSharpPlus.CommandAll.Commands
             hash.Add(Message);
             hash.Add(Response);
             hash.Add(Interaction);
-            hash.Add(LastInteractionResponseType);
+            hash.Add(ResponseType);
             hash.Add(Client);
             hash.Add(PromptTimeout);
             hash.Add(_prompts);
