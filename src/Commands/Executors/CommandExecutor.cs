@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandAll.Commands.Executors
         {
             if (context.CurrentOverload.Flags.HasFlag(CommandOverloadFlags.Disabled))
             {
-                return Task.FromResult(false);
+                return ExecuteErrorHandlerAsync(context, null!, new CommandDisabledException(context.CurrentCommand)).ContinueWith(task => false);
             }
 
             _ = Task.Run(async () =>
@@ -84,8 +84,14 @@ namespace DSharpPlus.CommandAll.Commands.Executors
         /// <summary>
         /// Attempts to execute <see cref="BaseCommand.OnErrorAsync(CommandContext, Exception)"/>. If that method is not implemented or throws an exception, <see cref="CommandAllExtension._commandErrored"/> is invoked. If that fails, then exception is logged.
         /// </summary>
-        private async Task ExecuteErrorHandlerAsync(CommandContext context, BaseCommand commandObject, Exception error)
+        private async Task ExecuteErrorHandlerAsync(CommandContext context, BaseCommand? commandObject, Exception error)
         {
+            if (commandObject is null)
+            {
+                await context.Extension._commandErrored.InvokeAsync(context.Extension, new CommandErroredEventArgs(context, error));
+                return;
+            }
+
             try
             {
                 await commandObject.OnErrorAsync(context, error);

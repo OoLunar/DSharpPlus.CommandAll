@@ -67,6 +67,12 @@ namespace DSharpPlus.CommandAll
         /// <inheritdoc cref="CommandParameterNamingStrategy"/>
         public CommandParameterNamingStrategy ParameterNamingStrategy { get; set; } = CommandParameterNamingStrategy.SnakeCase;
 
+        /// <inheritdoc cref="CommandFilteringStrategy"/>
+        /// <remarks>
+        /// If <see cref="CommandFilteringStrategy.AcceptAnywhere"/> is specified and <see cref="DebugGuildId"/> is set, <see cref="DebugGuildId"/> still takes priority over the flag.
+        /// </remarks>
+        public CommandFilteringStrategy FilteringStrategy { get; set; } = CommandFilteringStrategy.AcceptAll;
+
         /// <summary>
         /// Creates a new instance of <see cref="CommandAllConfiguration"/> to be copied by the <see cref="CommandAllExtension"/>.
         /// </summary>

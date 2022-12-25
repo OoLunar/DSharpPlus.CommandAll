@@ -30,50 +30,35 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         public readonly IServiceProvider ServiceProvider;
 
-        /// <summary>
-        /// The command manager, used to register and execute commands.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.CommandManager"/>
         public readonly ICommandManager CommandManager;
 
-        /// <summary>
-        /// The argument converter manager, used to add converters and to assign converters to command overload parameters.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.ArgumentConverterManager"/>
         public readonly IArgumentConverterManager ArgumentConverterManager;
 
-        /// <summary>
-        /// The command overload parser, which determines which command overload to execute by determining which overload has the most matching parameters.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.CommandOverloadParser"/>
         public readonly ICommandOverloadParser CommandOverloadParser;
 
-        /// <summary>
-        /// The command executor, which executes the command overload determined by the command overload parser.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.CommandExecutor"/>
         public readonly ICommandExecutor CommandExecutor;
 
-        /// <summary>
-        /// The prefix parser, which determines the prefix used to invoke a command.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.PrefixParser"/>
         public readonly IPrefixParser PrefixParser;
 
-        /// <summary>
-        /// The text parser, which parses the <see cref="DiscordMessage.Content"/> into arguments. Supports quoted arguments, escaping quotes and multiline codeblocks.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.TextArgumentParser"/>
         public readonly ITextArgumentParser TextArgumentParser;
 
-        /// <summary>
-        /// When the project is built in debug mode, this is the guild that the extension will register slash commands too. If this is null, slash commands will not be registered.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.DebugGuildId"/>
         public readonly ulong? DebugGuildId;
 
-        /// <summary>
-        /// The strategy used when naming slash commands. Defaults to <see cref="CommandParameterNamingStrategy.SnakeCase"/>.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.ParameterNamingStrategy"/>
         public readonly CommandParameterNamingStrategy ParameterNamingStrategy;
 
-        /// <summary>
-        /// How long <see cref="CommandContext.PromptAsync"/> should wait PER TEXT COMPONENT before timing out. Defaults to 30 seconds per <see cref="TextInputComponent"/>.
-        /// </summary>
+        /// <inheritdoc cref="CommandAllConfiguration.PromptTimeout"/>
         public readonly TimeSpan PromptTimeout;
+
+        /// <inheritdoc cref="CommandAllConfiguration.FilteringStrategy"/>
+        public readonly CommandFilteringStrategy FilteringStrategy;
 
         /// <summary>
         /// Executed everytime a command is finished executing.
@@ -115,6 +100,7 @@ namespace DSharpPlus.CommandAll
             DebugGuildId = configuration.DebugGuildId;
             ParameterNamingStrategy = configuration.ParameterNamingStrategy;
             PromptTimeout = configuration.PromptTimeout;
+            FilteringStrategy = configuration.FilteringStrategy;
 
             // Add the default converters to the argument converter manager.
             ArgumentConverterManager.AddArgumentConverters(typeof(CommandAllExtension).Assembly);
@@ -238,8 +224,16 @@ namespace DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to read <see cref="DiscordMessage.Content"/> to parse and execute commands.</param>
         private Task DiscordClient_MessageCreatedAsync(DiscordClient client, MessageCreateEventArgs eventArgs)
         {
-            // Remove the prefix
-            if (!PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString))
+            // Ensure that text commands are enabled.
+            // If the guild is null (private channel), then the CommandFilteringStrategy.AcceptDMs is required.
+            // If it is not null, then the flag CommandFilteringStrategy.AcceptGuilds is required.
+            if (!FilteringStrategy.HasFlag(CommandFilteringStrategy.AcceptTextCommands | (eventArgs.Guild is null ? CommandFilteringStrategy.AcceptDMs : CommandFilteringStrategy.AcceptGuilds)))
+            {
+                return Task.CompletedTask;
+            }
+            // If the debug guild id is set, then only allow commands to be executed in that guild.
+            // If a prefix could not be found, then return.
+            else if ((DebugGuildId is not null && eventArgs.Guild?.Id != DebugGuildId) || !PrefixParser.TryRemovePrefix(this, eventArgs.Message.Content, out string? commandString))
             {
                 return Task.CompletedTask;
             }
@@ -248,20 +242,11 @@ namespace DSharpPlus.CommandAll
             {
                 return _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, this, null!, CommandInvocationType.TextCommand), new CommandNotFoundException("Command was not found.", commandString)));
             }
-            else if (!command.Flags.HasFlag(CommandFlags.Disabled))
+            else
             {
                 CommandContext context = new(this, command, eventArgs.Message, rawArguments);
-                try
-                {
-                    return CommandExecutor.ExecuteAsync(context);
-                }
-                catch (Exception error)
-                {
-                    return _commandErrored.InvokeAsync(this, new(context, error));
-                }
+                return CommandExecutor.ExecuteAsync(context);
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -271,32 +256,44 @@ namespace DSharpPlus.CommandAll
         /// <param name="eventArgs">Used to determine if the interaction is an application command and conditionally executes commands with the provided data.</param>
         private Task DiscordClient_InteractionCreatedAsync(DiscordClient client, InteractionCreateEventArgs eventArgs)
         {
-            if (eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.SlashCommandsIndex.TryGetValue(eventArgs.Interaction.Data.Id, out Command? command))
+            // Ensure that text commands are enabled.
+            // If the guild is null (private channel), then the CommandFilteringStrategy.AcceptDMs is required.
+            // If it is not null, then the flag CommandFilteringStrategy.AcceptGuilds is required.
+            if (!FilteringStrategy.HasFlag(CommandFilteringStrategy.AcceptSlashCommands | (eventArgs.Interaction.Guild is null ? CommandFilteringStrategy.AcceptDMs : CommandFilteringStrategy.AcceptGuilds)))
             {
                 return Task.CompletedTask;
             }
-
-            DiscordInteractionDataOption[] options = eventArgs.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
-            while (options.Any())
+            // If the bot is in debug mode, only execute commands in the debug guild.
+            // Also return if the interaction is not an application command.
+            // or if the command is not found.
+            else if ((DebugGuildId is not null && eventArgs.Interaction.GuildId != DebugGuildId) || eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.SlashCommandsIndex.TryGetValue(eventArgs.Interaction.Data.Id, out Command? command))
             {
-                DiscordInteractionDataOption firstOption = options[0];
-                if (firstOption.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
+                return Task.CompletedTask;
+            }
+            else
+            {
+                DiscordInteractionDataOption[] options = eventArgs.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
+                while (options.Any())
                 {
-                    break;
+                    DiscordInteractionDataOption firstOption = options[0];
+                    if (firstOption.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
+                    {
+                        break;
+                    }
+
+                    command = command.Subcommands.First(x => x.Aliases.Contains(firstOption.Name));
+                    options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
                 }
 
-                command = command.Subcommands.First(x => x.Aliases.Contains(firstOption.Name));
-                options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
-            }
-
-            CommandContext context = new(this, command, eventArgs.Interaction, options);
-            try
-            {
-                return CommandExecutor.ExecuteAsync(context);
-            }
-            catch (Exception error)
-            {
-                return _commandErrored.InvokeAsync(this, new(context, error));
+                CommandContext context = new(this, command, eventArgs.Interaction, options);
+                try
+                {
+                    return CommandExecutor.ExecuteAsync(context);
+                }
+                catch (Exception error)
+                {
+                    return _commandErrored.InvokeAsync(this, new(context, error));
+                }
             }
         }
 
