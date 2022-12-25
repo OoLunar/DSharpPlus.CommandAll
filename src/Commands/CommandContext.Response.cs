@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -66,6 +67,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// If <see cref="InvocationType"/> is a <see cref="CommandInvocationType.TextCommand"/>, the bot will instead start "typing" in the channel for roughly 15 seconds.
         /// </remarks>
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and <see cref="ResponseType"/> is not null.</exception>
+        [SuppressMessage("Roslyn", "IDE0046", Justification = "No nested conditional expressions.")]
         public Task DelayAsync()
         {
             if (InvocationType == CommandInvocationType.SlashCommand)
@@ -79,9 +81,13 @@ namespace DSharpPlus.CommandAll.Commands
                 ResponseType |= ContextResponseType.Delayed;
                 return Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             }
-            else
+            else if (InvocationType == CommandInvocationType.TextCommand)
             {
                 return Message!.Channel.TriggerTypingAsync();
+            }
+            else
+            {
+                return Task.CompletedTask;
             }
         }
 
@@ -98,7 +104,7 @@ namespace DSharpPlus.CommandAll.Commands
                 ResponseType |= ContextResponseType.Updated;
                 await Interaction!.EditOriginalResponseAsync(new DiscordWebhookBuilder(messageBuilder));
             }
-            else
+            else if (InvocationType == CommandInvocationType.TextCommand)
             {
                 // Ensure that the command has responded
                 if (Response is null)
@@ -125,6 +131,7 @@ namespace DSharpPlus.CommandAll.Commands
         {
             CommandInvocationType.SlashCommand => Interaction!.DeleteOriginalResponseAsync(),
             CommandInvocationType.TextCommand => Response!.DeleteAsync(),
+            CommandInvocationType.VirtualCommand => Task.CompletedTask,
             _ => throw new NotImplementedException("Unknown invocation type.")
         };
 
@@ -141,10 +148,14 @@ namespace DSharpPlus.CommandAll.Commands
                     ? Task.FromResult<DiscordMessage?>(null)
                     : Interaction!.GetOriginalResponseAsync();
             }
-            else
+            else if (InvocationType == CommandInvocationType.TextCommand)
             {
                 // Return the cached response
                 return Task.FromResult(Response);
+            }
+            else
+            {
+                return Task.FromResult<DiscordMessage?>(null);
             }
         }
     }
