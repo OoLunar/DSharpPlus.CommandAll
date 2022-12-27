@@ -5,16 +5,16 @@ using DSharpPlus.CommandAll.Commands;
 
 namespace DSharpPlus.CommandAll.Tests.Commands
 {
-    [Command("command"), Description("A command for testing.")]
+    [Command("command"), Description("A valid command.")]
     public sealed class MultiLevelCommand : BaseCommand
     {
-        [Command("subcommand"), Description("A subcommand for testing.")]
+        [Command("subcommand"), Description("A valid subcommand.")]
         public static Task ExecuteAsync(CommandContext context) => Task.CompletedTask;
 
-        [Command("group"), Description("Group description.")]
+        [Command("group"), Description("An invalid group command.")]
         public sealed class GroupCommand : BaseCommand
         {
-            [Command("subcommand"), Description("Subcommand description.")]
+            [Command("subcommand"), Description("An invalid sub group command.")]
             public static Task ExecuteAsync(CommandContext context) => Task.CompletedTask;
         }
     }

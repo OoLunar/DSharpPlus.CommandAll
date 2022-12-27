@@ -1,17 +1,23 @@
-using System.Reflection;
-using DSharpPlus.CommandAll.Parsers;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-
 namespace DSharpPlus.CommandAll.Tests
 {
     public class BaseTestClass
     {
         public readonly CommandAllExtension Extension;
+        public readonly DiscordClient Client;
 
-        public BaseTestClass() => Extension = (CommandAllExtension)typeof(CommandAllExtension).GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)[0].Invoke(new[] { new CommandAllConfiguration(new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))) {
-            PrefixParser = new PrefixParser("!", ">>", "hey bot,")
-        } });
+        public BaseTestClass()
+        {
+            DiscordConfiguration discordConfiguration = new()
+            {
+                // The command manager will register slash commands
+                // by default when RegisterCommandsAsync is called.
+                // We can prevent this by setting the shard id to 1
+                // since RegisterCommandsAsync will only register
+                // slash commands when the shard id is 0.
+                ShardId = 1
+            };
+            Client = new(discordConfiguration);
+            Extension = Client.UseCommandAll();
+        }
     }
 }

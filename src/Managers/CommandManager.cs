@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Commands.Enums;
-using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -15,14 +17,11 @@ namespace DSharpPlus.CommandAll.Managers
     /// <inheritdoc cref="ICommandManager" />
     public class CommandManager : ICommandManager
     {
-        /// <inheritdoc />
-        public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new Dictionary<string, Command>();
-
-        /// <inheritdoc />
-        public IReadOnlyDictionary<ulong, Command> SlashCommandsIndex { get; private set; } = new Dictionary<ulong, Command>();
-
-        /// <inheritdoc />
-        public Dictionary<string, CommandBuilder> CommandBuilders { get; set; } = new();
+        /// <summary>
+        /// The current list of <see cref="Command"/>s that are registered, indexed by their full name.
+        /// </summary>
+        public IReadOnlyDictionary<string, Command> Commands { get; private set; } = new ReadOnlyDictionary<string, Command>(new Dictionary<string, Command>());
+        private readonly List<CommandBuilder> CommandBuilders = new();
 
         /// <summary>
         /// Used to log when a command is or isn't found.
@@ -35,16 +34,10 @@ namespace DSharpPlus.CommandAll.Managers
         public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc />
-        public void AddCommand<T>(CommandAllExtension extension) where T : BaseCommand => AddCommand(extension, typeof(T));
-
-        /// <inheritdoc />
-        public void AddCommand(CommandAllExtension extension, Type type) => AddCommands(extension, new[] { type });
-
-        /// <inheritdoc />
         public void AddCommands(CommandAllExtension extension, Assembly assembly) => AddCommands(extension, assembly.GetExportedTypes());
 
         /// <inheritdoc />
-        public void AddCommands(CommandAllExtension extension, IEnumerable<Type> types)
+        public void AddCommands(CommandAllExtension extension, params Type[] types)
         {
             foreach (Type type in types)
             {
@@ -52,22 +45,17 @@ namespace DSharpPlus.CommandAll.Managers
                 {
                     continue;
                 }
-
-                if (CommandBuilder.TryParse(extension, type, out IReadOnlyList<CommandBuilder>? commandBuilders, out Exception? error))
+                else if (CommandBuilder.TryParse(extension, type, out IReadOnlyList<CommandBuilder>? commandBuilders, out Exception? error))
                 {
                     foreach (CommandBuilder commandBuilder in commandBuilders)
                     {
-                        if (CommandBuilders.TryGetValue(commandBuilder.Name!, out CommandBuilder? existingCommandBuilder))
+                        if (!CommandBuilders.Contains(commandBuilder))
                         {
-                            _logger.LogError("Command {ExistingCommandBuilder} already has the name {ExistingCommandBuilderName}. Unable to add {CommandBuilder}", existingCommandBuilder, existingCommandBuilder.Name, commandBuilder);
-                        }
-                        else
-                        {
-                            CommandBuilders.Add(commandBuilder.Name!, commandBuilder);
+                            CommandBuilders.Add(commandBuilder);
                         }
                     }
                 }
-                else if (typeof(BaseCommand).IsAssignableFrom(type))
+                else if (!typeof(BaseCommand).IsAssignableFrom(type))
                 {
                     _logger.LogError(error, "Unable to parse {Type}", type);
                 }
@@ -75,163 +63,130 @@ namespace DSharpPlus.CommandAll.Managers
         }
 
         /// <inheritdoc />
-        public void BuildCommands()
+        /// <remarks>Calling this method will clear the <see cref="GetCommandBuilders"/> list.</remarks>
+        public async Task RegisterCommandsAsync(CommandAllExtension extension)
         {
             Dictionary<string, Command> commands = new();
-            foreach (CommandBuilder commandBuilder in CommandBuilders.Values)
+            foreach (CommandBuilder commandBuilder in CommandBuilders)
             {
-                try
+                // Iterate through all the commands and ensure that all the parameters can be converted.
+                if (!extension.ArgumentConverterManager.TrySaturateParameters(commandBuilder.GetAllOverloadBuilders().SelectMany(overload => overload.Parameters), out IEnumerable<CommandParameterBuilder>? failedParameters))
                 {
-                    if (commandBuilder.Flags.HasFlag(CommandFlags.Disabled))
+                    foreach (CommandParameterBuilder parameterBuilder in failedParameters)
                     {
-                        continue;
-                    }
-                    else if (!commandBuilder.TryVerify(out Exception? error))
-                    {
-                        _logger.LogError(error, "Failed to verify command builder {CommandBuilder}", commandBuilder);
-                        continue;
-                    }
-                    else if (commands.TryGetValue(commandBuilder.Name, out Command? existingCommand))
-                    {
-                        _logger.LogError("Command {ExistingCommand} already has the name {ExistingCommandName}. Unable to add {CommandBuilder}", existingCommand, existingCommand.Name, commandBuilder);
-                        continue;
-                    }
-
-                    Command command = new(commandBuilder);
-                    commands.Add(command.Name, command);
-                    foreach (string alias in command.Aliases)
-                    {
-                        if (commands.TryGetValue(alias, out Command? existingAliasCommand))
+                        if (parameterBuilder.OverloadBuilder is null)
                         {
-                            _logger.LogError("Command {ExistingAliasCommand} already has the alias {ExistingAliasCommandAlias}. Unable to add {CommandBuilder}", existingAliasCommand, alias, commandBuilder);
-                            continue;
+                            throw new InvalidOperationException($"OverloadBuilder is null on parameter {parameterBuilder}.");
                         }
-                        commands.Add(alias, command);
+                        else if (parameterBuilder.OverloadBuilder.Command is null)
+                        {
+                            throw new InvalidOperationException($"Command is null on overload {parameterBuilder.OverloadBuilder}.");
+                        }
+
+                        parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
+                        if (!parameterBuilder.OverloadBuilder.Command.Flags.HasFlag(CommandFlags.Disabled))
+                        {
+                            if (parameterBuilder.OverloadBuilder.Command.Overloads.All(x => x.Flags.HasFlag(CommandOverloadFlags.Disabled)))
+                            {
+                                parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
+                                _logger.LogWarning("Disabled overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", parameterBuilder.OverloadBuilder, parameterBuilder);
+                            }
+                            else
+                            {
+                                parameterBuilder.OverloadBuilder!.Command.Flags |= CommandFlags.Disabled;
+                                _logger.LogError("Disabled command {Command} due to all overloads being disabled.", commandBuilder);
+                            }
+                        }
                     }
                 }
-                catch (CommandAllException error)
+
+                Command command = new(commandBuilder);
+                foreach (string commandName in command.Aliases)
                 {
-                    _logger.LogError(error, "Failed to build command builder {CommandBuilder}", commandBuilder);
-                }
-            }
-
-            Commands = commands;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<DiscordApplicationCommand> BuildSlashCommands()
-        {
-            List<DiscordApplicationCommand> slashCommands = new();
-            foreach (Command command in Commands.Values.Distinct())
-            {
-                slashCommands.Add((DiscordApplicationCommand)command);
-            }
-            return slashCommands;
-        }
-
-        /// <inheritdoc />
-        public bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command)
-        {
-            if (string.IsNullOrWhiteSpace(commandString))
-            {
-                command = null;
-                rawArguments = null;
-                return false;
-            }
-            else if (Commands is null)
-            {
-                command = null;
-                rawArguments = null;
-                return false;
-            }
-
-            string[] split = commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (!Commands.TryGetValue(split[0], out command))
-            {
-                rawArguments = null;
-                return false;
-            }
-
-            int i = 1; // Start at 1 because the first element is the command name. Incremented after each subcommand is found.
-            while (command.Subcommands.Count != 0 && i < split.Length)
-            {
-                bool found = false;
-                foreach (Command subcommand in command.Subcommands)
-                {
-                    if (subcommand.Aliases.Contains(split[i]))
+                    if (!command.Subcommands.Any())
                     {
-                        found = true;
-                        command = subcommand;
-                        i++;
-                        break;
+                        commands.Add(commandName, command);
                     }
-                }
 
-                if (!found)
-                {
-                    rawArguments = null;
-                    return false;
-                }
-            }
-
-            rawArguments = string.Join(' ', split.Skip(i));
-            return true;
-        }
-
-        /// <inheritdoc />
-        public bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out CommandBuilder? commandBuilder)
-        {
-            if (string.IsNullOrWhiteSpace(commandString))
-            {
-                commandBuilder = null;
-                rawArguments = null;
-                return false;
-            }
-            else if (CommandBuilders is null)
-            {
-                CommandBuilders = new();
-                commandBuilder = null;
-                rawArguments = null;
-                return false;
-            }
-
-            string[] split = commandString.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (!CommandBuilders.TryGetValue(split[0], out commandBuilder))
-            {
-                rawArguments = null;
-                return false;
-            }
-
-            int i = 1; // Start at 1 because the first element is the command name. Incremented after each subcommand is found.
-            while (commandBuilder.Subcommands.Count != 0 && i < split.Length)
-            {
-                foreach (CommandBuilder subBuilder in commandBuilder.Subcommands)
-                {
-                    if (subBuilder.Aliases.Contains(split[i]))
+                    foreach (Command subcommand in command.Subcommands)
                     {
-                        commandBuilder = subBuilder;
-                        i++;
-                        break;
+                        foreach (string subcommandName in subcommand.Aliases)
+                        {
+                            if (!subcommand.Subcommands.Any())
+                            {
+                                commands.Add($"{commandName} {subcommandName}", command);
+                            }
+
+                            foreach (Command subsubCommand in subcommand.Subcommands)
+                            {
+                                foreach (string subsubCommandName in subsubCommand.Aliases)
+                                {
+                                    commands.Add($"{commandName} {subcommandName} {subsubCommandName}", command);
+                                }
+                            }
+                        }
                     }
                 }
-            }
+            };
 
-            rawArguments = string.Join(' ', split.Skip(i));
-            return true;
+            if (extension.Client.ShardId == 0 || extension.Client.ShardCount == 1)
+            {
+                CommandBuilders.Clear();
+                IReadOnlyList<DiscordApplicationCommand> slashCommands = extension.DebugGuildId is not null
+                    ? await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, commands.Values.Distinct().Select(command => (DiscordApplicationCommand)command))
+                    : await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(commands.Values.Distinct().Select(command => (DiscordApplicationCommand)command));
+
+                foreach (DiscordApplicationCommand slashCommand in slashCommands)
+                {
+                    foreach (Command command in commands.Values)
+                    {
+                        if (command.SlashMetadata.ApplicationCommandId is null && command.SlashName == slashCommand.Name)
+                        {
+                            command.SlashMetadata.ApplicationCommandId = slashCommand.Id;
+                        }
+                    }
+                }
+
+                Commands = commands.AsReadOnly();
+            }
         }
 
         /// <inheritdoc />
-        public void RegisterSlashCommands(IEnumerable<DiscordApplicationCommand> commands)
+        /// <remarks>This list is cleared whenever <see cref="RegisterCommandsAsync(CommandAllExtension)"/> is called.</remarks>
+        public IReadOnlyList<CommandBuilder> GetCommandBuilders() => CommandBuilders.AsReadOnly();
+
+        /// <inheritdoc />
+        public IReadOnlyDictionary<string, Command> GetCommands() => Commands;
+
+        /// <inheritdoc />
+        public bool TryFindCommand(string fullCommand, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out string? rawArguments)
         {
-            Dictionary<ulong, Command> commandsById = new();
-            foreach (DiscordApplicationCommand command in commands)
+            string[] fullSplit = fullCommand.Split(' ');
+            StringBuilder stringBuilder = new();
+
+            int i;
+            for (i = 0; i < fullSplit.Length; i++)
             {
-                if (Commands.TryGetValue(command.Name, out Command? existingCommand))
+                if (i == 0 && Commands.ContainsKey(fullSplit[i]))
                 {
-                    commandsById[command.Id] = existingCommand;
+                    stringBuilder.Append(fullSplit[i]);
+                }
+                else if (Commands.ContainsKey($"{stringBuilder} {fullSplit[i]}"))
+                {
+                    stringBuilder.AppendFormat(" {0}", fullSplit[i]);
+                }
+                else
+                {
+                    break;
                 }
             }
-            SlashCommandsIndex = commandsById.AsReadOnly();
+
+            rawArguments = string.Join(' ', fullSplit[i..]);
+            return Commands.TryGetValue(stringBuilder.ToString(), out command);
         }
+
+        /// <inheritdoc />
+        public bool TryFindCommand(ulong applicationCommandId, [NotNullWhen(true)] out Command? command) =>
+            (command = Commands.Values.FirstOrDefault(x => x.SlashMetadata.ApplicationCommandId == applicationCommandId)) is not null;
     }
 }

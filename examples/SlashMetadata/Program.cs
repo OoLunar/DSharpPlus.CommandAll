@@ -86,7 +86,7 @@ namespace DSharpPlus.CommandAll.Examples.SlashMetadata
 
         private static Task TranslateCommands(CommandAllExtension extension, ConfigureCommandsEventArgs eventArgs)
         {
-            CommandBuilder? pingBuilder = eventArgs.CommandManager.CommandBuilders.Values.FirstOrDefault(x => x.Name == "ping");
+            CommandBuilder? pingBuilder = eventArgs.CommandManager.GetCommandBuilders().FirstOrDefault(x => x.Name == "ping");
             if (pingBuilder is not null)
             {
                 pingBuilder.SlashMetadata.LocalizedNames.Add(CultureInfo.GetCultureInfo("ru-RU"), "пинг");
@@ -96,7 +96,7 @@ namespace DSharpPlus.CommandAll.Examples.SlashMetadata
                 pingBuilder.Overloads[0].SlashMetadata.LocalizedDescriptions.Add(CultureInfo.GetCultureInfo("ru-RU"), "Проверяет, жив ли бот.");
             }
 
-            CommandBuilder? pinnedMessageCountBuilder = eventArgs.CommandManager.CommandBuilders.Values.FirstOrDefault(x => x.Name == "pinned_message_count");
+            CommandBuilder? pinnedMessageCountBuilder = eventArgs.CommandManager.GetCommandBuilders().FirstOrDefault(x => x.Name == "pinned_message_count");
             if (pinnedMessageCountBuilder is not null)
             {
                 pinnedMessageCountBuilder.Overloads[0].Parameters[0].SlashMetadata.ChannelTypes = new List<ChannelType> { ChannelType.Text, ChannelType.News };

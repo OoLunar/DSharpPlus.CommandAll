@@ -1,6 +1,7 @@
 using System.Linq;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Tests.Commands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DSharpPlus.CommandAll.Tests
@@ -12,7 +13,7 @@ namespace DSharpPlus.CommandAll.Tests
 
         public CommandOverloadParsing()
         {
-            CommandBuilder command = CommandBuilder.Parse(Extension, typeof(Commands.EchoCommand)).First();
+            CommandBuilder command = CommandBuilder.Parse(Extension, typeof(EchoCommand))[0];
             Extension.ArgumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
             EchoCommand = new Command(command);
         }

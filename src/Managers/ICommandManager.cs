@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.Entities;
@@ -14,37 +15,6 @@ namespace DSharpPlus.CommandAll.Managers
     public interface ICommandManager
     {
         /// <summary>
-        /// The commands registered to this manager.
-        /// </summary>
-        /// <remarks>
-        /// An empty <see cref="IReadOnlyDictionary{TKey, TValue}"/> until <see cref="BuildCommands"/> is called.
-        /// </remarks>
-        IReadOnlyDictionary<string, Command> Commands { get; }
-
-        /// <summary>
-        /// The commands registered to this manager.
-        /// </summary>
-        /// <remarks>
-        /// An empty <see cref="IReadOnlyDictionary{TKey, TValue}"/> until <see cref="DiscordClient.Ready"/> is called and <see cref="DiscordClient.BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable{DiscordApplicationCommand})"/> has returned.
-        /// </remarks>
-        IReadOnlyDictionary<ulong, Command> SlashCommandsIndex { get; }
-
-        /// <summary>
-        /// The dictionary that contains builders for commands.
-        /// </summary>
-        Dictionary<string, CommandBuilder> CommandBuilders { get; set; }
-
-        /// <summary>
-        /// Searches a singular type for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
-        /// </summary>
-        /// <typeparam name="T">The type to search for commands.</typeparam>
-        void AddCommand<T>(CommandAllExtension extension) where T : BaseCommand;
-
-        /// <inheritdoc cref="AddCommand{T}"/>
-        /// <param name="type">The type to search for commands.</param>
-        void AddCommand(CommandAllExtension extension, Type type);
-
-        /// <summary>
         /// Searches an assembly for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
         /// </summary>
         /// <param name="assembly">The assembly to search for commands.</param>
@@ -54,35 +24,38 @@ namespace DSharpPlus.CommandAll.Managers
         /// Searches a collection of types for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
         /// </summary>
         /// <param name="types">The types to search for commands.</param>
-        void AddCommands(CommandAllExtension extension, IEnumerable<Type> types);
+        void AddCommands(CommandAllExtension extension, params Type[] types);
 
         /// <summary>
-        /// Builds the commands from the <see cref="CommandBuilders"/> dictionary, copying the built commands to the <see cref="Commands"/> dictionary.
+        /// Builds the <see cref="CommandBuilder"/>'s from <see cref="GetCommandBuilders"/> and registers the commands to Discord.
         /// </summary>
-        void BuildCommands();
+        /// <param name="extension">The extension used to grab the instance of <see cref="ArgumentConverterManager"/> and <see cref="DiscordClient"/> from.
+        Task RegisterCommandsAsync(CommandAllExtension extension);
 
         /// <summary>
-        /// Iterates over the <see cref="Commands"/> values converts them to slash commands.
+        /// Gets the current list of <see cref="CommandBuilder"/>'s that are to be built.
         /// </summary>
-        IEnumerable<DiscordApplicationCommand> BuildSlashCommands();
+        /// <returns>A readonly list of <see cref="CommandBuilder"/>s.</returns>
+        IReadOnlyList<CommandBuilder> GetCommandBuilders();
 
         /// <summary>
-        /// Searches for a command by name or aliases, removing the <see cref="Command.FullName"/> from the start of the string.
+        /// Gets the current list of <see cref="Command"/>'s that are registered.
         /// </summary>
-        /// <param name="commandString">The string that contains both the command name and command arguments.</param>
-        /// <param name="rawArguments">The arguments that were extracted from <paramref name="commandString"/>.</param>
+        /// <returns>A readonly list of <see cref="Command"/>s.</returns>
+        IReadOnlyDictionary<string, Command> GetCommands();
+
+        /// <summary>
+        /// Attempts to find a command based on the full command string.
+        /// </summary>
+        /// <param name="fullCommand">The full command string.</param>
         /// <param name="command">The command that was found.</param>
-        /// <returns>The command that was found, or null if no command was found.</returns>
-        bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out Command? command);
-
-        /// <inheritdoc cref="TryFindCommand(string, out string?, out Command?)"/>
-        /// <param name="commandBuilder">The command builder that was found.</param>
-        bool TryFindCommand(string commandString, [NotNullWhen(true)] out string? rawArguments, [NotNullWhen(true)] out CommandBuilder? commandBuilder);
+        /// <param name="rawArguments">The raw arguments that were extracted.</param>
+        /// <returns>Whether or not a command was found.</returns>
+        bool TryFindCommand(string fullCommand, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out string? rawArguments);
 
         /// <summary>
-        /// Fills the <see cref="SlashCommandsIndex"/> dictionary with the commands from <see cref="Commands"/>.
+        /// Attempts to find a command based on the <see cref="DiscordApplicationCommand.Id"/>.
         /// </summary>
-        /// <param name="commands">The commands to fill the index with.</param>
-        void RegisterSlashCommands(IEnumerable<DiscordApplicationCommand> commands);
+        bool TryFindCommand(ulong commandId, [NotNullWhen(true)] out Command? commandFound);
     }
 }

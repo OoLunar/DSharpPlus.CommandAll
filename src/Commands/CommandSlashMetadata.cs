@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
 {
@@ -38,6 +39,14 @@ namespace DSharpPlus.CommandAll.Commands
         /// The localized descriptions for the command.
         /// </summary>
         public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions;
+
+        /// <summary>
+        /// The id of the <see cref="Command"/> when it's registered to Discord in it's <see cref="DiscordApplicationCommand"/> form.
+        /// </summary>
+        /// <remarks>
+        /// Only available on top level commands and after the <see cref="DiscordClient.GuildDownloadCompleted"/> event has fired.
+        /// </remarks>
+        public ulong? ApplicationCommandId { get; set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandSlashMetadata"/>.

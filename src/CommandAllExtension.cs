@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Commands.Executors;
 using DSharpPlus.CommandAll.EventArgs;
@@ -144,8 +142,6 @@ namespace DSharpPlus.CommandAll
             }
         }
 
-        public void AddCommand<T>() where T : BaseCommand => CommandManager.AddCommand<T>(this);
-        public void AddCommand(Type type) => CommandManager.AddCommand(this, type);
         public void AddCommands(Assembly assembly) => CommandManager.AddCommands(this, assembly);
         public void AddCommands(params Type[] types) => CommandManager.AddCommands(this, types);
 
@@ -154,67 +150,22 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>
-        private async Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
+        private Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
         {
             // Prevent the event handler from being executed multiple times.
             Client.Ready -= DiscordClient_ReadyAsync;
 
-            // Iterate through all the commands and ensure that all the parameters can be converted.
-            foreach (CommandBuilder commandBuilder in CommandManager.CommandBuilders.Values)
-            {
-                if (!ArgumentConverterManager.TrySaturateParameters(commandBuilder.GetAllParameters(), out IEnumerable<CommandParameterBuilder>? failedParameters))
-                {
-                    foreach (CommandParameterBuilder parameterBuilder in failedParameters!)
-                    {
-                        if (parameterBuilder.OverloadBuilder is null)
-                        {
-                            throw new InvalidOperationException($"OverloadBuilder is null on parameter {parameterBuilder}.");
-                        }
-                        else if (parameterBuilder.OverloadBuilder.Command is null)
-                        {
-                            throw new InvalidOperationException($"Command is null on overload {parameterBuilder.OverloadBuilder}.");
-                        }
-
-                        parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
-                        if (parameterBuilder.OverloadBuilder.Command.Overloads.All(x => x.Flags.HasFlag(CommandOverloadFlags.Disabled)))
-                        {
-                            _logger.LogError("Disabling command {Command} due to all overloads being disabled.", commandBuilder);
-                            parameterBuilder.OverloadBuilder!.Command.Flags |= CommandFlags.Disabled;
-                        }
-                        else if (!parameterBuilder.OverloadBuilder.Command.Flags.HasFlag(CommandFlags.Disabled))
-                        {
-                            _logger.LogWarning("Disabling overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", parameterBuilder.OverloadBuilder, parameterBuilder);
-                        }
-                    }
-                }
-            }
-
-            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
-            CommandManager.BuildCommands();
-            Client.MessageCreated += DiscordClient_MessageCreatedAsync;
-
             // Intentionally run this in a separate task so that the Ready event can finish executing and NOT yell at the user.
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordApplicationCommand> applicationCommands = CommandManager.BuildSlashCommands();
-
-#if DEBUG
-                // Don't register slash commands if the debug guild id is null.
-                if (DebugGuildId is not null)
-                {
-                    CommandManager.RegisterSlashCommands(await Client.BulkOverwriteGuildApplicationCommandsAsync(DebugGuildId.Value, applicationCommands));
-                }
-                else
-                {
-                    _logger.LogWarning("DebugGuildId is null, not registering slash commands.");
-                }
-#else
-                CommandManager.RegisterSlashCommands(await Client.BulkOverwriteGlobalApplicationCommandsAsync(applicationCommands));
-#endif
-
+                await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
+                await CommandManager.RegisterCommandsAsync(this);
                 Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
+                Client.MessageCreated += DiscordClient_MessageCreatedAsync;
                 _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
             });
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -238,7 +189,7 @@ namespace DSharpPlus.CommandAll
                 return Task.CompletedTask;
             }
             // Try to find the command, resolve to subcommand if needed. Removes the command from the string, leaving the args
-            else if (!CommandManager.TryFindCommand(commandString, out string? rawArguments, out Command? command))
+            else if (!CommandManager.TryFindCommand(commandString, out Command? command, out string? rawArguments))
             {
                 return _commandErrored.InvokeAsync(this, new CommandErroredEventArgs(new CommandContext(eventArgs.Channel, eventArgs.Author, null, eventArgs.Message, eventArgs.Guild, this, null!, CommandInvocationType.TextCommand), new CommandNotFoundException("Command was not found.", commandString)));
             }
@@ -266,7 +217,7 @@ namespace DSharpPlus.CommandAll
             // If the bot is in debug mode, only execute commands in the debug guild.
             // Also return if the interaction is not an application command.
             // or if the command is not found.
-            else if ((DebugGuildId is not null && eventArgs.Interaction.GuildId != DebugGuildId) || eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.SlashCommandsIndex.TryGetValue(eventArgs.Interaction.Data.Id, out Command? command))
+            else if ((DebugGuildId is not null && eventArgs.Interaction.GuildId != DebugGuildId) || eventArgs.Interaction.Type is not InteractionType.ApplicationCommand || !CommandManager.TryFindCommand(eventArgs.Interaction.Data.Id, out Command? command))
             {
                 return Task.CompletedTask;
             }

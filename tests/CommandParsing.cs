@@ -14,14 +14,14 @@ namespace DSharpPlus.CommandAll.Tests
         public CommandParsing()
         {
             Extension.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
-            Extension.ArgumentConverterManager.TrySaturateParameters(Extension.CommandManager.CommandBuilders.Values.SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
-            Extension.CommandManager.BuildCommands();
+            Extension.ArgumentConverterManager.TrySaturateParameters(Extension.CommandManager.GetCommandBuilders().SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
+            Extension.CommandManager.RegisterCommandsAsync(Extension).GetAwaiter().GetResult();
         }
 
         [TestMethod]
         public void TopLevelCommand()
         {
-            Assert.IsTrue(Extension.CommandManager.TryFindCommand("ping", out _, out Command? command));
+            Assert.IsTrue(Extension.CommandManager.TryFindCommand("ping", out Command? command, out _));
             Assert.IsNotNull(command);
             Assert.AreEqual("Ping", command.Name);
         }
@@ -29,7 +29,7 @@ namespace DSharpPlus.CommandAll.Tests
         [TestMethod]
         public void SubCommand()
         {
-            Assert.IsTrue(Extension.CommandManager.TryFindCommand("command subcommand", out _, out Command? command));
+            Assert.IsTrue(Extension.CommandManager.TryFindCommand("command subcommand", out Command? command, out _));
             Assert.IsNotNull(command);
             Assert.AreEqual("Subcommand", command.Name);
             Assert.AreEqual("Command Subcommand", command.FullName);
@@ -38,7 +38,7 @@ namespace DSharpPlus.CommandAll.Tests
         [TestMethod]
         public void GroupSubCommand()
         {
-            Assert.IsTrue(Extension.CommandManager.TryFindCommand("command group subcommand", out _, out Command? command));
+            Assert.IsTrue(Extension.CommandManager.TryFindCommand("command group subcommand", out Command? command, out _));
             Assert.IsNotNull(command);
             Assert.AreEqual("Subcommand", command.Name);
             Assert.AreEqual("Command Group Subcommand", command.FullName);

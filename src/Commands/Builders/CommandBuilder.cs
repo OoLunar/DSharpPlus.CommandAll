@@ -91,20 +91,16 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             Overloads = overloads;
         }
 
-        public IReadOnlyList<CommandParameterBuilder> GetAllParameters()
+        public IReadOnlyList<CommandOverloadBuilder> GetAllOverloadBuilders()
         {
-            List<CommandParameterBuilder> parameters = new();
-            foreach (CommandOverloadBuilder overload in Overloads)
-            {
-                parameters.AddRange(overload.Parameters);
-            }
-
+            List<CommandOverloadBuilder> overloads = new();
+            overloads.AddRange(Overloads);
             foreach (CommandBuilder subcommand in Subcommands)
             {
-                parameters.AddRange(subcommand.GetAllParameters());
+                overloads.AddRange(subcommand.GetAllOverloadBuilders());
             }
 
-            return parameters.AsReadOnly();
+            return overloads.AsReadOnly();
         }
 
         /// <inheritdoc/>

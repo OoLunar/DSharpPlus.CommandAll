@@ -5,10 +5,10 @@ using DSharpPlus.CommandAll.Commands;
 
 namespace DSharpPlus.CommandAll.Tests.Commands
 {
-    [Command("invalid_command"), Description("This command is invalid.")]
+    [Command("invalid_command"), Description("This command is valid.")]
     public sealed class InvalidMultiLevelCommand : BaseCommand
     {
-        [Command("group_command"), Description("This group command is invalid.")]
+        [Command("group_command"), Description("This group command is valid.")]
         public sealed class GroupCommand : BaseCommand
         {
             [Command("sub_group_command"), Description("This sub group command is invalid.")]
