@@ -100,36 +100,17 @@ namespace DSharpPlus.CommandAll.Managers
                     }
                 }
 
-                Command command = new(commandBuilder);
-                foreach (string commandName in command.Aliases)
+                Command? command = new(commandBuilder);
+                foreach ((string alias, Command cmd) in command.Walk())
                 {
-                    if (!command.Subcommands.Any())
+                    if (!commands.TryAdd(alias, cmd))
                     {
-                        commands.Add(commandName, command);
-                    }
-
-                    foreach (Command subcommand in command.Subcommands)
-                    {
-                        foreach (string subcommandName in subcommand.Aliases)
-                        {
-                            if (!subcommand.Subcommands.Any())
-                            {
-                                commands.Add($"{commandName} {subcommandName}", command);
-                            }
-
-                            foreach (Command subsubCommand in subcommand.Subcommands)
-                            {
-                                foreach (string subsubCommandName in subsubCommand.Aliases)
-                                {
-                                    commands.Add($"{commandName} {subcommandName} {subsubCommandName}", command);
-                                }
-                            }
-                        }
+                        _logger.LogError("Duplicate command {Command} found.", command);
                     }
                 }
             };
 
-            if (extension.Client.ShardId == 0 || extension.Client.ShardCount == 1)
+            if (extension.Client.ShardId == 0)
             {
                 CommandBuilders.Clear();
                 IReadOnlyList<DiscordApplicationCommand> slashCommands = extension.DebugGuildId is not null
@@ -147,8 +128,9 @@ namespace DSharpPlus.CommandAll.Managers
                     }
                 }
 
-                Commands = commands.AsReadOnly();
             }
+
+            Commands = commands.AsReadOnly();
         }
 
         /// <inheritdoc />
@@ -165,23 +147,17 @@ namespace DSharpPlus.CommandAll.Managers
             StringBuilder stringBuilder = new();
 
             int i;
-            for (i = 0; i < fullSplit.Length; i++)
+            for (i = Math.Min(fullSplit.Length, 3); i >= 0; i--)
             {
-                if (i == 0 && Commands.ContainsKey(fullSplit[i]))
+                string key = string.Join(' ', fullSplit[0..i]);
+                if (Commands.ContainsKey(key))
                 {
-                    stringBuilder.Append(fullSplit[i]);
-                }
-                else if (Commands.ContainsKey($"{stringBuilder} {fullSplit[i]}"))
-                {
-                    stringBuilder.AppendFormat(" {0}", fullSplit[i]);
-                }
-                else
-                {
+                    stringBuilder.Append(key);
                     break;
                 }
             }
 
-            rawArguments = string.Join(' ', fullSplit[i..]);
+            rawArguments = i >= fullSplit.Length ? string.Empty : string.Join(' ', fullSplit[(i + 1)..]);
             return Commands.TryGetValue(stringBuilder.ToString(), out command);
         }
 
