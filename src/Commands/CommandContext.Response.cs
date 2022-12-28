@@ -70,6 +70,7 @@ namespace DSharpPlus.CommandAll.Commands
         [SuppressMessage("Roslyn", "IDE0046", Justification = "No nested conditional expressions.")]
         public Task DelayAsync()
         {
+            ResponseType |= ContextResponseType.Delayed;
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Ensure that the command has not already responded
@@ -78,7 +79,6 @@ namespace DSharpPlus.CommandAll.Commands
                     throw new InvalidOperationException("Cannot delay a command that has already responded.");
                 }
 
-                ResponseType |= ContextResponseType.Delayed;
                 return Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
             }
             else if (InvocationType == CommandInvocationType.TextCommand)
@@ -107,12 +107,18 @@ namespace DSharpPlus.CommandAll.Commands
             else if (InvocationType == CommandInvocationType.TextCommand)
             {
                 // Ensure that the command has responded
-                if (Response is null)
+                if (ResponseType == ContextResponseType.None)
                 {
                     throw new InvalidOperationException("You must first send a response before you can edit it.");
                 }
-
-                Response = await Response.ModifyAsync(new DiscordMessageBuilder(messageBuilder));
+                else if (ResponseType == ContextResponseType.Delayed)
+                {
+                    await ReplyAsync(messageBuilder);
+                }
+                else
+                {
+                    Response = await Response!.ModifyAsync(new DiscordMessageBuilder(messageBuilder));
+                }
             }
         }
 
