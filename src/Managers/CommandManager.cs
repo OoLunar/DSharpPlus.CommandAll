@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandAll.Managers
         public CommandManager(ILogger<CommandManager>? logger = null) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         /// <inheritdoc />
-        public void AddCommands(CommandAllExtension extension, Assembly assembly) => AddCommands(extension, assembly.GetExportedTypes());
+        public void AddCommands(CommandAllExtension extension, Assembly assembly) => AddCommands(extension, assembly.GetExportedTypes().Where(type => !type.IsNested && !type.IsAbstract && !type.IsInterface && typeof(BaseCommand).IsAssignableFrom(type)).ToArray());
 
         /// <inheritdoc />
         public void AddCommands(CommandAllExtension extension, params Type[] types)
