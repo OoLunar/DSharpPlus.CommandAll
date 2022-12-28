@@ -114,8 +114,8 @@ namespace DSharpPlus.CommandAll.Managers
             {
                 CommandBuilders.Clear();
                 IReadOnlyList<DiscordApplicationCommand> slashCommands = extension.DebugGuildId is not null
-                    ? await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, commands.Values.DistinctBy(x => x.Parent is null).Select(command => (DiscordApplicationCommand)command))
-                    : await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(commands.Values.DistinctBy(x => x.Parent is null).Select(command => (DiscordApplicationCommand)command));
+                    ? await extension.Client.BulkOverwriteGuildApplicationCommandsAsync(extension.DebugGuildId.Value, commands.Values.Where(x => x.Parent is null).Distinct().Select(command => (DiscordApplicationCommand)command))
+                    : await extension.Client.BulkOverwriteGlobalApplicationCommandsAsync(commands.Values.Where(x => x.Parent is null).Distinct().Select(command => (DiscordApplicationCommand)command));
 
                 foreach (DiscordApplicationCommand slashCommand in slashCommands)
                 {
