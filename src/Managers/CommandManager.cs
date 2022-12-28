@@ -157,7 +157,7 @@ namespace DSharpPlus.CommandAll.Managers
                 }
             }
 
-            rawArguments = i >= fullSplit.Length ? string.Empty : string.Join(' ', fullSplit[(i + 1)..]);
+            rawArguments = i >= fullSplit.Length ? string.Empty : string.Join(' ', fullSplit[i..]);
             return Commands.TryGetValue(stringBuilder.ToString(), out command);
         }
 
