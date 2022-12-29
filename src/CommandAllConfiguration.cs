@@ -77,13 +77,13 @@ namespace DSharpPlus.CommandAll
         /// Creates a new instance of <see cref="CommandAllConfiguration"/> to be copied by the <see cref="CommandAllExtension"/>.
         /// </summary>
         /// <param name="serviceCollection">The services to be built and used by the <see cref="CommandAllExtension"/>.</param>
-        public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
+        public CommandAllConfiguration(IServiceCollection? serviceCollection = null)
         {
-            ServiceCollection = serviceDescriptors ?? new ServiceCollection();
+            ServiceCollection = serviceCollection ?? new ServiceCollection();
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
             IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();
-            ArgumentConverterManager = new ArgumentConverterManager(serviceProvider.GetRequiredService<ILogger<ArgumentConverterManager>>());
+            ArgumentConverterManager = new ArgumentConverterManager(ServiceCollection, serviceProvider.GetRequiredService<ILogger<ArgumentConverterManager>>());
             CommandOverloadParser = new CommandOverloadParser(serviceProvider.GetRequiredService<ILogger<CommandOverloadParser>>());
             PrefixParser = new PrefixParser();
             CommandExecutor = new CommandExecutor(serviceProvider.GetRequiredService<ILogger<CommandExecutor>>());

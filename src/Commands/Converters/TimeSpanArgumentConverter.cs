@@ -2,17 +2,25 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Commands.Converters
 {
+    /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class TimeSpanArgumentConverter : IArgumentConverter<TimeSpan>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        /// <inheritdoc/>
+        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
 
-        public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        /// <inheritdoc/>
+        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+
+        /// <inheritdoc/>
+        public bool CanConvert(Type type) => type == typeof(TimeSpan);
+
+        /// <inheritdoc/>
+        public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (value == "0")
             {

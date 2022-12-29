@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Converters;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
@@ -54,7 +54,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// This is null when <see cref="Overload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
         /// </remarks>
-        public readonly Type? ArgumentConverterType;
+        public readonly ArgumentConverterDefinition? ArgumentConverter;
 
         /// <summary>
         /// The slash metadata for this parameter.
@@ -82,9 +82,9 @@ namespace DSharpPlus.CommandAll.Commands
         public CommandParameter(CommandParameterBuilder builder, CommandOverload overload)
         {
             builder.Verify();
-            if (builder.ArgumentConverterType is null && !overload.Flags.HasFlag(CommandOverloadFlags.Disabled))
+            if (builder.ArgumentConverter is null && !overload.Flags.HasFlag(CommandOverloadFlags.Disabled))
             {
-                throw new PropertyNullException(nameof(builder.ArgumentConverterType));
+                throw new PropertyNullException(nameof(builder.ArgumentConverter));
             }
 
             Name = builder.Name.Truncate(32, "…");
@@ -93,9 +93,9 @@ namespace DSharpPlus.CommandAll.Commands
             ParameterInfo = builder.ParameterInfo!;
             Flags = builder.Flags;
             DefaultValue = builder.DefaultValue;
-            ArgumentConverterType = builder.ArgumentConverterType;
+            ArgumentConverter = builder.ArgumentConverter;
 
-            builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(null) as ApplicationCommandOptionType?;
+            builder.SlashMetadata.OptionType = ArgumentConverter?.GetOrCreateConverter(builder.CommandAllExtension.ServiceProvider).OptionType ?? throw new InvalidOperationException("Argument converter is null.");
             builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
 
@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandAll.Commands
                         SlashMetadata.Choices,
                         null,
                         SlashMetadata.ChannelTypes,
-                        ArgumentConverterType is null,
+                        ArgumentConverter is null,
                         SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? SlashMetadata.MinValue : null,
                         SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? SlashMetadata.MaxValue : null,
                         SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
@@ -167,9 +167,9 @@ namespace DSharpPlus.CommandAll.Commands
                 hash.Add(value);
             }
 
-            if (ArgumentConverterType is not null)
+            if (ArgumentConverter is not null)
             {
-                hash.Add(ArgumentConverterType);
+                hash.Add(ArgumentConverter);
             }
 
             hash.Add(SlashMetadata);
@@ -183,8 +183,6 @@ namespace DSharpPlus.CommandAll.Commands
             return hash.ToHashCode();
         }
 
-        public override bool Equals(object? obj) => obj is CommandParameter parameter && Name == parameter.Name && Description == parameter.Description && EqualityComparer<CommandOverload>.Default.Equals(Overload, parameter.Overload) && EqualityComparer<ParameterInfo>.Default.Equals(ParameterInfo, parameter.ParameterInfo) && Flags == parameter.Flags && DefaultValue.Equals(parameter.DefaultValue) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, parameter.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadata>.Default.Equals(SlashMetadata, parameter.SlashMetadata) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(SlashNames, parameter.SlashNames) && EqualityComparer<DiscordApplicationCommandOption[]?>.Default.Equals(SlashOptions, parameter.SlashOptions);
-
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.SlashNames[0],
             parameter.Description,
@@ -193,7 +191,7 @@ namespace DSharpPlus.CommandAll.Commands
             parameter.SlashMetadata.Choices,
             null,
             parameter.SlashMetadata.ChannelTypes,
-            parameter.ArgumentConverterType is null,
+            parameter.ArgumentConverter is null,
             parameter.SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? parameter.SlashMetadata.MinValue : null,
             parameter.SlashMetadata.OptionType is ApplicationCommandOptionType.Integer or ApplicationCommandOptionType.Number ? parameter.SlashMetadata.MaxValue : null,
             parameter.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),

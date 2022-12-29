@@ -1,4 +1,3 @@
-using System.Linq;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Tests.Commands;
@@ -14,7 +13,6 @@ namespace DSharpPlus.CommandAll.Tests
         public CommandOverloadParsing()
         {
             CommandBuilder command = CommandBuilder.Parse(Extension, typeof(EchoCommand))[0];
-            Extension.ArgumentConverterManager.TrySaturateParameters(command.Overloads.SelectMany(x => x.Parameters), out _);
             EchoCommand = new Command(command);
         }
 

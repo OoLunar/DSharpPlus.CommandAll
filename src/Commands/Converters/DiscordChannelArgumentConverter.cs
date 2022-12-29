@@ -4,19 +4,26 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Commands.Converters
 {
+    /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class DiscordChannelArgumentConverter : IArgumentConverter<DiscordChannel>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Channel;
+        /// <inheritdoc/>
+        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Channel;
 
+        /// <inheritdoc/>
+        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+
+        /// <inheritdoc/>
+        public bool CanConvert(Type type) => type == typeof(DiscordChannel);
+
+        /// <inheritdoc/>
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public Task<Optional<DiscordChannel>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public Task<Optional<DiscordChannel>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             // Attempt to parse the channel id
             if (!ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong channelId))

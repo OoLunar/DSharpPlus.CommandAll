@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -7,10 +6,9 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Attributes;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Converters;
 using DSharpPlus.CommandAll.Commands.Enums;
-using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 
@@ -37,11 +35,11 @@ namespace DSharpPlus.CommandAll.Commands.Builders
         /// <inheritdoc cref="CommandParameter.ParameterInfo"/>
         public ParameterInfo? ParameterInfo { get; set; }
 
-        /// <inheritdoc cref="CommandParameter.ArgumentConverterType"/>
+        /// <inheritdoc cref="CommandParameter.ArgumentConverter"/>
         /// <remarks>
         /// This is could be null if not explicitly set by the user. Before <see cref="CommandAllExtension.ConfigureCommands"/> is called, <see cref="CommandAllExtension.ArgumentConverterManager"/> will be used to find the correct converter, if any. If no converter could be found, the constructor for <see cref="CommandParameter"/> will throw an exception.
         /// </remarks>
-        public Type? ArgumentConverterType { get; set; }
+        public ArgumentConverterDefinition? ArgumentConverter { get; set; }
 
         /// <inheritdoc cref="CommandParameter.SlashMetadata"/>
         public CommandParameterSlashMetadataBuilder SlashMetadata { get; set; }
@@ -95,15 +93,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 error = new InvalidPropertyStateException(nameof(Flags), "Parameter is an array, but Flags does not contain Params. Add the 'params' keyword to the parameter to fix this.");
                 return false;
             }
-            else if (ArgumentConverterType is not null)
+            else if (ArgumentConverter is not null)
             {
-                Type? argumentConverterInterface = ArgumentConverterType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
-                if (argumentConverterInterface is null)
-                {
-                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>));
-                    return false;
-                }
-
+                IArgumentConverter converter = ArgumentConverter.GetOrCreateConverter(CommandAllExtension.ServiceProvider);
                 if (Flags.HasFlag(CommandParameterFlags.Params))
                 {
                     if (!Flags.HasFlag(CommandParameterFlags.Optional))
@@ -116,15 +108,15 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                         error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array if the {nameof(CommandParameterFlags.Params)} flag is set.");
                         return false;
                     }
-                    else if (!ParameterInfo.ParameterType.GetElementType()!.IsAssignableFrom(argumentConverterInterface.GetGenericArguments()[0]))
+                    else if (!converter.CanConvert(ParameterInfo.ParameterType.GetElementType()!))
                     {
-                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array of the type {argumentConverterInterface.GetGenericArguments()[0]} if the {nameof(CommandParameterFlags.Params)} flag is set.");
+                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"Argument converter '{converter.GetType().FullName}' cannot convert the parameter type {ParameterInfo.ParameterType}.");
                         return false;
                     }
                 }
-                else if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(Nullable.GetUnderlyingType(ParameterInfo.ParameterType) ?? ParameterInfo.ParameterType))
+                else if (!converter.CanConvert(ParameterInfo.ParameterType))
                 {
-                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
+                    error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter '{converter.GetType().FullName}' cannot convert the parameter type {ParameterInfo.ParameterType}.");
                     return false;
                 }
             }
@@ -170,16 +162,30 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 SlashMetadata = new(commandAllExtension)
             };
 
+            ArgumentConverterDefinition? converter;
+            if (parameterInfo.GetCustomAttribute<ArgumentConverterAttribute>() is ArgumentConverterAttribute argumentConverterAttribute)
+            {
+                if (!commandAllExtension.ArgumentConverterManager.TryGetConverter(argumentConverterAttribute.ArgumentConverterType, out converter))
+                {
+                    error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter '{argumentConverterAttribute.ArgumentConverterType.FullName}' is not registered.");
+                    return false;
+                }
+            }
+            else if (!commandAllExtension.ArgumentConverterManager.TryGetConverter(parameterInfo.ParameterType, out converter))
+            {
+                error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter for type '{parameterInfo.ParameterType.FullName}' is not found.");
+                return false;
+            }
+
+            builder.ArgumentConverter = converter;
+            builder.SlashMetadata.OptionType = converter!.GetOrCreateConverter(commandAllExtension.ServiceProvider).OptionType;
+
             foreach (object attribute in parameterInfo.GetCustomAttributes())
             {
                 switch (attribute)
                 {
                     case DescriptionAttribute description:
                         builder.Description = description.Description ?? string.Empty;
-                        break;
-                    case ArgumentConverterAttribute argumentConverter:
-                        builder.ArgumentConverterType = argumentConverter.ArgumentConverterType;
-                        builder.SlashMetadata.OptionType = argumentConverter.ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType?;
                         break;
                     case MinMaxAttribute minMax:
                         builder.SlashMetadata.MinValue = minMax.MinValue;
@@ -239,15 +245,15 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     builder.SlashMetadata.Choices.Add(new(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture)));
                 }
 
-                builder.ArgumentConverterType ??= typeof(EnumArgumentConverter);
+                builder.ArgumentConverter ??= commandAllExtension.ArgumentConverterManager.TryGetConverter(typeof(EnumArgumentConverter), out converter)
+                    ? converter
+                    : commandAllExtension.ArgumentConverterManager.AddArgumentConverters(typeof(EnumArgumentConverter))[0];
             }
 
             error = null;
             return true;
         }
 
-        public override string ToString() => $"{(ParameterInfo is null ? "null" : ParameterInfo.Name)} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
-        public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && DefaultValue.Equals(builder.DefaultValue) && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
         public override int GetHashCode()
         {
             HashCode hash = new();
@@ -273,9 +279,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 hash.Add(ParameterInfo);
             }
 
-            if (ArgumentConverterType is not null)
+            if (ArgumentConverter is not null)
             {
-                hash.Add(ArgumentConverterType);
+                hash.Add(ArgumentConverter);
             }
 
             hash.Add(SlashMetadata);

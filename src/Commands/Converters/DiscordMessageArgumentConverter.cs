@@ -1,21 +1,28 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
-namespace DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Commands.Converters
 {
+    /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        /// <inheritdoc/>
+        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
+
+        /// <inheritdoc/>
+        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+
+        /// <inheritdoc/>
+        public bool CanConvert(Type type) => type == typeof(DiscordMessage);
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             Match match = GetMessageRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong messageId))
@@ -51,7 +58,6 @@ namespace DSharpPlus.CommandAll.Converters
                     channel = context.Client.PrivateChannels.TryGetValue(context.User.Id, out DiscordDmChannel? dmChannel) ? dmChannel : null;
                 }
             }
-
 
             if (channel is null)
             {

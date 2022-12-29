@@ -4,19 +4,25 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Commands.Converters
 {
+    /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class DiscordRoleArgumentConverter : IArgumentConverter<DiscordRole>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Role;
+        /// <inheritdoc/>
+        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Role;
+
+        /// <inheritdoc/>
+        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+
+        /// <inheritdoc/>
+        public bool CanConvert(Type type) => type == typeof(DiscordRole);
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public Task<Optional<DiscordRole>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public Task<Optional<DiscordRole>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong roleId))
             {

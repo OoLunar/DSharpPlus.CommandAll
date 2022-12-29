@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
-using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -69,37 +68,6 @@ namespace DSharpPlus.CommandAll.Managers
             Dictionary<string, Command> commands = new();
             foreach (CommandBuilder commandBuilder in CommandBuilders)
             {
-                // Iterate through all the commands and ensure that all the parameters can be converted.
-                if (!extension.ArgumentConverterManager.TrySaturateParameters(commandBuilder.GetAllOverloadBuilders().SelectMany(overload => overload.Parameters), out IEnumerable<CommandParameterBuilder>? failedParameters))
-                {
-                    foreach (CommandParameterBuilder parameterBuilder in failedParameters)
-                    {
-                        if (parameterBuilder.OverloadBuilder is null)
-                        {
-                            throw new InvalidOperationException($"OverloadBuilder is null on parameter {parameterBuilder}.");
-                        }
-                        else if (parameterBuilder.OverloadBuilder.Command is null)
-                        {
-                            throw new InvalidOperationException($"Command is null on overload {parameterBuilder.OverloadBuilder}.");
-                        }
-
-                        parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
-                        if (!parameterBuilder.OverloadBuilder.Command.Flags.HasFlag(CommandFlags.Disabled))
-                        {
-                            if (parameterBuilder.OverloadBuilder.Command.Overloads.All(x => x.Flags.HasFlag(CommandOverloadFlags.Disabled)))
-                            {
-                                parameterBuilder.OverloadBuilder.Flags |= CommandOverloadFlags.Disabled;
-                                _logger.LogWarning("Disabled overload {CommandOverload} due to missing converters for the following parameters: {FailedParameters}", parameterBuilder.OverloadBuilder, parameterBuilder);
-                            }
-                            else
-                            {
-                                parameterBuilder.OverloadBuilder!.Command.Flags |= CommandFlags.Disabled;
-                                _logger.LogError("Disabled command {Command} due to all overloads being disabled.", commandBuilder);
-                            }
-                        }
-                    }
-                }
-
                 Command? command = new(commandBuilder);
                 foreach ((string alias, Command cmd) in command.Walk())
                 {
@@ -147,7 +115,7 @@ namespace DSharpPlus.CommandAll.Managers
             StringBuilder stringBuilder = new();
 
             int i;
-            for (i = Math.Min(fullSplit.Length, 3); i >= 0; i--)
+            for (i = Math.Min(fullSplit.Length, 3); i > 0; i--)
             {
                 string key = string.Join(' ', fullSplit[0..i]);
                 if (Commands.ContainsKey(key))

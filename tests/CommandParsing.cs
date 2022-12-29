@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Tests.Commands;
@@ -14,7 +13,6 @@ namespace DSharpPlus.CommandAll.Tests
         public CommandParsing()
         {
             Extension.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
-            Extension.ArgumentConverterManager.TrySaturateParameters(Extension.CommandManager.GetCommandBuilders().SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
             Extension.CommandManager.RegisterCommandsAsync(Extension).GetAwaiter().GetResult();
         }
 

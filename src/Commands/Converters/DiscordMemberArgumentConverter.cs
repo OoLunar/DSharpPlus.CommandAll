@@ -3,23 +3,30 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 
-namespace DSharpPlus.CommandAll.Converters
+namespace DSharpPlus.CommandAll.Commands.Converters
 {
+    /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class DiscordMemberArgumentConverter : IArgumentConverter<DiscordMember>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
+        /// <inheritdoc/>
+        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
+
+        /// <inheritdoc/>
+        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+
+        /// <inheritdoc/>
+        public bool CanConvert(Type type) => type == typeof(DiscordMember);
+
         private readonly ILogger<DiscordMemberArgumentConverter> _logger;
 
         public DiscordMemberArgumentConverter(ILogger<DiscordMemberArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {

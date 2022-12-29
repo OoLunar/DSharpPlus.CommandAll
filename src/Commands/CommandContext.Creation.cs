@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Converters;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
@@ -182,16 +182,11 @@ namespace DSharpPlus.CommandAll.Commands
                 // We can assume that the last parameter has the params flag, because we already checked that in CommandOverloadParser.
                 parameter = i < CurrentOverload.Parameters.Count ? CurrentOverload.Parameters[i] : CurrentOverload.Parameters[^1];
 
-                // TODO: Hold onto the argument converters when all the services they ask for are singletons. This can
-                //    probably be done in the ArgumentConverterManager class by calling a method during the READY event.
                 // Attempt to convert the value to the parameter's type.
-                if (ActivatorUtilities.CreateInstance(ServiceProvider, parameter.ArgumentConverterType!) is not IArgumentConverter converter)
-                {
-                    throw new InvalidOperationException($"Failed to create an instance of {parameter.ArgumentConverterType}. Does the argument converter have a public constructor? Were all the services able to be resolved?");
-                }
+                IArgumentConverter converter = parameter.ArgumentConverter!.GetOrCreateConverter(ServiceProvider);
 
                 _logger.LogTrace("Converting argument {Argument} to {Type}", argument, parameter.ParameterInfo.ParameterType);
-                Task<IOptional> optionalTask = converter.ConvertAsync(this, parameter, argument?.ToString() ?? string.Empty);
+                Task<IOptional> optionalTask = converter.ConvertAsync(this, argument?.ToString() ?? string.Empty, parameter);
                 optionalTask.Wait();
                 optional = optionalTask.IsCompletedSuccessfully ? optionalTask.Result : throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
 

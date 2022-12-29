@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using DSharpPlus.CommandAll.Commands.Arguments;
+using DSharpPlus.CommandAll.Commands.Converters;
 
 namespace DSharpPlus.CommandAll.Attributes
 {
@@ -31,6 +31,7 @@ namespace DSharpPlus.CommandAll.Attributes
             {
                 throw new ArgumentException($"Converter type must implement IArgumentConverter<`1>.");
             }
+
             ArgumentConverterType = parameterConverter;
         }
     }
@@ -38,7 +39,7 @@ namespace DSharpPlus.CommandAll.Attributes
     /// <summary>
     /// Attempts to parse a parameter with the specified converter.
     /// </summary>
-    public sealed class ArgumentConverterAttribute<T> : ArgumentConverterAttribute
+    public sealed class ArgumentConverterAttribute<T> : ArgumentConverterAttribute where T : IArgumentConverter
     {
         /// <summary>
         /// Attempts to parse a parameter with the specified converter.
