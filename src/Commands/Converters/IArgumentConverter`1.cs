@@ -9,8 +9,8 @@ namespace DSharpPlus.CommandAll.Commands.Converters
     /// </summary>
     public interface IArgumentConverter<T> : IArgumentConverter
     {
-        /// <inheritdoc/>
-        Type IArgumentConverter.Type => typeof(T);
+        static Type IArgumentConverter.Type { get; } = Type;
+        static new Type Type => typeof(T);
 
         /// <inheritdoc cref="IArgumentConverter.ConvertAsync(CommandContext, string, CommandParameter?)"/>
         /// <returns>The converted object, wrapped in an <see cref="Optional{T}"/> to indicate whether the conversion was successful or not.</returns>

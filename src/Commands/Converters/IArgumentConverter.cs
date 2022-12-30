@@ -26,7 +26,7 @@ namespace DSharpPlus.CommandAll.Commands.Converters
         /// <summary>
         /// The type this converter converts to.
         /// </summary>
-        Type Type { get; }
+        static abstract Type Type { get; }
 
         /// <summary>
         /// Converts a string into an object.

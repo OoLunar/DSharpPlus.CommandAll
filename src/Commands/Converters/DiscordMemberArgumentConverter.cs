@@ -13,6 +13,8 @@ namespace DSharpPlus.CommandAll.Commands.Converters
     /// <inheritdoc cref="IArgumentConverter{T}"/>
     public sealed partial class DiscordMemberArgumentConverter : IArgumentConverter<DiscordMember>
     {
+        public static Type Type => typeof(byte);
+
         /// <inheritdoc/>
         public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Converters;
@@ -38,7 +39,7 @@ namespace DSharpPlus.CommandAll.Managers
         public IReadOnlyDictionary<Type, ArgumentConverterDefinition> GetTypeConverters() => _typeConverters.AsReadOnly();
 
         /// <inheritdoc />
-        public bool TryGetConverter(Type type, out ArgumentConverterDefinition? converter) => _typeConverters.TryGetValue(type, out converter);
+        public bool TryGetConverter(Type type, [NotNullWhen(true)] out ArgumentConverterDefinition? converter) => _typeConverters.TryGetValue(type, out converter);
 
         /// <inheritdoc />
         public IReadOnlyList<ArgumentConverterDefinition> AddArgumentConverters(Assembly assembly) => AddArgumentConverters(assembly.ExportedTypes.Where(type => !type.IsAbstract && !type.IsInterface && typeof(IArgumentConverter).IsAssignableFrom(type)).ToArray());
@@ -114,9 +115,10 @@ namespace DSharpPlus.CommandAll.Managers
                     }
                 }
 
-                ArgumentConverterDefinition converter = new(type, type.GetGenericArguments(), instance);
+                // Throws IL Exception
+                ArgumentConverterDefinition converter = new(type, (Type)type.GetProperty(nameof(IArgumentConverter.Type), BindingFlags.Static | BindingFlags.Public).GetValue(type), type.GetGenericArguments(), instance);
                 addedConverters.Add(converter);
-                _typeConverters.Add(converter.GetOrCreateConverter(serviceProvider).Type, converter);
+                _typeConverters.Add(converter.ConvertedType, converter);
             }
 
             return addedConverters.AsReadOnly();
