@@ -1,6 +1,6 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Converters;
@@ -12,7 +12,15 @@ namespace DSharpPlus.CommandAll.Managers
     /// <inheritdoc cref="IArgumentConverterManager" />
     public class ArgumentConverterManager : IArgumentConverterManager
     {
-        private readonly Dictionary<Type, ArgumentConverterDefinition> _typeConverters = new();
+        /// <summary>
+        /// The list of registered argument converters.
+        /// </summary>
+        private readonly List<ArgumentConverterDefinition> _converters = new();
+
+        /// <summary>
+        /// The cache of argument converters that can convert a given type.
+        /// </summary>
+        private readonly Dictionary<Type, List<ArgumentConverterDefinition>> _typeConverterCache = new();
 
         /// <summary>
         /// The service provider to use to create singleton instances of argument converters.
@@ -32,25 +40,67 @@ namespace DSharpPlus.CommandAll.Managers
         public ArgumentConverterManager(IServiceCollection serviceCollection, ILogger<ArgumentConverterManager> logger)
         {
             _serviceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
+            _serviceCollection.AddSingleton<IArgumentConverterManager>(this);
+            _serviceCollection.AddSingleton(serviceProvider => serviceProvider);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc />
-        public IReadOnlyDictionary<Type, ArgumentConverterDefinition> GetTypeConverters() => _typeConverters.AsReadOnly();
+        public IReadOnlyList<ArgumentConverterDefinition> GetConverters<T>() => GetConverters(typeof(T));
 
         /// <inheritdoc />
-        public bool TryGetConverter(Type type, [NotNullWhen(true)] out ArgumentConverterDefinition? converter) => _typeConverters.TryGetValue(type, out converter);
+        public IReadOnlyList<ArgumentConverterDefinition> GetConverters(Type? type = null)
+        {
+
+            // If the type is not specified, return all the converters available.
+            if (type is null)
+            {
+                return _converters.AsReadOnly();
+            }
+
+            if (type.IsArray)
+            {
+                // If the type is an array, return all the converters that can convert the array's type.
+                return GetConverters(type.GetElementType());
+            }
+            else if (type.IsAssignableFrom(typeof(IEnumerable)))
+            {
+                // If the type is an enumerable, return all the converters that can convert the enumerable's type.
+                return GetConverters(type.GetGenericArguments().FirstOrDefault());
+            }
+
+            // Ensure the type is fully closed (I.E, Nullable<> is not okay, but Nullable<int> is fine).
+            if (type.IsGenericTypeDefinition)
+            {
+                throw new ArgumentException("Cannot convert open generic types. Instead, please pass in a known generic type.", nameof(type));
+            }
+            // Check if the type if we've already cached the converters for it.
+            else if (_typeConverterCache.TryGetValue(type, out List<ArgumentConverterDefinition>? cachedConverters))
+            {
+                // Return the cached converters.
+                return cachedConverters.AsReadOnly();
+            }
+            // Cache the converters for a faster lookup next time.
+            else
+            {
+                // Iterate through the converters and add them to the cache if they can convert the type.
+                cachedConverters = _converters.Where(converter => converter.CanConvert(type)).ToList();
+
+                // Add the cached converters to the dictionary.
+                _typeConverterCache.Add(type, cachedConverters);
+
+                // Return the cached converters.
+                return cachedConverters.AsReadOnly();
+            }
+        }
 
         /// <inheritdoc />
-        public IReadOnlyList<ArgumentConverterDefinition> AddArgumentConverters(Assembly assembly) => AddArgumentConverters(assembly.ExportedTypes.Where(type => !type.IsAbstract && !type.IsInterface && typeof(IArgumentConverter).IsAssignableFrom(type)).ToArray());
+        public IReadOnlyList<ArgumentConverterDefinition> AddArgumentConverters(Assembly assembly) => AddArgumentConverters(assembly.ExportedTypes.Where(type => !type.IsAbstract && !type.IsInterface && typeof(IArgumentConverter).IsAssignableFrom(type)).OrderBy(type => !type.IsGenericTypeDefinition).ToArray());
 
         /// <inheritdoc />
         public IReadOnlyList<ArgumentConverterDefinition> AddArgumentConverters(params Type[] types)
         {
             List<ArgumentConverterDefinition> addedConverters = new();
-
-            // Create a service provider to access singleton instances of the argument converters.
-            ServiceProvider serviceProvider = _serviceCollection.BuildServiceProvider();
 
             foreach (Type type in types)
             {
@@ -65,60 +115,10 @@ namespace DSharpPlus.CommandAll.Managers
                     _logger.LogWarning("The type {Type} is not assignable from {AssignableType}.", type, typeof(IArgumentConverter));
                     continue;
                 }
-                else if (_typeConverters.TryGetValue(type, out ArgumentConverterDefinition? existingConverter))
-                {
-                    _logger.LogWarning("Failed to register type {Type} as it is already handled by {ExistingConverter}.", type, existingConverter);
-                    continue;
-                }
 
-                // Attempt to create a singleton instance of the argument converter.
-                IArgumentConverter? instance = null;
-
-                // Iterate over all public constructors
-                foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
-                {
-                    // Get the constructor's parameters.
-                    ParameterInfo[] parameters = constructor.GetParameters();
-                    object?[] parameterInstances = new object[parameters.Length];
-
-                    // Iterate over all parameters, searching for a singleton service that can be assigned to the parameter.
-                    for (int i = 0; i < parameters.Length; i++)
-                    {
-                        ParameterInfo parameter = parameters[i];
-
-                        // Attempt to find a singleton service that can be assigned to the parameter.
-                        if (_serviceCollection.Any(service => service.Lifetime == ServiceLifetime.Singleton && parameter.ParameterType.IsGenericType ? parameter.ParameterType.GetGenericTypeDefinition() == service.ServiceType : parameter.ParameterType.IsAssignableFrom(service.ServiceType)))
-                        {
-                            // If a singleton service was found, get an instance of it and assign it to the parameter.
-                            parameterInstances[i] = serviceProvider.GetRequiredService(parameter.ParameterType);
-                        }
-                        else if (parameter.HasDefaultValue)
-                        {
-                            // If no singleton service was found, check if the parameter has a default value.
-                            parameterInstances[i] = parameter.DefaultValue;
-                        }
-                        else
-                        {
-                            // If no singleton service was found and the parameter doesn't have a default value, the constructor cannot be invoked.
-                            break;
-                        }
-                    }
-
-                    try
-                    {
-                        // Attempt to invoke the constructor with the parameter instances.
-                        instance = constructor.Invoke(parameterInstances) as IArgumentConverter;
-                    }
-                    catch (Exception)
-                    {
-                        instance = null;
-                    }
-                }
-
-                // Throws IL Exception
-                ArgumentConverterDefinition converter = new(type, (Type)type.GetProperty(nameof(IArgumentConverter.Type), BindingFlags.Static | BindingFlags.Public).GetValue(type), type.GetGenericArguments(), instance);
+                ArgumentConverterDefinition converter = new(type, type.GetInterface("IArgumentConverter`1")?.GetGenericArguments() ?? Array.Empty<Type>(), _serviceCollection);
                 addedConverters.Add(converter);
-                _typeConverters.Add(converter.ConvertedType, converter);
+                _converters.Add(converter);
             }
 
             return addedConverters.AsReadOnly();

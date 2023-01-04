@@ -6,21 +6,21 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed class EnumArgumentConverter : IArgumentConverter<Enum>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed class EnumArgumentConverter : ArgumentConverter<Enum>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Integer;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Integer;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.RequiresCommandParameter;
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.RequiresCommandParameter;
 
         /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(Enum);
+        public override bool CanConvert(Type type) => type.IsEnum;
 
         /// <inheritdoc/>
         [SuppressMessage("Style", "IDE0046:Convert to conditional expression", Justification = "This is more readable.")]
-        public Task<Optional<Enum>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override Task<Optional<Enum>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (parameter is null)
             {

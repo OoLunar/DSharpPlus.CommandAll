@@ -9,20 +9,17 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class DiscordRoleArgumentConverter : IArgumentConverter<DiscordRole>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class DiscordRoleArgumentConverter : ArgumentConverter<DiscordRole>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Role;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Role;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
-
-        /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DiscordRole);
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public Task<Optional<DiscordRole>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override Task<Optional<DiscordRole>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong roleId))
             {

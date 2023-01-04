@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -162,19 +163,22 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 SlashMetadata = new(commandAllExtension)
             };
 
-            ArgumentConverterDefinition? converter;
-            if (parameterInfo.GetCustomAttribute<ArgumentConverterAttribute>() is ArgumentConverterAttribute argumentConverterAttribute)
-            {
-                if (!commandAllExtension.ArgumentConverterManager.TryGetConverter(argumentConverterAttribute.ArgumentConverterType, out converter))
-                {
-                    error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter '{argumentConverterAttribute.ArgumentConverterType.FullName}' is not registered.");
-                    return false;
-                }
-            }
-            else if (!commandAllExtension.ArgumentConverterManager.TryGetConverter(parameterInfo.ParameterType, out converter))
+            IReadOnlyList<ArgumentConverterDefinition> argumentConverterDefinitions = commandAllExtension.ArgumentConverterManager.GetConverters(parameterInfo.ParameterType);
+            if (!argumentConverterDefinitions.Any())
             {
                 error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter for type '{parameterInfo.ParameterType.FullName}' is not found.");
                 return false;
+            }
+
+            ArgumentConverterDefinition? converter = null;
+            if (parameterInfo.GetCustomAttribute<ArgumentConverterAttribute>() is ArgumentConverterAttribute argumentConverterAttribute && (converter = argumentConverterDefinitions.FirstOrDefault(x => x.ArgumentConverterType == argumentConverterAttribute.ArgumentConverterType)) is null)
+            {
+                error = new InvalidPropertyStateException(nameof(ArgumentConverter), $"Argument converter '{argumentConverterAttribute.ArgumentConverterType.FullName}' is not registered.");
+                return false;
+            }
+            else
+            {
+                converter ??= argumentConverterDefinitions[0];
             }
 
             builder.ArgumentConverter = converter;
@@ -245,9 +249,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     builder.SlashMetadata.Choices.Add(new(enumNames[i], Convert.ToDouble(enumValues.GetValue(i), CultureInfo.InvariantCulture)));
                 }
 
-                builder.ArgumentConverter ??= commandAllExtension.ArgumentConverterManager.TryGetConverter(typeof(EnumArgumentConverter), out converter)
-                    ? converter
-                    : commandAllExtension.ArgumentConverterManager.AddArgumentConverters(typeof(EnumArgumentConverter))[0];
+                builder.ArgumentConverter ??= commandAllExtension.ArgumentConverterManager.GetConverters<Enum>()[0];
             }
 
             error = null;

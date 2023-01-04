@@ -10,25 +10,20 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class DiscordMemberArgumentConverter : IArgumentConverter<DiscordMember>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class DiscordMemberArgumentConverter : ArgumentConverter<DiscordMember>
     {
-        public static Type Type => typeof(byte);
+        /// <inheritdoc/>
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
 
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
-
-        /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
-
-        /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DiscordMember);
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         private readonly ILogger<DiscordMemberArgumentConverter> _logger;
 
         public DiscordMemberArgumentConverter(ILogger<DiscordMemberArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        public async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override async Task<Optional<DiscordMember>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {

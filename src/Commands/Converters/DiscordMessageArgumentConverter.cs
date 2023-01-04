@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -9,20 +8,17 @@ using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class DiscordMessageArgumentConverter : ArgumentConverter<DiscordMessage>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
-
-        /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DiscordMessage);
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             Match match = GetMessageRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong messageId))

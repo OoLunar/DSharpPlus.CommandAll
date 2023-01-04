@@ -9,21 +9,18 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class DiscordChannelArgumentConverter : IArgumentConverter<DiscordChannel>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class DiscordChannelArgumentConverter : ArgumentConverter<DiscordChannel>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Channel;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Channel;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
-
-        /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DiscordChannel);
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         /// <inheritdoc/>
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public Task<Optional<DiscordChannel>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override Task<Optional<DiscordChannel>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             // Attempt to parse the channel id
             if (!ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out ulong channelId))

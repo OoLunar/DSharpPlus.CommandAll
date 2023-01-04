@@ -1,24 +1,20 @@
-using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed class FloatArgumentConverter : IArgumentConverter<float>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed class FloatArgumentConverter : ArgumentConverter<float>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Number;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.Number;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(float);
-
-        /// <inheritdoc/>
-        public Task<Optional<float>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Task.FromResult(float.TryParse(value, out float result)
+        public override Task<Optional<float>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Task.FromResult(float.TryParse(value, out float result)
             ? Optional.FromValue(result)
             : Optional.FromNoValue<float>());
     }

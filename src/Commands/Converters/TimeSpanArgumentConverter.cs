@@ -7,20 +7,17 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class TimeSpanArgumentConverter : IArgumentConverter<TimeSpan>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class TimeSpanArgumentConverter : ArgumentConverter<TimeSpan>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(TimeSpan);
-
-        /// <inheritdoc/>
-        public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (value == "0")
             {

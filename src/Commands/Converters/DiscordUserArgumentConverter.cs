@@ -11,24 +11,21 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed partial class DiscordUserArgumentConverter : IArgumentConverter<DiscordUser>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed partial class DiscordUserArgumentConverter : ArgumentConverter<DiscordUser>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.User;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         private readonly ILogger<DiscordUserArgumentConverter> _logger;
 
         public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DiscordUser);
-
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
+        public override async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {

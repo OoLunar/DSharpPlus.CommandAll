@@ -7,15 +7,15 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Examples.ArgumentConverters.ArgumentConverters
 {
-    public sealed class UlidArgumentConverter : IArgumentConverter<Ulid>
+    public sealed class UlidArgumentConverter : ArgumentConverter<Ulid>
     {
-        public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
-        public ArgumentParsingBehavior ParsingBehavior { get; } = ArgumentParsingBehavior.Static;
+        public override ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        public override ArgumentParsingBehavior ParsingBehavior { get; } = ArgumentParsingBehavior.Static;
 
-        public Task<Optional<Ulid>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Ulid.TryParse(value, out Ulid ulid)
+        public override Task<Optional<Ulid>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Ulid.TryParse(value, out Ulid ulid)
             ? Task.FromResult(Optional.FromValue(ulid))
             : Task.FromResult(Optional.FromNoValue<Ulid>());
 
-        public bool CanConvert(Type type) => type == typeof(Ulid);
+        public override bool CanConvert(Type type) => type == typeof(Ulid);
     }
 }

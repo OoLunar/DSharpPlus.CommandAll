@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandAll.Commands.Converters
     /// Represents a converter that converts a string into an object.
     /// </summary>
     /// <remarks>
-    /// This interface is used by the command system to convert strings into objects. Unless you're trying to implement an open generic converter, you should implement <see cref="IArgumentConverter{T}"/> instead.
+    /// This interface is used by the command system to convert strings into objects. Unless you're trying to implement an open generic converter, you should implement <see cref="ArgumentConverter{T}"/> instead.
     /// </remarks>
     public interface IArgumentConverter
     {
@@ -22,11 +22,6 @@ namespace DSharpPlus.CommandAll.Commands.Converters
         /// Defines how the converter should be used and which behavior the invocator should expect.
         /// </summary>
         ArgumentParsingBehavior ParsingBehavior { get; }
-
-        /// <summary>
-        /// The type this converter converts to.
-        /// </summary>
-        static abstract Type Type { get; }
 
         /// <summary>
         /// Converts a string into an object.

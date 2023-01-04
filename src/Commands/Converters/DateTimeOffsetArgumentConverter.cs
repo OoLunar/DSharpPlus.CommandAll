@@ -5,20 +5,17 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Converters
 {
-    /// <inheritdoc cref="IArgumentConverter{T}"/>
-    public sealed class DateTimeOffsetArgumentConverter : IArgumentConverter<DateTimeOffset>
+    /// <inheritdoc cref="ArgumentConverter{T}"/>
+    public sealed class DateTimeOffsetArgumentConverter : ArgumentConverter<DateTimeOffset>
     {
         /// <inheritdoc/>
-        public ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
+        public override ApplicationCommandOptionType OptionType => ApplicationCommandOptionType.String;
 
         /// <inheritdoc/>
-        public ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
+        public override ArgumentParsingBehavior ParsingBehavior => ArgumentParsingBehavior.Static;
 
         /// <inheritdoc/>
-        public bool CanConvert(Type type) => type == typeof(DateTimeOffset);
-
-        /// <inheritdoc/>
-        public Task<Optional<DateTimeOffset>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Task.FromResult(DateTimeOffset.TryParse(value, out DateTimeOffset result)
+        public override Task<Optional<DateTimeOffset>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Task.FromResult(DateTimeOffset.TryParse(value, out DateTimeOffset result)
             ? Optional.FromValue(result)
             : Optional.FromNoValue<DateTimeOffset>());
     }

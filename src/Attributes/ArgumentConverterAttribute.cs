@@ -27,7 +27,7 @@ namespace DSharpPlus.CommandAll.Attributes
             {
                 throw new ArgumentNullException(nameof(parameterConverter));
             }
-            else if (parameterConverter.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>)) is null)
+            else if (parameterConverter.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ArgumentConverter<>)) is null)
             {
                 throw new ArgumentException($"Converter type must implement IArgumentConverter<`1>.");
             }
