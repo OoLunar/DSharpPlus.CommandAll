@@ -22,8 +22,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7
-        env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/../.dotnet
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
         env:
@@ -39,8 +37,10 @@ jobs:
           path: ./build/*
       - name: Publish Nightly Nuget Packages
         run: dotnet nuget push "build/*" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+      - name: Export Latest Tag
+        run: echo LATEST_TAG=$(git describe --abbrev=0 --tags) >> $GITHUB_ENV
       - name: Update Discord Channel Topic
-        run: dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }}) -- $(git describe --abbrev=0 --tags)
+        run: dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }})
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
@@ -48,3 +48,4 @@ jobs:
           DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
           NUGET_URL: ${{ secrets.NUGET_URL }}
           GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
+          LATEST_TAG: ${{ env.LATEST_TAG }}

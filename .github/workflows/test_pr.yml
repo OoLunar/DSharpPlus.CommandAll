@@ -14,12 +14,6 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: '0'
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7
-        env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/../.dotnet
       - name: Test
         run: dotnet test --blame --blame-hang-timeout=30s
       - name: Package
