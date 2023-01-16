@@ -74,7 +74,7 @@ namespace DSharpPlus.CommandAll.Commands
             if (InvocationType == CommandInvocationType.SlashCommand)
             {
                 // Ensure that the command has not already responded
-                if (ResponseType != ContextResponseType.None)
+                if (ResponseType != ContextResponseType.Delayed)
                 {
                     throw new InvalidOperationException("Cannot delay a command that has already responded.");
                 }
