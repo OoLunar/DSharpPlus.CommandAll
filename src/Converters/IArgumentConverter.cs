@@ -1,7 +1,8 @@
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandAll.Commands.Arguments
+namespace DSharpPlus.CommandAll.Converters
 {
     /// <summary>
     /// Represents a converter that converts a string into an object.

@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Attributes;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Converters;

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands;
-using DSharpPlus.CommandAll.Commands.Arguments;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
