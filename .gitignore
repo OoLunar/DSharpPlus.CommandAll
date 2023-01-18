@@ -1,7 +1,8 @@
+.obsidian
 .vscode/
 bin/
 obj/
-logs/
-TestResults/
-.obsidian
 build/
+logs/
+libs/
+TestResults/
