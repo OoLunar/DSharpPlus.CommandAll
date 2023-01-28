@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
+using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -171,7 +173,20 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
-        public override string ToString() => $"{Method.Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")}, Priority: {Priority}, Parameters: {Parameters.Humanize()}";
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new(Method.Name);
+            stringBuilder.AppendFormat("{0}", Method.Name);
+
+            if (Flags != 0)
+            {
+                stringBuilder.AppendFormat(" ({0})", Flags.Humanize());
+            }
+
+            stringBuilder.AppendFormat(", Priority: {0}, Parameters: {1}, {2}", Priority, Parameters.Count.ToString("N0", CultureInfo.InvariantCulture), base.ToString());
+            return stringBuilder.ToString();
+        }
+
         public override bool Equals(object? obj) => obj is CommandOverloadBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<MethodInfo>.Default.Equals(Method, builder.Method) && EqualityComparer<List<CommandParameterBuilder>>.Default.Equals(Parameters, builder.Parameters) && Flags == builder.Flags && Priority == builder.Priority && EqualityComparer<CommandOverloadSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
         public override int GetHashCode() => HashCode.Combine(CommandAllExtension, Method, Parameters, Flags, Priority, SlashMetadata);
     }

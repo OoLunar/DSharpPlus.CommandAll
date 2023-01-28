@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -245,7 +246,19 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return true;
         }
 
-        public override string ToString() => $"{(ParameterInfo is null ? "null" : ParameterInfo.Name)} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
+        public override string ToString()
+        {
+            StringBuilder builder = new();
+
+            if (Flags != 0)
+            {
+                builder.AppendFormat("[{0}] ", Flags);
+            }
+
+            builder.AppendFormat("{0} {1}, {2}", ParameterInfo!.ParameterType.Name, Name, base.ToString());
+            return builder.ToString();
+        }
+
         public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && DefaultValue.Equals(builder.DefaultValue) && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
         public override int GetHashCode()
         {

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -306,7 +307,22 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             }
         }
 
-        public override string ToString() => $"{Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")} - {Description}";
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new(Name);
+            if (Flags != 0)
+            {
+                stringBuilder.AppendFormat(" ({0})", Flags.Humanize());
+            }
+
+            if (!string.IsNullOrWhiteSpace(Description))
+            {
+                stringBuilder.AppendFormat(" - {0}", Description);
+            }
+
+            return stringBuilder.ToString();
+        }
+
         public override bool Equals(object? obj) => obj is CommandBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && EqualityComparer<List<CommandOverloadBuilder>>.Default.Equals(Overloads, builder.Overloads) && EqualityComparer<List<CommandBuilder>>.Default.Equals(Subcommands, builder.Subcommands) && EqualityComparer<List<string>>.Default.Equals(Aliases, builder.Aliases) && Flags == builder.Flags && EqualityComparer<CommandSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
         public override int GetHashCode()
         {

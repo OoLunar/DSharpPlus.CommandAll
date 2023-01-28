@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using DSharpPlus.CommandAll.Commands.Builders;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
@@ -141,7 +142,6 @@ namespace DSharpPlus.CommandAll.Commands
             return allAliases.AsReadOnly();
         }
 
-        public override string ToString() => $"{FullName}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")} - {Description}";
         public override bool Equals(object? obj) => obj is Command command && Name == command.Name && Description == command.Description && EqualityComparer<Command?>.Default.Equals(Parent, command.Parent) && EqualityComparer<IReadOnlyList<CommandOverload>>.Default.Equals(Overloads, command.Overloads) && EqualityComparer<IReadOnlyList<Command>>.Default.Equals(Subcommands, command.Subcommands) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(Aliases, command.Aliases) && Flags == command.Flags && EqualityComparer<CommandSlashMetadata>.Default.Equals(SlashMetadata, command.SlashMetadata) && SlashName == command.SlashName && FullName == command.FullName;
         public override int GetHashCode()
         {
@@ -162,6 +162,22 @@ namespace DSharpPlus.CommandAll.Commands
             hash.Add(SlashName);
             hash.Add(FullName);
             return hash.ToHashCode();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new(Name);
+            if (Flags != 0)
+            {
+                stringBuilder.AppendFormat(" ({0})", Flags.Humanize());
+            }
+
+            if (!string.IsNullOrWhiteSpace(Description))
+            {
+                stringBuilder.AppendFormat(" - {0}", Description);
+            }
+
+            return stringBuilder.ToString();
         }
 
         public static explicit operator DiscordApplicationCommand(Command command)

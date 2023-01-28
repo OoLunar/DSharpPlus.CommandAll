@@ -62,23 +62,6 @@ namespace DSharpPlus.CommandAll.Commands
             LocalizedDescriptions = builder.LocalizedDescriptions.AsReadOnly();
         }
 
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendFormat($"{nameof(CommandSlashMetadata)}: ");
-            if (GuildId.HasValue)
-            {
-                stringBuilder.Append($"{nameof(GuildId)}: {GuildId.Value}, ");
-            }
-
-            if (RequiredPermissions.HasValue)
-            {
-                stringBuilder.Append($"{nameof(RequiredPermissions)}: {RequiredPermissions.Value}, ");
-            }
-
-            stringBuilder.Append($"{nameof(LocalizedNames)}: {LocalizedNames.Count:N0}, {nameof(LocalizedDescriptions)}: {LocalizedDescriptions.Count:N0}");
-            return stringBuilder.ToString();
-        }
         public override bool Equals(object? obj) => obj is CommandSlashMetadata metadata && GuildId == metadata.GuildId && RequiredPermissions == metadata.RequiredPermissions && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions);
         public override int GetHashCode()
         {
@@ -97,6 +80,47 @@ namespace DSharpPlus.CommandAll.Commands
             }
 
             return hashCode.ToHashCode();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new();
+            if (GuildId.HasValue)
+            {
+                stringBuilder.AppendFormat("Guild Id: {0}", GuildId.Value);
+            }
+
+            if (RequiredPermissions.HasValue)
+            {
+                if (stringBuilder.Length != 0)
+                {
+                    stringBuilder.Append(", ");
+                }
+
+                stringBuilder.AppendFormat("Required Permissions: {0}");
+            }
+
+            if (LocalizedNames.Count != 0)
+            {
+                if (stringBuilder.Length != 0)
+                {
+                    stringBuilder.Append(", ");
+                }
+
+                stringBuilder.AppendFormat("Localized Names: {0}", LocalizedNames.Count);
+            }
+
+            if (LocalizedDescriptions.Count != 0)
+            {
+                if (stringBuilder.Length != 0)
+                {
+                    stringBuilder.Append(", ");
+                }
+
+                stringBuilder.AppendFormat("Localized Descriptions: {0}", LocalizedDescriptions.Count);
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
@@ -117,7 +118,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
             return true;
         }
 
-        public override string ToString() => $"{nameof(CommandParameterSlashMetadataBuilder)}: {(OptionType.HasValue ? OptionType.Value.Humanize() : string.Empty)}, Is Required: {IsRequired}";
         public override bool Equals(object? obj) => obj is CommandParameterSlashMetadataBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, builder.LocalizedNames) && EqualityComparer<Dictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, builder.LocalizedDescriptions) && OptionType == builder.OptionType && EqualityComparer<List<DiscordApplicationCommandOptionChoice>?>.Default.Equals(Choices, builder.Choices) && EqualityComparer<List<ChannelType>?>.Default.Equals(ChannelTypes, builder.ChannelTypes) && EqualityComparer<object?>.Default.Equals(MinValue, builder.MinValue) && EqualityComparer<object?>.Default.Equals(MaxValue, builder.MaxValue) && EqualityComparer<Type?>.Default.Equals(AutoCompleteProvider, builder.AutoCompleteProvider) && IsRequired == builder.IsRequired && EqualityComparer<ParameterLimitAttribute?>.Default.Equals(ParameterLimitAttribute, builder.ParameterLimitAttribute);
         public override int GetHashCode()
         {
@@ -164,6 +164,18 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
             }
 
             return hash.ToHashCode();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new();
+            if (OptionType.HasValue)
+            {
+                stringBuilder.AppendFormat("Option Type: {0}, ", OptionType.Value.Humanize());
+            }
+
+            stringBuilder.AppendFormat("Is Required: {0}, {1}", IsRequired, base.ToString());
+            return stringBuilder.ToString();
         }
     }
 }

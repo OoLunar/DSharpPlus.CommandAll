@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using DSharpPlus.CommandAll.Commands.Enums;
 using Humanizer;
 
@@ -9,6 +11,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
     /// <summary>
     /// A builder for slash command metadata.
     /// </summary>
+    [DebuggerDisplay("{ToString(),nq}")]
     public abstract class SlashMetadataBuilder : Builder
     {
         /// <summary>
@@ -44,6 +47,27 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             {
                 LocalizedDescriptions[culture] = description.Truncate(100, "…");
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new();
+            if (LocalizedNames.Count != 0)
+            {
+                stringBuilder.AppendFormat("Localized Names: {0}", LocalizedNames.Count);
+            }
+
+            if (LocalizedDescriptions.Count != 0)
+            {
+                if (stringBuilder.Length != 0)
+                {
+                    stringBuilder.Append(", ");
+                }
+
+                stringBuilder.AppendFormat("Localized Descriptions: {0}", LocalizedDescriptions.Count);
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
