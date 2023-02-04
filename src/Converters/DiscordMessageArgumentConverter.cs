@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordMessageArgumentConverter : IArgumentConverter<DiscordMessage>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)

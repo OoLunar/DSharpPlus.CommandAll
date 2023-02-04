@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordThreadChannelArgumentConverter : IArgumentConverter<DiscordThreadChannel>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Channel;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Channel;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public Task<Optional<DiscordThreadChannel>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)

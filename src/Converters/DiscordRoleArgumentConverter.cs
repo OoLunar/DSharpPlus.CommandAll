@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordRoleArgumentConverter : IArgumentConverter<DiscordRole>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Role;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Role;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
         public Task<Optional<DiscordRole>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)

@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed partial class DiscordUserArgumentConverter : IArgumentConverter<DiscordUser>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.User;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.User;
         private readonly ILogger<DiscordUserArgumentConverter> _logger;
 
         public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));

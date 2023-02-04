@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed class SByteArgumentConverter : IArgumentConverter<sbyte>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Integer;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Integer;
 
         public Task<Optional<sbyte>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(sbyte.TryParse(value, out sbyte result) ? Optional.FromValue(result) : Optional.FromNoValue<sbyte>());
     }

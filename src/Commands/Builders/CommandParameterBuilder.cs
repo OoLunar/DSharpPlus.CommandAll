@@ -97,10 +97,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             }
             else if (ArgumentConverterType is not null)
             {
-                Type? argumentConverterInterface = ArgumentConverterType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
-                if (argumentConverterInterface is null)
+                if (!typeof(IArgumentConverter).IsAssignableFrom(ArgumentConverterType))
                 {
-                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>));
+                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter));
                     return false;
                 }
 
@@ -116,16 +115,21 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                         error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array if the {nameof(CommandParameterFlags.Params)} flag is set.");
                         return false;
                     }
-                    else if (!ParameterInfo.ParameterType.GetElementType()!.IsAssignableFrom(argumentConverterInterface.GetGenericArguments()[0]))
+
+                    Type? elementType = ParameterInfo.ParameterType.GetElementType();
+                    if (elementType is null)
                     {
-                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array of the type {argumentConverterInterface.GetGenericArguments()[0]} if the {nameof(CommandParameterFlags.Params)} flag is set.");
+                        error = new InvalidPropertyStateException(nameof(ParameterInfo), $"The {nameof(ParameterInfo.ParameterType)} must be an array if the {nameof(CommandParameterFlags.Params)} flag is set.");
                         return false;
                     }
-                }
-                else if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(Nullable.GetUnderlyingType(ParameterInfo.ParameterType) ?? ParameterInfo.ParameterType))
-                {
-                    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
-                    return false;
+
+                    // Temporarily disabled. I forgot what we're actually checking for here lmao
+                    //Type? argumentConverterInterface = ArgumentConverterType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IArgumentConverter<>));
+                    //if (!argumentConverterInterface.GenericTypeArguments[0].IsAssignableFrom(Nullable.GetUnderlyingType(ParameterInfo.ParameterType) ?? ParameterInfo.ParameterType))
+                    //{
+                    //    error = new InvalidPropertyTypeException(nameof(ArgumentConverterType), ArgumentConverterType, typeof(IArgumentConverter<>).MakeGenericType(ParameterInfo.ParameterType));
+                    //    return false;
+                    //}
                 }
             }
 

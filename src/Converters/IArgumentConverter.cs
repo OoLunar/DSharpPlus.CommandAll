@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Converters
         /// <summary>
         /// The option type expected by this converter. Used to inform Discord what parameter type to send.
         /// </summary>
-        static abstract ApplicationCommandOptionType OptionType { get; }
+        ApplicationCommandOptionType OptionType { get; init; }
 
         /// <summary>
         /// Converts a string into an object.

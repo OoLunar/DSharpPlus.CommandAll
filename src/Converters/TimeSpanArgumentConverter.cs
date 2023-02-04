@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed partial class TimeSpanArgumentConverter : IArgumentConverter<TimeSpan>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
         public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
         {

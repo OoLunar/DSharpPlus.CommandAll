@@ -6,7 +6,7 @@ namespace DSharpPlus.CommandAll.Converters
 {
     public sealed class BooleanArgumentConverter : IArgumentConverter<bool>
     {
-        public static ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Boolean;
+        public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Boolean;
 
         public Task<Optional<bool>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => value.Trim().ToLowerInvariant() switch
         {
