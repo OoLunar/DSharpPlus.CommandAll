@@ -191,7 +191,7 @@ namespace DSharpPlus.CommandAll.Commands
                 }
 
                 _logger.LogTrace("Converting argument {Argument} to {Type}", argument, parameter.ParameterInfo.ParameterType);
-                Task<IOptional> optionalTask = converter.ConvertAsync(this, parameter, argument?.ToString() ?? string.Empty);
+                Task<IOptional> optionalTask = converter.ConvertAsync(this, argument?.ToString() ?? string.Empty, parameter);
                 optionalTask.Wait();
                 optional = optionalTask.IsCompletedSuccessfully ? optionalTask.Result : throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
 

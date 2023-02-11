@@ -10,7 +10,7 @@ namespace DSharpPlus.CommandAll.Examples.ArgumentConverters.ArgumentConverters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
-        public Task<Optional<Ulid>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Ulid.TryParse(value, out Ulid ulid)
+        public Task<Optional<Ulid>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Ulid.TryParse(value, out Ulid ulid)
             ? Task.FromResult(Optional.FromValue(ulid))
             : Task.FromResult(Optional.FromNoValue<Ulid>());
     }
