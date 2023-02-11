@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandAll.Converters
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public async Task<Optional<DiscordMessage>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             Match match = GetMessageRegex().Match(value);
             if (!match.Success || !ulong.TryParse(match.Groups["message"].ValueSpan, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong messageId))

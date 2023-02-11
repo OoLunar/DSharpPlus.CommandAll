@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandAll.Converters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
-        public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public Task<Optional<TimeSpan>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (value == "0")
             {

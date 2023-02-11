@@ -9,6 +9,8 @@ namespace DSharpPlus.CommandAll.Converters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Integer;
 
-        public Task<Optional<Enum>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(Enum.TryParse(parameter.ParameterInfo.ParameterType, value, true, out object? result) ? Optional.FromValue((Enum)result) : Optional.FromNoValue<Enum>());
+        public Task<Optional<Enum>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => parameter is null
+            ? Task.FromResult(Optional.FromNoValue<Enum>())
+            : Task.FromResult(Enum.TryParse(parameter.ParameterInfo.ParameterType, value, true, out object? result) ? Optional.FromValue((Enum)result) : Optional.FromNoValue<Enum>());
     }
 }

@@ -12,9 +12,9 @@ namespace DSharpPlus.CommandAll.Converters
         /// <returns>The converted object, wrapped in an <see cref="Optional{T}"/> to indicate whether the conversion was successful or not.</returns>
         /// <typeparam name="T">The type to convert to.</typeparam>
         /// <inheritdoc cref="IArgumentConverter.ConvertAsync(CommandContext, CommandParameter, string)"/>
-        new Task<Optional<T>> ConvertAsync(CommandContext context, CommandParameter parameter, string value);
+        new Task<Optional<T>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null);
 
         /// <inheritdoc/>
-        Task<IOptional> IArgumentConverter.ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult<IOptional>(ConvertAsync(context, parameter, value).GetAwaiter().GetResult());
+        Task<IOptional> IArgumentConverter.ConvertAsync(CommandContext context, string value, CommandParameter? parameter) => Task.FromResult<IOptional>(ConvertAsync(context, value, parameter).GetAwaiter().GetResult());
     }
 }

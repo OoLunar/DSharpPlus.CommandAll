@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandAll.Converters
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Channel;
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public Task<Optional<DiscordThreadChannel>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public Task<Optional<DiscordThreadChannel>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong channelId))
             {

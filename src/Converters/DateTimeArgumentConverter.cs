@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandAll.Converters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
-        public Task<Optional<DateTime>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => DateTime.TryParse(value, out DateTime result)
+        public Task<Optional<DateTime>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => DateTime.TryParse(value, out DateTime result)
             ? Task.FromResult(Optional.FromValue(result.ToUniversalTime()))
             : Task.FromResult(Optional.FromNoValue<DateTime>());
     }

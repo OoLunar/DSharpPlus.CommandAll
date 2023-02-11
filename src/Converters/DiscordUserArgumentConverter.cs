@@ -20,7 +20,7 @@ namespace DSharpPlus.CommandAll.Converters
         public DiscordUserArgumentConverter(ILogger<DiscordUserArgumentConverter> logger) => _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Silence the ternary rabbit hole.")]
-        public async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public async Task<Optional<DiscordUser>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         {
             if (!ulong.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ulong memberId))
             {

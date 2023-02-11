@@ -8,6 +8,6 @@ namespace DSharpPlus.CommandAll.Converters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.Integer;
 
-        public Task<Optional<ushort>> ConvertAsync(CommandContext context, CommandParameter parameter, string value) => Task.FromResult(ushort.TryParse(value, out ushort result) ? Optional.FromValue(result) : Optional.FromNoValue<ushort>());
+        public Task<Optional<ushort>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null) => Task.FromResult(ushort.TryParse(value, out ushort result) ? Optional.FromValue(result) : Optional.FromNoValue<ushort>());
     }
 }

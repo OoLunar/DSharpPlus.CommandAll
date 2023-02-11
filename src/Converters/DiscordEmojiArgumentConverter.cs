@@ -8,7 +8,7 @@ namespace DSharpPlus.CommandAll.Converters
     {
         public ApplicationCommandOptionType OptionType { get; init; } = ApplicationCommandOptionType.String;
 
-        public Task<Optional<DiscordEmoji>> ConvertAsync(CommandContext context, CommandParameter parameter, string value)
+        public Task<Optional<DiscordEmoji>> ConvertAsync(CommandContext context, string value, CommandParameter? parameter = null)
         => Task.FromResult(DiscordEmoji.TryFromUnicode(context.Client, value, out DiscordEmoji? emoji) || DiscordEmoji.TryFromName(context.Client, value, out emoji)
             ? Optional.FromValue(emoji)
             : Optional.FromNoValue<DiscordEmoji>());
