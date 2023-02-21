@@ -9,6 +9,7 @@ using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.Exceptions;
 using DSharpPlus.Entities;
 using Humanizer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandAll.Commands
 {
@@ -95,7 +96,7 @@ namespace DSharpPlus.CommandAll.Commands
             DefaultValue = builder.DefaultValue;
             ArgumentConverterType = builder.ArgumentConverterType;
 
-            builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(null) as ApplicationCommandOptionType?;
+            builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(ActivatorUtilities.CreateInstance(builder.CommandAllExtension.ServiceProvider, ArgumentConverterType!)) as ApplicationCommandOptionType?;
             builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !DefaultValue.HasValue;
             SlashMetadata = new(builder.SlashMetadata);
 
