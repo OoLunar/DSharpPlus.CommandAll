@@ -147,7 +147,7 @@ namespace DSharpPlus.CommandAll.Managers
             StringBuilder stringBuilder = new();
 
             int i;
-            for (i = Math.Min(fullSplit.Length, 3); i >= 0; i--)
+            for (i = Math.Min(fullSplit.Length, 3); i > 0; i--)
             {
                 string key = string.Join(' ', fullSplit[0..i]);
                 if (Commands.ContainsKey(key))
