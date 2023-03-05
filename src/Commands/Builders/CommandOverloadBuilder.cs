@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Checks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Exceptions;
 using Humanizer;
@@ -36,6 +37,10 @@ namespace DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc cref="CommandOverload.Command"/>
         public CommandBuilder? Command { get; set; }
+
+        /// <inheritdoc cref="CommandOverload.Checks"/>
+        public List<CommandCheckAttribute> Checks { get; set; } = new();
+
 
         /// <inheritdoc/>
         public CommandOverloadBuilder(CommandAllExtension commandAllExtension) : base(commandAllExtension) => SlashMetadata = new(commandAllExtension);

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Checks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -53,6 +54,11 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly string SlashName;
 
         /// <summary>
+        /// A list of checks that the command should pass before it can be executed.
+        /// </summary>
+        public readonly IReadOnlyList<CommandCheckAttribute> Checks;
+
+        /// <summary>
         /// Creates a new command overload.
         /// </summary>
         /// <param name="builder">The builder used to create this overload.</param>
@@ -73,6 +79,8 @@ namespace DSharpPlus.CommandAll.Commands
                 CommandParameterNamingStrategy.LowerCase => Command.Name.ToLowerInvariant(),
                 _ => throw new NotImplementedException("Unknown command parameter naming strategy.")
             };
+
+            Checks = builder.Checks.ToList().AsReadOnly();
         }
 
         public override string ToString() => $"{Command.FullName}, {Method.Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")}, Priority: {Priority}, Parameters: {Parameters.Humanize()}";
