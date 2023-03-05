@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Checks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Exceptions;
 using Humanizer;
@@ -43,6 +44,11 @@ namespace DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc cref="Command.Parent"/>
         public CommandBuilder? Parent { get; set; }
+
+        /// <summary>
+        /// The checks that will be executed before the command is executed.
+        /// </summary>
+        public List<CommandCheckAttribute> Checks { get; set; } = new();
 
         /// <inheritdoc cref="Command.FullName"/>
         public string? FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";

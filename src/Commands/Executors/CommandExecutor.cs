@@ -45,6 +45,22 @@ namespace DSharpPlus.CommandAll.Commands.Executors
 
                 try
                 {
+                    CancellationTokenSource cancellationTokenSource = new();
+                    await Parallel.ForEachAsync(context.CurrentCommand.Checks, cancellationTokenSource.Token, async (check, cancellationToken) =>
+                    {
+                        _logger.LogTrace("{CommandName}: Executing check {CheckName}.", context.CurrentCommand.Name, check.GetType());
+                        if (!await check.CanExecuteAsync(context, cancellationToken))
+                        {
+                            _logger.LogDebug("{CommandName}: Check {CheckName} failed.", context.CurrentCommand.Name, check.GetType());
+                            cancellationTokenSource.Cancel(false);
+                        }
+                    });
+
+                    if (cancellationTokenSource.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+
                     _logger.LogTrace("{CommandName}: Executing before execution check.", context.CurrentCommand.Name);
                     task = commandObject.BeforeExecutionAsync(context);
                     await task;

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DSharpPlus.CommandAll.Commands.Builders;
+using DSharpPlus.CommandAll.Commands.Checks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.Entities;
 using Humanizer;
@@ -65,6 +66,11 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly string SlashName;
 
         /// <summary>
+        /// A list of checks that the command should pass before it can be executed.
+        /// </summary>
+        public readonly IReadOnlyList<CommandCheckAttribute> Checks;
+
+        /// <summary>
         /// The command's name concatenated with its parents.
         /// </summary>
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
@@ -118,6 +124,7 @@ namespace DSharpPlus.CommandAll.Commands
             Aliases = aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
             SlashMetadata = new(builder.SlashMetadata);
+            Checks = builder.Checks.ToList().AsReadOnly();
         }
 
         public IReadOnlyDictionary<string, Command> Walk()
