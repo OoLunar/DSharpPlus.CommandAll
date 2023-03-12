@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandAll.Attributes;
@@ -131,6 +132,23 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             }
 
             builder = new(commandAllExtension) { Method = methodInfo };
+            foreach (Attribute attribute in methodInfo.GetCustomAttributes().Cast<Attribute>())
+            {
+                switch (attribute)
+                {
+                    case CommandOverloadPriorityAttribute overloadPriorityAttribute:
+                        builder.Priority = overloadPriorityAttribute.Priority;
+                        if (overloadPriorityAttribute.IsSlashPreferred)
+                        {
+                            builder.Flags |= CommandOverloadFlags.SlashPreferred;
+                        }
+                        break;
+                    case CommandCheckAttribute:
+                        builder.Checks.Add((CommandCheckAttribute)attribute);
+                        break;
+                }
+            }
+
             List<CommandParameterBuilder> parameterBuilders = new();
             ParameterInfo[] parameters = methodInfo.GetParameters();
             for (int i = 0; i < parameters.Length; i++)
@@ -161,19 +179,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             }
 
             builder.Parameters = parameterBuilders;
-            if (methodInfo.GetCustomAttribute<CommandOverloadPriorityAttribute>() is CommandOverloadPriorityAttribute priorityAttribute)
-            {
-                builder.Priority = priorityAttribute.Priority;
-                if (priorityAttribute.IsSlashPreferred)
-                {
-                    builder.Flags |= CommandOverloadFlags.SlashPreferred;
-                }
-            }
-            else
-            {
-                builder.Priority = 0;
-            }
-
             error = null;
             return true;
         }

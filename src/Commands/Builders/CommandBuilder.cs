@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using DSharpPlus.CommandAll.Attributes;
 using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
+using DSharpPlus.CommandAll.Commands.Checks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Exceptions;
 using Humanizer;
@@ -43,6 +44,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc cref="Command.Parent"/>
         public CommandBuilder? Parent { get; set; }
+
+        /// <inheritdoc cref="Type" />
+        public Type? Type { get; set; }
 
         /// <inheritdoc cref="Command.FullName"/>
         public string? FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
@@ -115,11 +119,11 @@ namespace DSharpPlus.CommandAll.Commands.Builders
         }
 
         /// <inheritdoc/>
-        [MemberNotNullWhen(true, nameof(Name), nameof(Description))]
+        [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(Type))]
         public override bool TryVerify() => TryVerify(out _);
 
         /// <inheritdoc/>
-        [MemberNotNullWhen(true, nameof(Name), nameof(Description))]
+        [MemberNotNullWhen(true, nameof(Name), nameof(Description), nameof(Type))]
         public override bool TryVerify([NotNullWhen(false)] out Exception? error)
         {
             if (string.IsNullOrWhiteSpace(Name))
@@ -130,6 +134,11 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             else if (string.IsNullOrWhiteSpace(Description))
             {
                 error = new PropertyNullException(nameof(Description));
+                return false;
+            }
+            else if (Type is null)
+            {
+                error = new PropertyNullException(nameof(Type));
                 return false;
             }
             // Determine if we're at a level that allows subcommands
@@ -223,7 +232,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             List<(string, IEnumerable<string>, CommandOverloadBuilder)> overloads = new();
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
             {
-                if (method.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
+                if (method.GetCustomAttribute<CommandAttribute>() is CommandAttribute overloadCommandAttribute)
                 {
                     // The method was marked with the command attribute which means there is a user error if it fails.
                     if (!CommandOverloadBuilder.TryParse(commandAllExtension, method, out CommandOverloadBuilder? overload, out error))
@@ -232,7 +241,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                         return false;
                     }
 
-                    overloads.Add(new(commandAttribute.Name, commandAttribute.Aliases, overload));
+                    overloads.Add(new(overloadCommandAttribute.Name, overloadCommandAttribute.Aliases, overload));
                 }
             }
 
@@ -243,7 +252,8 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 {
                     Name = value.Key,
                     Aliases = new(value.SelectMany(x => x.Item2)),
-                    Overloads = new(value.Select(x => x.Item3))
+                    Overloads = new(value.Select(x => x.Item3)),
+                    Type = type
                 };
                 builder.NormalizeOverloadPriorities();
 
@@ -278,8 +288,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 builders = null;
                 return false;
             }
+
             // If the whole thing is a group command and this is the top level, then we need to mark this as a group command. If it isn't, then the subcommand parsing done above will automatically mark the results as a group command for us.
-            else if (type.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
+            if (type.GetCustomAttribute<CommandAttribute>() is CommandAttribute commandAttribute)
             {
                 CommandBuilder builder = new(commandAllExtension)
                 {
@@ -287,24 +298,47 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     Aliases = commandAttribute.Aliases.ToList(),
                     Description = type.GetCustomAttribute<DescriptionAttribute>()?.Description,
                     Subcommands = new(commandBuilders),
+                    Type = type
                 };
 
                 foreach (CommandBuilder subcommand in builder.Subcommands)
                 {
                     subcommand.Parent = builder;
+                    subcommand.Type = type;
                 }
 
                 builders = new[] { builder };
-                error = null;
-                return true;
             }
             // If there are many commands
             else
             {
                 builders = commandBuilders.AsReadOnly();
-                error = null;
-                return true;
             }
+
+            builders.Select(builder => builder.GetAllOverloadBuilders()).SelectMany(x => x).ToList().ForEach(x => x.Checks.AddRange(LocateAllChecks(x.Command!)));
+
+            error = null;
+            return true;
+        }
+
+        private static IEnumerable<CommandCheckAttribute> LocateAllChecks(CommandBuilder commandBuilder)
+        {
+            if (commandBuilder.Type is null)
+            {
+                return Enumerable.Empty<CommandCheckAttribute>();
+            }
+
+            List<CommandCheckAttribute> checks = new();
+            checks.AddRange(commandBuilder.Type.GetCustomAttributes<CommandCheckAttribute>());
+            if (commandBuilder.Subcommands.Any())
+            {
+                foreach (CommandBuilder subcommandBuilder in commandBuilder.Subcommands)
+                {
+                    checks.AddRange(LocateAllChecks(subcommandBuilder));
+                }
+            }
+
+            return checks;
         }
 
         public override string ToString()
