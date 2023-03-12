@@ -62,7 +62,7 @@
     "fileMetadataFiles": [],
     "template": [
       "default",
-      "lib/SingulinkFX/singulinkfx"
+      "../libs/SingulinkFX/singulinkfx"
     ],
     "globalMetadata": {
       "_appTitle": "DSharpPlus.CommandAll",
