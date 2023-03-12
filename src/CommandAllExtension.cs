@@ -108,7 +108,7 @@ namespace DSharpPlus.CommandAll
         }
 
         /// <summary>
-        /// Sets up the extension to use the specified <see cref="Client"/>.
+        /// Sets up the extension to use the specified <see cref="DiscordClient"/>.
         /// </summary>
         /// <param name="client">The client to register our event handlers too.</param>
         protected override void Setup(DiscordClient client)
