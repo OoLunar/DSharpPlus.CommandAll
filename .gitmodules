@@ -1,6 +1,3 @@
-[submodule "docs/lib/SingulinkFX"]
-	path = docs/lib/SingulinkFX
-	url = https://github.com/Singulink/SingulinkFX.git
 [submodule "libs/SingulinkFX"]
 	path = libs/SingulinkFX
 	url = https://github.com/Singulink/SingulinkFX.git
