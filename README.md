@@ -21,10 +21,11 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 | Params (Auto Generated Arguments) | Yes                 |
 | XML Documentation                 | No                  |
 | Translation Classes               | Ish                 |
-| Pre-Execution Checks              | No                  |
+| Pre-Execution Checks              | Yes                 |
 
 # How to use
-Example code can be found in the [Examples Folder](./examples)
+Example code can be found in the [Examples Folder](./examples).
+Articles can be found on the [github.io docs](https://OoLunar.github.io/DSharpPlus.CommandAll/).
 
 # Contributing
 If you would like to contribute to CA, I suggest joining the Discord Server or opening up a new Github Discussion and asking what could be done. Issues marked with the `help wanted` label are also good places to start. If you would like to contribute code, push requests are welcome. When submitting a PR, please make sure to run the tests and make sure they pass. Additionally, please make sure to add tests for any new features you add.
