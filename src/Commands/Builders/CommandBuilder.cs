@@ -109,7 +109,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
         }
 
         /// <inheritdoc/>
-        [MemberNotNull(nameof(Name), nameof(Description))]
+        [MemberNotNull(nameof(Name), nameof(Description), nameof(Type))]
         public override void Verify()
         {
             if (!TryVerify(out Exception? error))

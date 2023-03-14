@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll
     /// <summary>
     /// The configuration copied to an instance of <see cref="CommandAllExtension"/>.
     /// </summary>
-    public sealed class CommandAllConfiguration
+    public sealed record CommandAllConfiguration
     {
         /// <summary>
         /// The services to be built and used by the <see cref="CommandAllExtension"/>.

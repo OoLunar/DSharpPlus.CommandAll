@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandAll.Commands.Checks
 {
-    public class RequireRolesCheck<T> : CommandCheckAttribute where T : IRoleProvider
+    public class RequireRolesCheckAttribute<T> : CommandCheckAttribute where T : IRoleProvider
     {
-        public RequireGuildCheck GuildCheck { get; init; } = new RequireGuildCheck();
+        public RequireGuildCheckAttribute GuildCheck { get; init; } = new RequireGuildCheckAttribute();
 
         public override async Task<bool> CanExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
         {

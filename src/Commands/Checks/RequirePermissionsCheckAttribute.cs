@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandAll.Commands.Checks
 {
-    public class RequirePermissionsCheck : CommandCheckAttribute
+    public class RequirePermissionsCheckAttribute : CommandCheckAttribute
     {
-        public CommandCheckAttribute GuildCheck { get; init; } = new RequireGuildCheck();
+        public CommandCheckAttribute GuildCheck { get; init; } = new RequireGuildCheckAttribute();
         private readonly PermissionCheckType _type;
         private readonly Permissions _permissions;
 
-        public RequirePermissionsCheck(PermissionCheckType type, Permissions permissions)
+        public RequirePermissionsCheckAttribute(PermissionCheckType type, Permissions permissions)
         {
             _type = type;
             _permissions = permissions;

@@ -22,5 +22,13 @@ namespace DSharpPlus.CommandAll.Commands.Enums
         /// This overload is the default overload and should be registered as a slash command.
         /// </summary>
         SlashPreferred = 1 << 2,
+
+        /// <summary>
+        /// Whether the overload requires to be executed as an object.
+        /// </summary>
+        /// <remarks>
+        /// Typically used when the method is static.
+        /// </remarks>
+        RequireObject = 1 << 3
     }
 }

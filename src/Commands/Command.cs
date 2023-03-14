@@ -65,6 +65,11 @@ namespace DSharpPlus.CommandAll.Commands
         public readonly string SlashName;
 
         /// <summary>
+        /// The command's declaring type.
+        /// </summary>
+        public readonly Type Type;
+
+        /// <summary>
         /// The command's name concatenated with its parents.
         /// </summary>
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
@@ -118,6 +123,7 @@ namespace DSharpPlus.CommandAll.Commands
             Aliases = aliases.Distinct().ToList().AsReadOnly();
             Flags = builder.Flags;
             SlashMetadata = new(builder.SlashMetadata);
+            Type = builder.Type;
         }
 
         public IReadOnlyDictionary<string, Command> Walk()

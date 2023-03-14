@@ -132,6 +132,12 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             }
 
             builder = new(commandAllExtension) { Method = methodInfo };
+
+            if (!methodInfo.IsStatic)
+            {
+                builder.Flags |= CommandOverloadFlags.RequireObject;
+            }
+
             foreach (Attribute attribute in methodInfo.GetCustomAttributes().Cast<Attribute>())
             {
                 switch (attribute)
