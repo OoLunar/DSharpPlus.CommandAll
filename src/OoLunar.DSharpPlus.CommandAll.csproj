@@ -24,7 +24,7 @@
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
     <None Include="../LICENSE" Pack="true" PackagePath="\" />
-    <PackageReference Include="DSharpPlus" Version="4.4.0-nightly-01384" />
+    <ProjectReference Include="../libs/DSharpPlus.AsyncEvents/DSharpPlus/DSharpPlus.csproj" />
     <PackageReference Include="Humanizer" Version="2.14.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>

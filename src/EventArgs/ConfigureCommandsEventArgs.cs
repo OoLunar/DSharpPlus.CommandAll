@@ -1,6 +1,6 @@
 using System;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandAll.Managers;
-using Emzi0767.Utilities;
 
 namespace DSharpPlus.CommandAll.EventArgs
 {
