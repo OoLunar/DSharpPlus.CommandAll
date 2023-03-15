@@ -15,13 +15,13 @@ namespace DSharpPlus.CommandAll.Managers
     public interface ICommandManager
     {
         /// <summary>
-        /// Searches an assembly for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
+        /// Searches an assembly for commands and registers them for use.
         /// </summary>
         /// <param name="assembly">The assembly to search for commands.</param>
         void AddCommands(CommandAllExtension extension, Assembly assembly);
 
         /// <summary>
-        /// Searches a collection of types for commands and adds them to the <see cref="CommandBuilders"/> dictionary.
+        /// Searches a collection of types for commands and registers them for use.
         /// </summary>
         /// <param name="types">The types to search for commands.</param>
         void AddCommands(CommandAllExtension extension, params Type[] types);
@@ -29,7 +29,7 @@ namespace DSharpPlus.CommandAll.Managers
         /// <summary>
         /// Builds the <see cref="CommandBuilder"/>'s from <see cref="GetCommandBuilders"/> and registers the commands to Discord.
         /// </summary>
-        /// <param name="extension">The extension used to grab the instance of <see cref="ArgumentConverterManager"/> and <see cref="DiscordClient"/> from.
+        /// <param name="extension">The extension used to grab the instance of <see cref="ArgumentConverterManager"/> and <see cref="DiscordClient"/> from.</param>
         Task RegisterCommandsAsync(CommandAllExtension extension);
 
         /// <summary>

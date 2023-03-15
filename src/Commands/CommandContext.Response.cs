@@ -22,7 +22,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// </summary>
         /// <remarks>
         /// If the command was invoked via a text command and <paramref name="messageBuilder"/> does not have a reply message set, the message that invoked the command will be set as the reply.
-        /// Additionally if <see cref="DiscordMessageBuilder.Mentions"/> is not set, it will be set to <see cref="Mentions.None"/>.
+        /// Additionally if <see cref="IDiscordMessageBuilder.Mentions"/> is not set, it will be set to <see cref="Mentions.None"/>.
         /// </remarks>
         /// <param name="messageBuilder">The message to send.</param>
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and a response has already been sent (excluding <see cref="PromptAsync(TextInputComponent[])"/>).</exception>

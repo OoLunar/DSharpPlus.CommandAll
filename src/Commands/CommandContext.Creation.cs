@@ -88,7 +88,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// The original response to the message or interaction, if any.
         /// </summary>
         /// <remarks>
-        /// Not null when <see cref="IsSlashCommand"/> is false and <see cref="ReplyAsync(DiscordMessageBuilder)"/> has been called.
+        /// <see langword="null"/> when <see cref="ResponseType"/> is <see cref="ContextResponseType.None"/>.
         /// </remarks>
         public DiscordMessage? Response { get; private set; }
 

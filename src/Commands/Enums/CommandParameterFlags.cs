@@ -29,7 +29,8 @@ namespace DSharpPlus.CommandAll.Commands.Enums
         RemainingText = 1 << 3,
 
         /// <summary>
-        /// This flag is directly tied with <see cref="Params"/>. If this flag is set, the parameter will trim the element's default value from the array.
+        /// This flag is directly tied with <see langword="params"/>. If this flag is set, the parameter will trim the element's default value from the array.
+        /// </summary>
         TrimExcess = 1 << 4,
     }
 }

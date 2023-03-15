@@ -53,7 +53,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// The argument converter for this parameter.
         /// </summary>
         /// <remarks>
-        /// This is null when <see cref="Overload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
+        /// This is null when <see cref="CommandOverload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
         /// </remarks>
         public Type? ArgumentConverterType { get; init; }
 

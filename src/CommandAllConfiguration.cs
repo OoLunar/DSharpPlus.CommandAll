@@ -30,12 +30,12 @@ namespace DSharpPlus.CommandAll
         public ICommandManager CommandManager { get; set; }
 
         /// <summary>
-        /// The argument manager used to store argument converters and assign them to parameters. Defaults to <see cref="ArgumentManager"/>.
+        /// The argument manager used to store argument converters and assign them to parameters. Defaults to <see cref="ArgumentConverterManager"/>.
         /// </summary>
         public IArgumentConverterManager ArgumentConverterManager { get; set; }
 
         /// <summary>
-        /// The overload parser used to determine which overload a text command should use. Defaults to <see cref="OverloadParser"/>.
+        /// The overload parser used to determine which overload a text command should use. Defaults to <see cref="CommandOverloadParser"/>.
         /// </summary>
         public ICommandOverloadParser CommandOverloadParser { get; set; }
 
@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandAll
         public IPrefixParser PrefixParser { get; set; }
 
         /// <summary>
-        /// The parser used to seperate a string into multiple arguments. Defaults to <see cref="ArgumentParser"/>.
+        /// The parser used to seperate a string into multiple arguments. Defaults to <see cref="TextArgumentParser"/>.
         /// </summary>
         public ITextArgumentParser TextArgumentParser { get; set; }
 
@@ -60,7 +60,7 @@ namespace DSharpPlus.CommandAll
         public ulong? DebugGuildId { get; set; }
 
         /// <summary>
-        /// How long <see cref="CommandContext.PromptAsync"/> should wait PER TEXT COMPONENT before timing out. Defaults to 30 seconds per <see cref="TextInputComponent"/>.
+        /// How long <see cref="Commands.CommandContext.PromptAsync(TextInputComponent[])"/> should wait PER TEXT COMPONENT before timing out. Defaults to 30 seconds per <see cref="TextInputComponent"/>.
         /// </summary>
         public TimeSpan PromptTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
