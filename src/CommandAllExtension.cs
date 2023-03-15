@@ -26,37 +26,37 @@ namespace DSharpPlus.CommandAll
         /// <summary>
         /// The services used when utilizing dependency injection.
         /// </summary>
-        public readonly IServiceProvider ServiceProvider;
+        public IServiceProvider ServiceProvider { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.CommandManager"/>
-        public readonly ICommandManager CommandManager;
+        public ICommandManager CommandManager { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.ArgumentConverterManager"/>
-        public readonly IArgumentConverterManager ArgumentConverterManager;
+        public IArgumentConverterManager ArgumentConverterManager { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.CommandOverloadParser"/>
-        public readonly ICommandOverloadParser CommandOverloadParser;
+        public ICommandOverloadParser CommandOverloadParser { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.CommandExecutor"/>
-        public readonly ICommandExecutor CommandExecutor;
+        public ICommandExecutor CommandExecutor { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.PrefixParser"/>
-        public readonly IPrefixParser PrefixParser;
+        public IPrefixParser PrefixParser { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.TextArgumentParser"/>
-        public readonly ITextArgumentParser TextArgumentParser;
+        public ITextArgumentParser TextArgumentParser { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.DebugGuildId"/>
-        public readonly ulong? DebugGuildId;
+        public ulong? DebugGuildId { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.ParameterNamingStrategy"/>
-        public readonly CommandParameterNamingStrategy ParameterNamingStrategy;
+        public CommandParameterNamingStrategy ParameterNamingStrategy { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.PromptTimeout"/>
-        public readonly TimeSpan PromptTimeout;
+        public TimeSpan PromptTimeout { get; init; }
 
         /// <inheritdoc cref="CommandAllConfiguration.FilteringStrategy"/>
-        public readonly CommandFilteringStrategy FilteringStrategy;
+        public CommandFilteringStrategy FilteringStrategy { get; init; }
 
         /// <summary>
         /// Executed everytime a command is finished executing.
@@ -125,7 +125,7 @@ namespace DSharpPlus.CommandAll
             Client = client;
             if (!Client.Intents.HasFlag(DiscordIntents.MessageContents))
             {
-                _logger.LogError("The client is missing the MessageContents intent, which is required for text commands to execute.");
+                _logger.LogError("The client is missing the MessageContents intent, which is required for text commands to execute. You've requested for text command support, which will not function.");
             }
 
             Client.MessageCreated += CommandContext.HandleMessageAsync;
@@ -150,22 +150,22 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>
-        private Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
+        private async Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
         {
+            // Run once, only on shard 0
+            if (sender.ShardId != 0)
+            {
+                return;
+            }
+
             // Prevent the event handler from being executed multiple times.
             Client.Ready -= DiscordClient_ReadyAsync;
 
-            // Intentionally run this in a separate task so that the Ready event can finish executing and NOT yell at the user.
-            _ = Task.Run(async () =>
-            {
-                await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
-                await CommandManager.RegisterCommandsAsync(this);
-                Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
-                Client.MessageCreated += DiscordClient_MessageCreatedAsync;
-                _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
-            });
-
-            return Task.CompletedTask;
+            await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
+            await CommandManager.RegisterCommandsAsync(this);
+            Client.InteractionCreated += DiscordClient_InteractionCreatedAsync;
+            Client.MessageCreated += DiscordClient_MessageCreatedAsync;
+            _logger.LogInformation("CommandAll Extension is now ready to handle all commands.");
         }
 
         /// <summary>
@@ -237,14 +237,7 @@ namespace DSharpPlus.CommandAll
                 }
 
                 CommandContext context = new(this, command, eventArgs.Interaction, options);
-                try
-                {
-                    return CommandExecutor.ExecuteAsync(context);
-                }
-                catch (Exception error)
-                {
-                    return _commandErrored.InvokeAsync(this, new(context, error));
-                }
+                return CommandExecutor.ExecuteAsync(context);
             }
         }
 
