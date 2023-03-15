@@ -16,47 +16,47 @@ namespace DSharpPlus.CommandAll.Commands
     /// A command overload.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class CommandOverload
+    public sealed record CommandOverload
     {
         /// <summary>
         /// The command this overload belongs to.
         /// </summary>
-        public readonly Command Command;
+        public Command Command { get; init; }
 
         /// <summary>
         /// The method this overload calls.
         /// </summary>
-        public readonly MethodInfo Method;
+        public MethodInfo Method { get; init; }
 
         /// <summary>
         /// The parameters of this overload, NOT including the command context parameter.
         /// </summary>
-        public readonly IReadOnlyList<CommandParameter> Parameters;
+        public IReadOnlyList<CommandParameter> Parameters { get; init; }
 
         /// <summary>
         /// The flags of this overload.
         /// </summary>
-        public readonly CommandOverloadFlags Flags;
+        public CommandOverloadFlags Flags { get; init; }
 
         /// <summary>
         /// The priority of this overload. If this overload is <see cref="CommandOverloadFlags.SlashPreferred"/>, this will be set to 0.
         /// </summary>
-        public readonly int Priority;
+        public int Priority { get; init; }
 
         /// <summary>
         /// The slash metadata of this overload.
         /// </summary>
-        public readonly CommandOverloadSlashMetadata SlashMetadata;
+        public CommandOverloadSlashMetadata SlashMetadata { get; init; }
 
         /// <summary>
         /// The name that's used when registering this parameter with Discord.
         /// </summary>
-        public readonly string SlashName;
+        public string SlashName { get; init; }
 
         /// <summary>
         /// A list of checks that the command should pass before it can be executed.
         /// </summary>
-        public readonly IReadOnlyList<CommandCheckAttribute> Checks;
+        public IReadOnlyList<CommandCheckAttribute> Checks { get; init; }
 
         /// <summary>
         /// Creates a new command overload.
@@ -84,9 +84,6 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"{Command.FullName}, {Method.Name}{(Flags == 0 ? string.Empty : $" ({Flags.Humanize()})")}, Priority: {Priority}, Parameters: {Parameters.Humanize()}";
-        public override bool Equals(object? obj) => obj is CommandOverload overload && EqualityComparer<Command>.Default.Equals(Command, overload.Command) && EqualityComparer<MethodInfo>.Default.Equals(Method, overload.Method) && EqualityComparer<IReadOnlyList<CommandParameter>>.Default.Equals(Parameters, overload.Parameters) && Flags == overload.Flags && Priority == overload.Priority && EqualityComparer<CommandOverloadSlashMetadata>.Default.Equals(SlashMetadata, overload.SlashMetadata) && SlashName == overload.SlashName;
-        public override int GetHashCode() => HashCode.Combine(Command, Method, Parameters, Flags, Priority, SlashMetadata, SlashName);
-
         public static explicit operator DiscordApplicationCommandOption(CommandOverload overload)
         {
             if (overload.Parameters.Count > 25)

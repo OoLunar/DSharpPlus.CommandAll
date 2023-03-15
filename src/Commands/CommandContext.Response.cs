@@ -7,7 +7,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands
 {
-    public sealed partial class CommandContext
+    public sealed partial record CommandContext
     {
         /// <inheritdoc cref="ReplyAsync(IDiscordMessageBuilder)"/>
         /// <param name="content">The content to send.</param>

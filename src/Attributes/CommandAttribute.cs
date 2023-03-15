@@ -11,12 +11,12 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The name of the command.
         /// </summary>
-        public readonly string Name;
+        public string Name { get; init; }
 
         /// <summary>
         /// Aliases for the command.
         /// </summary>
-        public readonly string[] Aliases;
+        public string[] Aliases { get; init; }
 
         /// <summary>
         /// Creates a new command attribute.

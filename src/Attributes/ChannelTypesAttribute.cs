@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The acceptable channel types for this parameter.
         /// </summary>
-        public IReadOnlyList<ChannelType> ChannelTypes { get; }
+        public IReadOnlyList<ChannelType> ChannelTypes { get; init; }
 
         /// <summary>
         /// Determines the channel types that a parameter can accept.

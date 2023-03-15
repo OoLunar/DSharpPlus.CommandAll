@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,7 +9,7 @@ namespace DSharpPlus.CommandAll.Commands
     /// The metadata used when registering a command as a slash command.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class CommandOverloadSlashMetadata
+    public sealed record CommandOverloadSlashMetadata
     {
         /// <summary>
         /// The localized names for the command.
@@ -35,7 +34,5 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"{nameof(CommandOverloadSlashMetadata)}: {nameof(LocalizedNames)}: {LocalizedNames.Count:N0}, {nameof(LocalizedDescriptions)}: {LocalizedDescriptions.Count:N0}";
-        public override bool Equals(object? obj) => obj is CommandOverloadSlashMetadata metadata && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions);
-        public override int GetHashCode() => HashCode.Combine(LocalizedNames, LocalizedDescriptions);
     }
 }

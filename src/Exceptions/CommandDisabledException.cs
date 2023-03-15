@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandAll.Exceptions
         /// <summary>
         /// The command that was disabled.
         /// </summary>
-        public readonly Command Command;
+        public Command Command { get; init; }
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandDisabledException"/>.

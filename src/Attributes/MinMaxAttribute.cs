@@ -11,12 +11,12 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The minimum value that this parameter can accept.
         /// </summary>
-        public object? MinValue;
+        public object? MinValue { get; init; }
 
         /// <summary>
         /// The maximum value that this parameter can accept.
         /// </summary>
-        public object? MaxValue;
+        public object? MaxValue { get; init; }
 
         /// <summary>
         /// Determines the minimum and maximum values that a parameter can accept.

@@ -17,37 +17,37 @@ namespace DSharpPlus.CommandAll.Commands
     /// A command parameter.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class CommandParameter
+    public sealed record CommandParameter
     {
         /// <summary>
         /// The name of the parameter.
         /// </summary>
-        public readonly string Name;
+        public string Name { get; init; }
 
         /// <summary>
         /// The description of the parameter.
         /// </summary>
-        public readonly string Description;
+        public string Description { get; init; }
 
         /// <summary>
         /// The overload that this parameter belongs too.
         /// </summary>
-        public readonly CommandOverload Overload;
+        public CommandOverload Overload { get; init; }
 
         /// <summary>
         /// The parameter info that this parameter is based off of.
         /// </summary>
-        public readonly ParameterInfo ParameterInfo;
+        public ParameterInfo ParameterInfo { get; init; }
 
         /// <summary>
         /// The flags for this parameter.
         /// </summary>
-        public readonly CommandParameterFlags Flags;
+        public CommandParameterFlags Flags { get; init; }
 
         /// <summary>
         /// The default value for this parameter, if any.
         /// </summary>
-        public readonly Optional<object?> DefaultValue;
+        public Optional<object?> DefaultValue { get; init; }
 
         /// <summary>
         /// The argument converter for this parameter.
@@ -55,17 +55,17 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// This is null when <see cref="Overload.Flags"/> has the <see cref="CommandOverloadFlags.Disabled"/> flag set.
         /// </remarks>
-        public readonly Type? ArgumentConverterType;
+        public Type? ArgumentConverterType { get; init; }
 
         /// <summary>
         /// The slash metadata for this parameter.
         /// </summary>
-        public readonly CommandParameterSlashMetadata SlashMetadata;
+        public CommandParameterSlashMetadata SlashMetadata { get; init; }
 
         /// <summary>
         /// The slash names for this parameter. While normally containing a single element, it may have multiple elements if the parameter is a <see cref="CommandParameterFlags.Params"/> parameter.
         /// </summary>
-        public readonly IReadOnlyList<string> SlashNames;
+        public IReadOnlyList<string> SlashNames { get; init; }
 
         /// <summary>
         /// The same parameter repeated multiple times until it reaches the maximum amount of parameters.
@@ -73,7 +73,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// This only has a value when <see cref="CommandParameterFlags.Params"/> is set.
         /// </remarks>
-        public readonly DiscordApplicationCommandOption[]? SlashOptions;
+        public DiscordApplicationCommandOption[]? SlashOptions { get; init; }
 
         /// <summary>
         /// Creates a new command parameter.
@@ -130,7 +130,6 @@ namespace DSharpPlus.CommandAll.Commands
                         });
                     }
 
-
                     SlashOptions[i] = new(
                         slashNames[i],
                         Description,
@@ -154,37 +153,6 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"{ParameterInfo.Name} {ParameterInfo?.ParameterType.Name}{(Flags == 0 ? string.Empty : $" ({Flags})")}";
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(Name);
-            hash.Add(Description);
-            hash.Add(Overload);
-            hash.Add(ParameterInfo);
-            hash.Add(Flags);
-
-            if (DefaultValue.IsDefined(out object? value))
-            {
-                hash.Add(value);
-            }
-
-            if (ArgumentConverterType is not null)
-            {
-                hash.Add(ArgumentConverterType);
-            }
-
-            hash.Add(SlashMetadata);
-            hash.Add(SlashNames);
-
-            if (SlashOptions is not null)
-            {
-                hash.Add(SlashOptions);
-            }
-
-            return hash.ToHashCode();
-        }
-
-        public override bool Equals(object? obj) => obj is CommandParameter parameter && Name == parameter.Name && Description == parameter.Description && EqualityComparer<CommandOverload>.Default.Equals(Overload, parameter.Overload) && EqualityComparer<ParameterInfo>.Default.Equals(ParameterInfo, parameter.ParameterInfo) && Flags == parameter.Flags && DefaultValue.Equals(parameter.DefaultValue) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, parameter.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadata>.Default.Equals(SlashMetadata, parameter.SlashMetadata) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(SlashNames, parameter.SlashNames) && EqualityComparer<DiscordApplicationCommandOption[]?>.Default.Equals(SlashOptions, parameter.SlashOptions);
 
         public static implicit operator DiscordApplicationCommandOption(CommandParameter parameter) => new(
             parameter.SlashNames[0],

@@ -14,22 +14,22 @@ namespace DSharpPlus.CommandAll.Commands
     /// Slash command metadata for a command parameter.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class CommandParameterSlashMetadata
+    public sealed record CommandParameterSlashMetadata
     {
         /// <summary>
         /// The localized names of the parameter.
         /// </summary>
-        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedNames;
+        public IReadOnlyDictionary<CultureInfo, string> LocalizedNames { get; init; }
 
         /// <summary>
         /// The localized descriptions of the parameter.
         /// </summary>
-        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions;
+        public IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions { get; init; }
 
         /// <summary>
         /// The parameter type.
         /// </summary>
-        public readonly ApplicationCommandOptionType OptionType;
+        public ApplicationCommandOptionType OptionType { get; init; }
 
         /// <summary>
         /// The valid choices for the parameter.
@@ -37,7 +37,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Can only be used for <see cref="ApplicationCommandOptionType.String"/>, <see cref="ApplicationCommandOptionType.Integer"/> and <see cref="ApplicationCommandOptionType.Number"/> parameters.
         /// </remarks>
-        public readonly IReadOnlyList<DiscordApplicationCommandOptionChoice>? Choices;
+        public IReadOnlyList<DiscordApplicationCommandOptionChoice>? Choices { get; init; }
 
         /// <summary>
         /// The valid channel types for the parameter.
@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Can only be used for <see cref="ApplicationCommandOptionType.Channel"/> parameters.
         /// </remarks>
-        public readonly IReadOnlyList<ChannelType>? ChannelTypes;
+        public IReadOnlyList<ChannelType>? ChannelTypes { get; init; }
 
         /// <summary>
         /// The minimum value for the parameter.
@@ -53,7 +53,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Can only be used for <see cref="ApplicationCommandOptionType.String"/>, <see cref="ApplicationCommandOptionType.Integer"/> and <see cref="ApplicationCommandOptionType.Number"/> parameters.
         /// </remarks>
-        public readonly object? MinValue;
+        public object? MinValue { get; init; }
 
         /// <summary>
         /// The maximum value for the parameter.
@@ -61,25 +61,25 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Can only be used for <see cref="ApplicationCommandOptionType.String"/>, <see cref="ApplicationCommandOptionType.Integer"/> and <see cref="ApplicationCommandOptionType.Number"/> parameters.
         /// </remarks>
-        public readonly object? MaxValue;
+        public object? MaxValue { get; init; }
 
         /// <summary>
         /// The autocomplete provider for the parameter.
         /// </summary>
-        public readonly Type? AutoCompleteProvider;
+        public Type? AutoCompleteProvider { get; init; }
 
         /// <summary>
         /// Whether the parameter is required.
         /// </summary>
-        public readonly bool IsRequired;
+        public bool IsRequired { get; init; }
 
         /// <summary>
         /// The minimum and maximum amount of elements for this parameter.
         /// </summary>
         /// <remarks>
-        /// This is DIRECTLY TIED to the <see cref="Enums.CommandParameterFlags.Params"/> flag and is MEANT FOR THE `params` KEYWORD ONLY.
+        /// This is DIRECTLY TIED to the <see cref="Enums.CommandParameterFlags.Params"/> flag and is MEANT FOR THE <see langword="params"/> KEYWORD ONLY.
         /// </remarks>
-        public readonly ParameterLimitAttribute? ParameterLimitAttribute;
+        public ParameterLimitAttribute? ParameterLimitAttribute { get; init; }
 
         public CommandParameterSlashMetadata(CommandParameterSlashMetadataBuilder builder)
         {
@@ -98,47 +98,5 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"{nameof(CommandParameterSlashMetadataBuilder)}: {OptionType.Humanize()}, Is Required: {IsRequired}";
-        public override bool Equals(object? obj) => obj is CommandParameterSlashMetadata metadata && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions) && OptionType == metadata.OptionType && EqualityComparer<IReadOnlyList<DiscordApplicationCommandOptionChoice>?>.Default.Equals(Choices, metadata.Choices) && EqualityComparer<IReadOnlyList<ChannelType>?>.Default.Equals(ChannelTypes, metadata.ChannelTypes) && EqualityComparer<object?>.Default.Equals(MinValue, metadata.MinValue) && EqualityComparer<object?>.Default.Equals(MaxValue, metadata.MaxValue) && EqualityComparer<Type?>.Default.Equals(AutoCompleteProvider, metadata.AutoCompleteProvider) && IsRequired == metadata.IsRequired && EqualityComparer<ParameterLimitAttribute?>.Default.Equals(ParameterLimitAttribute, metadata.ParameterLimitAttribute);
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(LocalizedNames);
-            hash.Add(LocalizedDescriptions);
-            hash.Add(OptionType);
-
-            if (Choices is not null)
-            {
-                hash.Add(Choices);
-            }
-
-            if (ChannelTypes is not null)
-            {
-                hash.Add(ChannelTypes);
-            }
-
-            if (MinValue is not null)
-            {
-                hash.Add(MinValue);
-            }
-
-            if (MaxValue is not null)
-            {
-                hash.Add(MaxValue);
-            }
-
-            if (AutoCompleteProvider is not null)
-            {
-                hash.Add(AutoCompleteProvider);
-            }
-
-            hash.Add(IsRequired);
-
-            if (ParameterLimitAttribute is not null)
-            {
-                hash.Add(ParameterLimitAttribute);
-            }
-
-            return hash.ToHashCode();
-        }
     }
 }

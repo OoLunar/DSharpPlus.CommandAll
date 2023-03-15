@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,7 +11,7 @@ namespace DSharpPlus.CommandAll.Commands
     /// The metadata used when registering a command as a slash command.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class CommandSlashMetadata
+    public sealed record CommandSlashMetadata
     {
         /// <summary>
         /// The guild ID to register the command for. If null, the command will be registered globally.
@@ -20,7 +19,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Only valid for commands, not subcommands.
         /// </remarks>
-        public readonly ulong? GuildId;
+        public ulong? GuildId { get; init; }
 
         /// <summary>
         /// The required permissions for the command to be executed.
@@ -28,17 +27,17 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// Only valid for commands, not subcommands.
         /// </remarks>
-        public readonly Permissions? RequiredPermissions;
+        public Permissions? RequiredPermissions { get; init; }
 
         /// <summary>
         /// The localized names for the command.
         /// </summary>
-        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedNames;
+        public IReadOnlyDictionary<CultureInfo, string> LocalizedNames { get; init; }
 
         /// <summary>
         /// The localized descriptions for the command.
         /// </summary>
-        public readonly IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions;
+        public IReadOnlyDictionary<CultureInfo, string> LocalizedDescriptions { get; init; }
 
         /// <summary>
         /// The id of the <see cref="Command"/> when it's registered to Discord in it's <see cref="DiscordApplicationCommand"/> form.
@@ -60,26 +59,6 @@ namespace DSharpPlus.CommandAll.Commands
             RequiredPermissions = builder.RequiredPermissions;
             LocalizedNames = builder.LocalizedNames.AsReadOnly();
             LocalizedDescriptions = builder.LocalizedDescriptions.AsReadOnly();
-        }
-
-        public override bool Equals(object? obj) => obj is CommandSlashMetadata metadata && GuildId == metadata.GuildId && RequiredPermissions == metadata.RequiredPermissions && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedNames, metadata.LocalizedNames) && EqualityComparer<IReadOnlyDictionary<CultureInfo, string>>.Default.Equals(LocalizedDescriptions, metadata.LocalizedDescriptions);
-        public override int GetHashCode()
-        {
-            HashCode hashCode = new();
-            hashCode.Add(LocalizedNames);
-            hashCode.Add(LocalizedDescriptions);
-
-            if (GuildId.HasValue)
-            {
-                hashCode.Add(GuildId.Value);
-            }
-
-            if (RequiredPermissions.HasValue)
-            {
-                hashCode.Add(RequiredPermissions.Value);
-            }
-
-            return hashCode.ToHashCode();
         }
 
         public override string ToString()

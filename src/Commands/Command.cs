@@ -14,22 +14,22 @@ namespace DSharpPlus.CommandAll.Commands
     /// A command. This can be a top level command, subcommand and/or group command.
     /// </summary>
     [DebuggerDisplay("{ToString(),nq}")]
-    public sealed class Command
+    public sealed record Command
     {
         /// <summary>
         /// The name of the command.
         /// </summary>
-        public readonly string Name;
+        public string Name { get; init; }
 
         /// <summary>
         /// The description of the command.
         /// </summary>
-        public readonly string Description;
+        public string Description { get; init; }
 
         /// <summary>
         /// The command's parent, if any.
         /// </summary>
-        public readonly Command? Parent;
+        public Command? Parent { get; init; }
 
         /// <summary>
         /// The command's overloads, if any.
@@ -37,41 +37,42 @@ namespace DSharpPlus.CommandAll.Commands
         /// <remarks>
         /// The overload registered as the slash command will always be the first overload in this list.
         /// </remarks>
-        public readonly IReadOnlyList<CommandOverload> Overloads;
+        public IReadOnlyList<CommandOverload> Overloads { get; init; }
 
         /// <summary>
         /// The command's subcommands or subcommand groups, if any.
         /// </summary>
-        public readonly IReadOnlyList<Command> Subcommands;
+        public IReadOnlyList<Command> Subcommands { get; init; }
 
         /// <summary>
         /// The command's aliases.
         /// </summary>
-        public readonly IReadOnlyList<string> Aliases;
+        public IReadOnlyList<string> Aliases { get; init; }
 
         /// <summary>
         /// The command's flags.
         /// </summary>
-        public readonly CommandFlags Flags;
+        public CommandFlags Flags { get; init; }
 
         /// <summary>
         /// The command's slash metadata.
         /// </summary>
-        public readonly CommandSlashMetadata SlashMetadata;
+        public CommandSlashMetadata SlashMetadata { get; init; }
 
         /// <summary>
         /// The name that's used when registering this parameter with Discord.
         /// </summary>
-        public readonly string SlashName;
+        public string SlashName { get; init; }
 
         /// <summary>
         /// The command's declaring type.
         /// </summary>
-        public readonly Type Type;
+        public Type Type { get; init; }
 
         /// <summary>
         /// The command's name concatenated with its parents.
         /// </summary>
+        // TODO: Lazy
         public string FullName => Parent is null ? Name : $"{Parent.FullName} {Name}";
 
         /// <summary>
@@ -146,28 +147,6 @@ namespace DSharpPlus.CommandAll.Commands
             }
 
             return allAliases.AsReadOnly();
-        }
-
-        public override bool Equals(object? obj) => obj is Command command && Name == command.Name && Description == command.Description && EqualityComparer<Command?>.Default.Equals(Parent, command.Parent) && EqualityComparer<IReadOnlyList<CommandOverload>>.Default.Equals(Overloads, command.Overloads) && EqualityComparer<IReadOnlyList<Command>>.Default.Equals(Subcommands, command.Subcommands) && EqualityComparer<IReadOnlyList<string>>.Default.Equals(Aliases, command.Aliases) && Flags == command.Flags && EqualityComparer<CommandSlashMetadata>.Default.Equals(SlashMetadata, command.SlashMetadata) && SlashName == command.SlashName && FullName == command.FullName;
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(Name);
-            hash.Add(Description);
-
-            if (Parent is not null)
-            {
-                hash.Add(Parent);
-            }
-
-            hash.Add(Overloads);
-            hash.Add(Subcommands);
-            hash.Add(Aliases);
-            hash.Add(Flags);
-            hash.Add(SlashMetadata);
-            hash.Add(SlashName);
-            hash.Add(FullName);
-            return hash.ToHashCode();
         }
 
         public override string ToString()

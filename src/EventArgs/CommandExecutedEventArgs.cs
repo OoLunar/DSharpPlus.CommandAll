@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.EventArgs
         /// <summary>
         /// The context of a command that was executed.
         /// </summary>
-        public readonly CommandContext Context;
+        public CommandContext Context { get; init; }
 
         /// <summary>
         /// Creates a new instance of <see cref="CommandExecutedEventArgs"/>.

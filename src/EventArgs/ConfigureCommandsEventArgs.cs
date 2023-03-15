@@ -12,12 +12,12 @@ namespace DSharpPlus.CommandAll.EventArgs
         /// <summary>
         /// The extension whose commands needs configuring.
         /// </summary>
-        public readonly CommandAllExtension Extension;
+        public CommandAllExtension Extension { get; init; }
 
         /// <summary>
         /// The command manager that holds the command builders.
         /// </summary>
-        public readonly ICommandManager CommandManager;
+        public ICommandManager CommandManager { get; init; }
 
         /// <summary>
         /// Creates a new instance of <see cref="ConfigureCommandsEventArgs"/>.

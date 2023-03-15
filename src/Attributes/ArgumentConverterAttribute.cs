@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The converter to use.
         /// </summary>
-        public readonly Type ArgumentConverterType;
+        public Type ArgumentConverterType { get; init; }
 
         /// <summary>
         /// Attempts to parse a parameter with the specified converter.

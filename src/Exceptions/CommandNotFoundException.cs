@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandAll.Exceptions
         /// <summary>
         /// The full command that was attempted to be executed. Usually just <see cref="DiscordMessage.Content"/>.
         /// </summary>
-        public readonly string CommandString;
+        public string CommandString { get; init; }
 
         /// <summary>
         /// Creates a new <see cref="CommandNotFoundException"/>.

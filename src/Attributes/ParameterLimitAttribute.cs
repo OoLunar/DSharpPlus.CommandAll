@@ -11,17 +11,17 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The minimum value that this parameter can accept.
         /// </summary>
-        public readonly int MinimumElementCount;
+        public int MinimumElementCount { get; init; }
 
         /// <summary>
         /// The maximum value that this parameter can accept.
         /// </summary>
-        public readonly int MaximumElementCount;
+        public int MaximumElementCount { get; init; }
 
         /// <summary>
         /// Whether or not to trim the excess elements from the parameter.
         /// </summary>
-        public readonly bool TrimExcess = true;
+        public bool TrimExcess { get; init; } = true;
 
         /// <summary>
         /// Determines the minimum and maximum values that a parameter can accept.

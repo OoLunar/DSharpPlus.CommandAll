@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandAll.Commands
     /// <summary>
     /// The context of a command.
     /// </summary>
-    public sealed partial class CommandContext
+    public sealed partial record CommandContext
     {
         /// <summary>
         /// A static dictionary of all TCS's awaiting a response.
@@ -38,7 +38,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The timeout for the prompt.
         /// </summary>
-        public readonly TimeSpan PromptTimeout;
+        public TimeSpan PromptTimeout { get; init; }
 
         /// <summary>
         /// Prompts the user for further information, either through a modal or a series of messages.

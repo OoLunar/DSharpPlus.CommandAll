@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Converters;
@@ -12,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CommandAll.Commands
 {
-    public sealed partial class CommandContext
+    public sealed partial record CommandContext
     {
         /// <summary>
         /// Used to log complaints.
@@ -22,12 +21,12 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// A new scope for the command context, created from the <see cref="Extension"/>'s <see cref="IServiceProvider"/>.
         /// </summary>
-        public readonly IServiceProvider ServiceProvider;
+        public IServiceProvider ServiceProvider { get; init; }
 
         /// <summary>
         /// The <see cref="CommandAllExtension"/> instance that handled the command parsing and execution.
         /// </summary>
-        public readonly CommandAllExtension Extension;
+        public CommandAllExtension Extension { get; init; }
 
         /// <summary>
         /// The client attached to the <see cref="Extension"/>.
@@ -42,12 +41,12 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The <see cref="CommandOverload"/> that is being executed.
         /// </summary>
-        public readonly CommandOverload CurrentOverload;
+        public CommandOverload CurrentOverload { get; init; }
 
         /// <summary>
         /// How the command was invoked.
         /// </summary>
-        public readonly CommandInvocationType InvocationType;
+        public CommandInvocationType InvocationType { get; init; }
 
         /// <summary>
         /// The arguments that were passed to the command.
@@ -58,17 +57,17 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The channel the command was executed in.
         /// </summary>
-        public readonly DiscordChannel Channel;
+        public DiscordChannel Channel { get; init; }
 
         /// <summary>
         /// Who executed the command.
         /// </summary>
-        public readonly DiscordUser User;
+        public DiscordUser User { get; init; }
 
         /// <summary>
         /// The guild that the command was executed in, if any.
         /// </summary>
-        public readonly DiscordGuild? Guild;
+        public DiscordGuild? Guild { get; init; }
 
         /// <summary>
         /// The <see cref="User"/> as a <see cref="DiscordMember"/>, if the command was executed in a guild.
@@ -78,7 +77,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The message that triggered the command, if the command was executed via a text command.
         /// </summary>
-        public readonly DiscordMessage? Message;
+        public DiscordMessage? Message { get; init; }
 
         /// <summary>
         /// The interaction that triggered the command, if the command was executed via slash command.
@@ -252,32 +251,5 @@ namespace DSharpPlus.CommandAll.Commands
         }
 
         public override string ToString() => $"CommandContext: {User} - {InvocationType} - {CurrentCommand} - {CurrentOverload}";
-        public override bool Equals(object? obj) => obj is CommandContext context && EqualityComparer<ILogger<CommandContext>>.Default.Equals(_logger, context._logger) && EqualityComparer<IServiceProvider>.Default.Equals(ServiceProvider, context.ServiceProvider) && EqualityComparer<CommandAllExtension>.Default.Equals(Extension, context.Extension) && EqualityComparer<Command>.Default.Equals(CurrentCommand, context.CurrentCommand) && EqualityComparer<CommandOverload>.Default.Equals(CurrentOverload, context.CurrentOverload) && InvocationType == context.InvocationType && EqualityComparer<IReadOnlyDictionary<CommandParameter, object?>>.Default.Equals(NamedArguments, context.NamedArguments) && EqualityComparer<Dictionary<CommandParameter, object?>>.Default.Equals(_namedArguments, context._namedArguments) && EqualityComparer<DiscordChannel>.Default.Equals(Channel, context.Channel) && EqualityComparer<DiscordUser>.Default.Equals(User, context.User) && EqualityComparer<DiscordGuild?>.Default.Equals(Guild, context.Guild) && EqualityComparer<DiscordMember?>.Default.Equals(Member, context.Member) && EqualityComparer<DiscordMessage?>.Default.Equals(Message, context.Message) && EqualityComparer<DiscordMessage?>.Default.Equals(Response, context.Response) && EqualityComparer<DiscordInteraction?>.Default.Equals(Interaction, context.Interaction) && EqualityComparer<ContextResponseType>.Default.Equals(ResponseType, context.ResponseType) && EqualityComparer<DiscordClient>.Default.Equals(Client, context.Client) && EqualityComparer<Dictionary<string, string>?>.Default.Equals(_prompts, context._prompts) && EqualityComparer<TaskCompletionSource<List<string>>?>.Default.Equals(_userInputTcs, context._userInputTcs) && EqualityComparer<CancellationTokenSource?>.Default.Equals(_userInputCts, context._userInputCts) && PromptTimeout.Equals(context.PromptTimeout);
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(_logger);
-            hash.Add(ServiceProvider);
-            hash.Add(Extension);
-            hash.Add(CurrentCommand);
-            hash.Add(CurrentOverload);
-            hash.Add(InvocationType);
-            hash.Add(NamedArguments);
-            hash.Add(_namedArguments);
-            hash.Add(Channel);
-            hash.Add(User);
-            hash.Add(Guild);
-            hash.Add(Member);
-            hash.Add(Message);
-            hash.Add(Response);
-            hash.Add(Interaction);
-            hash.Add(ResponseType);
-            hash.Add(Client);
-            hash.Add(PromptTimeout);
-            hash.Add(_prompts);
-            hash.Add(_userInputTcs);
-            hash.Add(_userInputCts);
-            return hash.ToHashCode();
-        }
     }
 }

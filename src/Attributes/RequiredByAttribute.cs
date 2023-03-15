@@ -28,7 +28,7 @@ namespace DSharpPlus.CommandAll.Attributes
         /// <summary>
         /// The conditions the parameter is not null in.
         /// </summary>
-        public readonly RequiredBy RequiredBy;
+        public RequiredBy RequiredBy { get; init; }
 
         /// <summary>
         /// When a parameter is marked as nullable, this will determine which conditions the parameter is not null in.
