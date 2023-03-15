@@ -84,7 +84,7 @@ namespace DSharpPlus.CommandAll.Tools.AutoUpdateChannelDescription
 
             // The program should exit ASAP after the channel description is updated.
             // However it may get caught in a ratelimit, so we'll wait for a bit.
-            // The program will exit after 10 seconds no matter what.
+            // The program will exit after 30 seconds no matter what.
             // This includes the time it takes to connect to the Discord gateway.
             await Task.Delay(TimeSpan.FromSeconds(30));
         }
