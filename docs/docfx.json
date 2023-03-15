@@ -19,8 +19,7 @@
   ],
   "build": {
     "xref": [
-      "https://dsharpplus.github.io/DSharpPlus/xrefmap.yml",
-      "https://inftord.github.io/Common/xrefmap.yml"
+      "https://dsharpplus.github.io/DSharpPlus/xrefmap.yml"
     ],
     "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}",
     "content": [
