@@ -17,6 +17,7 @@ namespace DSharpPlus.CommandAll.Parsers
 
         /// <summary>
         /// The strings that can be used to execute a command. Defaults to <c>!</c>.
+        /// </summary>
         public PrefixParser(params string[] prefixes) => Prefixes = prefixes.Length == 0 ? new[] { "!" } : prefixes;
 
         /// <inheritdoc/>
