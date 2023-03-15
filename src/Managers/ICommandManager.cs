@@ -54,7 +54,7 @@ namespace DSharpPlus.CommandAll.Managers
         bool TryFindCommand(string fullCommand, [NotNullWhen(true)] out Command? command, [NotNullWhen(true)] out string? rawArguments);
 
         /// <summary>
-        /// Attempts to find a command based on the <see cref="DiscordApplicationCommand.Id"/>.
+        /// Attempts to find a command based on the <see cref="DiscordInteractionData"/> id.
         /// </summary>
         bool TryFindCommand(ulong commandId, [NotNullWhen(true)] out Command? commandFound);
     }
