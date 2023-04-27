@@ -250,5 +250,6 @@ namespace DSharpPlus.CommandAll
         /// <param name="sender">The extension.</param>
         /// <param name="eventArgs">The event arguments passed to <paramref name="handler"/>.</param>
         private static void EverythingWentWrongErrorHandler<TArgs>(AsyncEvent<CommandAllExtension, TArgs> asyncEvent, Exception error, AsyncEventHandler<CommandAllExtension, TArgs> handler, CommandAllExtension sender, TArgs eventArgs) where TArgs : AsyncEventArgs => sender._logger.LogError(error, "Event handler '{Method}' for event {AsyncEvent} threw an unhandled exception.", handler.Method, asyncEvent.Name);
+        public override void Dispose() => throw new NotImplementedException();
     }
 }

@@ -22,7 +22,7 @@
     <Version>1.1.0-Nightly-$(Nightly)</Version>
   </PropertyGroup>
   <ItemGroup Condition="$(Nightly) == ''">
-    <PackageReference Include="DSharpPlus" Version="4.4.0-nightly-01436" />
+    <PackageReference Include="DSharpPlus" Version="4.4.0" />
   </ItemGroup>
   <ItemGroup Condition="$(Nightly) != ''">
     <ProjectReference Include="../libs/DSharpPlus.AsyncEvents/DSharpPlus/DSharpPlus.csproj" />
