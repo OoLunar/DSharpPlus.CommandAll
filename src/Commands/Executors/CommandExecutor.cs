@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -113,7 +114,7 @@ namespace DSharpPlus.CommandAll.Commands.Executors
                 }
                 catch (TargetInvocationException targetError)
                 {
-                    await ExecuteErrorHandlerAsync(context, commandObject, targetError.InnerException!);
+                    await ExecuteErrorHandlerAsync(context, commandObject, ExceptionDispatchInfo.Capture(targetError.InnerException!).SourceException);
                     return false;
                 }
                 catch (Exception error)
