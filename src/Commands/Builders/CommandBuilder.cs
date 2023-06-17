@@ -114,7 +114,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
         {
             if (!TryVerify(out Exception? error))
             {
-                throw error;
+                throw new InvalidCommandStateException(this, error);
             }
         }
 
