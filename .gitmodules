@@ -1,7 +1,6 @@
 [submodule "libs/SingulinkFX"]
 	path = libs/SingulinkFX
 	url = https://github.com/Singulink/SingulinkFX.git
-[submodule "libs/DSharpPlus.AsyncEvents"]
-	path = libs/DSharpPlus.AsyncEvents
-	url = git@github.com:akiraveliara/DSharpPlus.git
-	branch = aki/async-events
+[submodule "libs/DSharpPlus"]
+	path = libs/DSharpPlus
+	url = git@github.com:DSharpPlus/DSharpPlus.git
