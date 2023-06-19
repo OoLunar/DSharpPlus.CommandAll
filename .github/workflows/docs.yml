@@ -14,6 +14,7 @@ permissions:
   contents: write
 jobs:
   build:
+    name: "Build Docs"
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -36,19 +37,16 @@ jobs:
           # Path of the directory containing the static assets.
           path: ./docs/_site/ # default is _site/
   deploy:
-    # Add a dependency to the build job
+    name: "Deploy Docs"
     needs: build
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    runs-on: self-hosted
     permissions:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment, originates from an appropriate source
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    # Specify runner + deployment step
-    runs-on: self-hosted
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+    environment:
+          name: github-pages
+          url: ${{ steps.deployment.outputs.page_url }}
