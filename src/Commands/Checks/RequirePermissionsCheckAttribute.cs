@@ -8,13 +8,13 @@ namespace DSharpPlus.CommandAll.Commands.Checks
     public class RequirePermissionsCheckAttribute : CommandCheckAttribute
     {
         public CommandCheckAttribute GuildCheck { get; init; } = new RequireGuildCheckAttribute();
-        private readonly PermissionCheckType _type;
-        private readonly Permissions _permissions;
+        public PermissionCheckType PermissionType { get; init; }
+        public Permissions Permissions { get; init; }
 
         public RequirePermissionsCheckAttribute(PermissionCheckType type, Permissions permissions)
         {
-            _type = type;
-            _permissions = permissions;
+            PermissionType = type;
+            Permissions = permissions;
         }
 
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Readability")]
@@ -25,12 +25,12 @@ namespace DSharpPlus.CommandAll.Commands.Checks
                 return false;
             }
 
-            if (_type.HasFlag(PermissionCheckType.User) && !context.Member!.Permissions.HasPermission(_permissions))
+            if (PermissionType.HasFlag(PermissionCheckType.User) && !context.Member!.Permissions.HasPermission(Permissions))
             {
                 return false;
             }
 
-            if (_type.HasFlag(PermissionCheckType.Bot) && !context.Guild!.CurrentMember.Permissions.HasPermission(_permissions))
+            if (PermissionType.HasFlag(PermissionCheckType.Bot) && !context.Guild!.CurrentMember.Permissions.HasPermission(Permissions))
             {
                 return false;
             }
