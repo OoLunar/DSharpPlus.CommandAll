@@ -12,7 +12,6 @@ using DSharpPlus.CommandAll.Commands.Builders.SlashMetadata;
 using DSharpPlus.CommandAll.Commands.Enums;
 using DSharpPlus.CommandAll.Converters;
 using DSharpPlus.CommandAll.Exceptions;
-using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandAll.Commands.Builders
 {
@@ -30,9 +29,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
 
         /// <inheritdoc cref="CommandParameter.Flags"/>
         public CommandParameterFlags Flags { get; set; }
-
-        /// <inheritdoc cref="CommandParameter.DefaultValue"/>
-        public Optional<object?> DefaultValue { get; set; }
 
         /// <inheritdoc cref="CommandParameter.ParameterInfo"/>
         public ParameterInfo? ParameterInfo { get; set; }
@@ -83,11 +79,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             else if (ParameterInfo is null)
             {
                 error = new PropertyNullException(nameof(ParameterInfo));
-                return false;
-            }
-            else if (Flags.HasFlag(CommandParameterFlags.Optional) && DefaultValue.HasValue && DefaultValue.Value is not null && !ParameterInfo.ParameterType.IsAssignableFrom(DefaultValue.Value!.GetType()))
-            {
-                error = new InvalidPropertyTypeException(nameof(DefaultValue), DefaultValue.GetType(), ParameterInfo.ParameterType.GetType());
                 return false;
             }
             else if (ParameterInfo.ParameterType.IsArray && !Flags.HasFlag(CommandParameterFlags.Params))
@@ -170,7 +161,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             {
                 Name = parameterInfo.Name!,
                 ParameterInfo = parameterInfo,
-                DefaultValue = parameterInfo.DefaultValue is DBNull ? Optional.FromNoValue<object?>() : Optional.FromValue(parameterInfo.DefaultValue),
                 SlashMetadata = new(commandAllExtension)
             };
 
@@ -194,7 +184,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                         break;
                     case ParamArrayAttribute:
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
-                        builder.DefaultValue = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, 0);
                         break;
                     case RequiredByAttribute requiredBy:
                         builder.SlashMetadata.IsRequired = requiredBy.RequiredBy.HasFlag(RequiredBy.SlashCommand);
@@ -263,7 +252,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             return builder.ToString();
         }
 
-        public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && DefaultValue.Equals(builder.DefaultValue) && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
+        public override bool Equals(object? obj) => obj is CommandParameterBuilder builder && EqualityComparer<CommandAllExtension>.Default.Equals(CommandAllExtension, builder.CommandAllExtension) && Name == builder.Name && Description == builder.Description && Flags == builder.Flags && EqualityComparer<ParameterInfo?>.Default.Equals(ParameterInfo, builder.ParameterInfo) && EqualityComparer<Type?>.Default.Equals(ArgumentConverterType, builder.ArgumentConverterType) && EqualityComparer<CommandParameterSlashMetadataBuilder>.Default.Equals(SlashMetadata, builder.SlashMetadata);
         public override int GetHashCode()
         {
             HashCode hash = new();
@@ -277,11 +266,6 @@ namespace DSharpPlus.CommandAll.Commands.Builders
             if (Description is not null)
             {
                 hash.Add(Description);
-            }
-
-            if (DefaultValue.IsDefined(out object? value))
-            {
-                hash.Add(value);
             }
 
             if (ParameterInfo is not null)

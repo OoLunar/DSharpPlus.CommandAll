@@ -5,6 +5,6 @@ namespace DSharpPlus.CommandAll.Commands.Checks
 {
     public class RequireGuildCheckAttribute : CommandCheckAttribute
     {
-        public override Task<bool> CanExecuteAsync(CommandContext context, CancellationToken cancellationToken = default) => Task.FromResult(context.Guild is null);
+        public override Task<bool> CanExecuteAsync(CommandContext context, CancellationToken cancellationToken = default) => Task.FromResult(context.Guild is not null);
     }
 }

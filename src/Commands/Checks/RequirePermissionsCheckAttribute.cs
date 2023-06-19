@@ -20,7 +20,7 @@ namespace DSharpPlus.CommandAll.Commands.Checks
         [SuppressMessage("Roslyn", "IDE0046", Justification = "Readability")]
         public override async Task<bool> CanExecuteAsync(CommandContext context, CancellationToken cancellationToken = default)
         {
-            if (await GuildCheck.CanExecuteAsync(context, cancellationToken))
+            if (!await GuildCheck.CanExecuteAsync(context, cancellationToken))
             {
                 return false;
             }

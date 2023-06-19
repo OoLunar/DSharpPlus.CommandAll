@@ -43,7 +43,7 @@ namespace DSharpPlus.CommandAll.Commands.Executors
 
             ConcurrentBag<CommandCheckResult> checkStatuses = new();
             CancellationTokenSource cancellationTokenSource = new();
-            await Parallel.ForEachAsync(context.CurrentOverload.Checks, cancellationTokenSource.Token, async (check, cancellationToken) =>
+            await Task.WhenAll(context.CurrentOverload.Checks.Select(async check =>
             {
                 try
                 {
@@ -53,12 +53,13 @@ namespace DSharpPlus.CommandAll.Commands.Executors
                         _logger.LogDebug("{CommandName}: Check {CheckName} failed.", context.CurrentCommand.Name, check.GetType());
                         cancellationTokenSource.Cancel(false);
                         checkStatuses.Add(new CommandCheckResult(check, false));
+                        return;
                     }
 
                     checkStatuses.Add(new CommandCheckResult(check, true));
                 }
                 // A different check had failed and now we're cancelling the rest
-                catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+                catch (TaskCanceledException) when (cancellationTokenSource.IsCancellationRequested)
                 {
                     checkStatuses.Add(new CommandCheckResult(check, false));
                 }
@@ -69,7 +70,7 @@ namespace DSharpPlus.CommandAll.Commands.Executors
                     cancellationTokenSource.Cancel(false);
                     checkStatuses.Add(new CommandCheckResult(check, false, error));
                 }
-            });
+            }));
 
             // If any checks fail, skip the command execution and run the error handler with the CommandChecksFailedException
             if (checkStatuses.Any(x => !x.Success))

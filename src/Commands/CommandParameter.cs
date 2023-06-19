@@ -47,7 +47,7 @@ namespace DSharpPlus.CommandAll.Commands
         /// <summary>
         /// The default value for this parameter, if any.
         /// </summary>
-        public Optional<object?> DefaultValue { get; init; }
+        public object? DefaultValue { get; init; }
 
         /// <summary>
         /// The argument converter for this parameter.
@@ -93,11 +93,11 @@ namespace DSharpPlus.CommandAll.Commands
             Overload = overload ?? throw new ArgumentNullException(nameof(overload));
             ParameterInfo = builder.ParameterInfo!;
             Flags = builder.Flags;
-            DefaultValue = builder.DefaultValue;
+            DefaultValue = builder.ParameterInfo.HasDefaultValue ? builder.ParameterInfo.DefaultValue : (builder.ParameterInfo.ParameterType.IsValueType ? Activator.CreateInstance(builder.ParameterInfo.ParameterType) : null);
             ArgumentConverterType = builder.ArgumentConverterType;
 
             builder.SlashMetadata.OptionType = ArgumentConverterType?.GetProperty(nameof(IArgumentConverter.OptionType))?.GetValue(ActivatorUtilities.CreateInstance(builder.CommandAllExtension.ServiceProvider, ArgumentConverterType!)) as ApplicationCommandOptionType?;
-            builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !DefaultValue.HasValue;
+            builder.SlashMetadata.IsRequired = builder.SlashMetadata.IsRequired || !ParameterInfo.HasDefaultValue;
             SlashMetadata = new(builder.SlashMetadata);
 
             List<string> slashNames = new()

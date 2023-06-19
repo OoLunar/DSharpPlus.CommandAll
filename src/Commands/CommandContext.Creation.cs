@@ -199,7 +199,7 @@ namespace DSharpPlus.CommandAll.Commands
                     if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
                     {
                         _logger.LogDebug("Adding parameter {Parameter}'s default value because it failed conversion.", parameter);
-                        result.Add(parameter, parameter.DefaultValue.Value);
+                        result.Add(parameter, parameter.DefaultValue);
                     }
                     else
                     {
@@ -238,7 +238,7 @@ namespace DSharpPlus.CommandAll.Commands
                 if (parameter.Flags.HasFlag(CommandParameterFlags.Optional))
                 {
                     _logger.LogDebug("Adding parameter {Parameter}'s default value because it was not provided.", parameter);
-                    result.Add(parameter, parameter.DefaultValue.Value);
+                    result.Add(parameter, parameter.DefaultValue);
                 }
                 else
                 {
