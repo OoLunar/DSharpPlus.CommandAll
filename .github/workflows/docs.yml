@@ -5,8 +5,18 @@ on:
       - published
   workflow_dispatch:
   push:
-    branches:
-      - master
+    paths:
+      - ".editorconfig"
+      - ".gitignore"
+      - ".gitmodules"
+      - "docs/**"
+      - "examples/**"
+      - "libs/**"
+      - "res/**"
+      - "src/**"
+      - "tests/**"
+      - "tools/**"
+
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
