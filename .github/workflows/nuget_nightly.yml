@@ -3,7 +3,7 @@ name: Build And Test
 on:
   push:
     paths:
-      - ".github/workflows/**"
+      - ".github/workflows/nuget_nightly.yml"
       - "libs/**"
       - "src/**"
       - "tests/**"
