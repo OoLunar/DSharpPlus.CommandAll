@@ -1,14 +1,17 @@
 #!/bin/bash
 
 # Deps
-xbps-install -Syu >/dev/null
-xbps-install -y ImageMagick > /dev/null
+xbps-install -y ImageMagick yarn > /dev/null
+yarn global add svgo > /dev/null
 
 # Functions
 regenerate()
 {
   echo "Generating assets for $1"
   PUSH_COMMIT=1
+
+  # Optimize the SVG file
+  svgo "$file"
 
   # Convert to PNG
   convert "$1" -size 1024x1024 "${1%.*}.png"
@@ -23,8 +26,11 @@ regenerate()
     -delete 0 -alpha off -colors 256 "${1%.*}.ico"
 }
 
-# No need to remove the old files as they will be overwritten
-find res -type f -name "*.svg" -exec regenerate {} \;
+# Iterate over each file matching the pattern "*.svg" in the "res" directory
+for file in res/*.svg; do
+    # Execute the "regenerate" command on each file
+    regenerate "$file"
+done
 
 # Check if any files were modified
 git config --global user.email "github-actions[bot]@users.noreply.github.com"
