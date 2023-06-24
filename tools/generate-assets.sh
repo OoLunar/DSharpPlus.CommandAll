@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Deps
-xbps-install -Sy ImageMagick > /dev/null
+xbps-install -Syu >/dev/null
+xbps-install -y ImageMagick > /dev/null
 
 # Functions
 regenerate()
