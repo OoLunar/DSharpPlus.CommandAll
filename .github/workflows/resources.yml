@@ -1,3 +1,5 @@
+name: Regenerate Resource Files
+
 on:
   push:
     paths:
