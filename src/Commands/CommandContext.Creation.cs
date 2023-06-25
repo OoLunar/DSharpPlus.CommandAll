@@ -174,7 +174,6 @@ namespace DSharpPlus.CommandAll.Commands
             int i;
             for (i = 0; i < arguments.Length; i++)
             {
-                IOptional optional;
                 object? argument = arguments[i];
 
                 // Get the parameter i is for, or the last parameter if there are more arguments than parameters.
@@ -192,7 +191,7 @@ namespace DSharpPlus.CommandAll.Commands
                 _logger.LogTrace("Converting argument {Argument} to {Type}", argument, parameter.ParameterInfo.ParameterType);
                 Task<IOptional> optionalTask = converter.ConvertAsync(this, argument?.ToString() ?? string.Empty, parameter);
                 optionalTask.Wait();
-                optional = optionalTask.IsCompletedSuccessfully ? optionalTask.Result : throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
+                IOptional optional = optionalTask.IsCompletedSuccessfully ? optionalTask.Result : throw new ArgumentException($"Failed to convert argument {i} to {parameter.ParameterInfo.ParameterType}.", nameof(arguments));
 
                 if (!optional.HasValue)
                 {
@@ -208,7 +207,7 @@ namespace DSharpPlus.CommandAll.Commands
                 }
                 else if (!parameter.Flags.HasFlag(CommandParameterFlags.Params) && !parameter.Flags.HasFlag(CommandParameterFlags.RemainingText))
                 {
-                    _logger.LogTrace("Successfully converted argument {Argument} to {Type}", argument, parameter!.ParameterInfo.ParameterType);
+                    _logger.LogTrace("Successfully converted argument {Argument} to {Type}", argument, parameter.ParameterInfo.ParameterType);
                     result.Add(parameter, optional.RawValue);
                 }
                 else

@@ -76,7 +76,7 @@ namespace DSharpPlus.CommandAll
         /// <summary>
         /// Creates a new instance of <see cref="CommandAllConfiguration"/> to be copied by the <see cref="CommandAllExtension"/>.
         /// </summary>
-        /// <param name="serviceCollection">The services to be built and used by the <see cref="CommandAllExtension"/>.</param>
+        /// <param name="serviceDescriptors">The services to be built and used by the <see cref="CommandAllExtension"/>.</param>
         public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
         {
             ServiceCollection = serviceDescriptors ?? new ServiceCollection();

@@ -146,7 +146,7 @@ namespace DSharpPlus.CommandAll
         public void AddCommands(params Type[] types) => CommandManager.AddCommands(this, types);
 
         /// <summary>
-        /// Registers the event handlers that are used to handle commands. This is called when the <see cref="Client"/> is ready.
+        /// Registers the event handlers that are used to handle commands. This is called when the <see cref="DiscordClient"/> is ready.
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>

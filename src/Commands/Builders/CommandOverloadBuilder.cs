@@ -149,8 +149,8 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                             builder.Flags |= CommandOverloadFlags.SlashPreferred;
                         }
                         break;
-                    case CommandCheckAttribute:
-                        builder.Checks.Add((CommandCheckAttribute)attribute);
+                    case CommandCheckAttribute checkAttribute:
+                        builder.Checks.Add(checkAttribute);
                         break;
                 }
             }
