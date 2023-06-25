@@ -9,10 +9,9 @@ yarn global add svgo > /dev/null
 regenerate()
 {
   echo "Generating assets for $1"
-  PUSH_COMMIT=1
 
   # Optimize the SVG file
-  svgo "$file"
+  svgo --multipass --quiet "$1"
 
   # Convert to PNG
   convert "$1" -size 1024x1024 "${1%.*}.png"
