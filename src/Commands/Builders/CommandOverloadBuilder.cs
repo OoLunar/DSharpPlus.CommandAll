@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 builder.Flags |= CommandOverloadFlags.RequireObject;
             }
 
-            foreach (Attribute attribute in methodInfo.GetCustomAttributes().Cast<Attribute>())
+            foreach (Attribute attribute in methodInfo.GetCustomAttributes())
             {
                 switch (attribute)
                 {

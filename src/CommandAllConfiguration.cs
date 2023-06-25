@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandAll
         public IPrefixParser PrefixParser { get; set; }
 
         /// <summary>
-        /// The parser used to seperate a string into multiple arguments. Defaults to <see cref="TextArgumentParser"/>.
+        /// The parser used to separate a string into multiple arguments. Defaults to <see cref="TextArgumentParser"/>.
         /// </summary>
         public ITextArgumentParser TextArgumentParser { get; set; }
 
