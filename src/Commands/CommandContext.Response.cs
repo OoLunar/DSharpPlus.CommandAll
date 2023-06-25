@@ -31,7 +31,7 @@ namespace DSharpPlus.CommandAll.Commands
             switch (InvocationType)
             {
                 // Slash commands can only respond once, though we make an exception for modals since
-                // PromptAsync will replace the orignal interaction.
+                // PromptAsync will replace the original interaction.
                 case CommandInvocationType.SlashCommand when ResponseType.HasFlag(ContextResponseType.Created):
                     throw new InvalidOperationException("Cannot respond to a slash command more than once.");
                 case CommandInvocationType.SlashCommand:
@@ -67,17 +67,14 @@ namespace DSharpPlus.CommandAll.Commands
         /// If <see cref="InvocationType"/> is a <see cref="CommandInvocationType.TextCommand"/>, the bot will instead start "typing" in the channel for roughly 15 seconds.
         /// </remarks>
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and <see cref="ResponseType"/> is not null.</exception>
-        [SuppressMessage("Roslyn", "IDE0046", Justification = "No nested conditional expressions.")]
         public Task DelayAsync()
         {
             ResponseType |= ContextResponseType.Delayed;
             return InvocationType switch
             {
                 // Ensure that the command has not already responded
-                CommandInvocationType.SlashCommand when ResponseType != ContextResponseType.Delayed => throw
-                    new InvalidOperationException("Cannot delay a command that has already responded."),
-                CommandInvocationType.SlashCommand => Interaction!.CreateResponseAsync(InteractionResponseType
-                    .DeferredChannelMessageWithSource),
+                CommandInvocationType.SlashCommand when ResponseType != ContextResponseType.Delayed => throw new InvalidOperationException("Cannot delay a command that has already responded."),
+                CommandInvocationType.SlashCommand => Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource),
                 CommandInvocationType.TextCommand => Message!.Channel.TriggerTypingAsync(),
                 _ => Task.CompletedTask
             };
