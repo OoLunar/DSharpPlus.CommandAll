@@ -11,8 +11,8 @@ namespace DSharpPlus.CommandAll.Exceptions
         /// <summary>
         /// Creates a new instance of <see cref="InvalidCommandStateException"/>.
         /// </summary>
-        /// <param name="propertyName">The problem command.</param>
-        /// <param name="message">A message detailing why the value on the property is invalid.</param>
+        /// <param name="command">The problem command.</param>
+        /// <param name="innerException">A exception detailing why the value on the property is invalid.</param>
         internal InvalidCommandStateException(CommandBuilder command, Exception innerException) : base($"Command '{command.FullName}' has an invalid state.", innerException) { }
     }
 }

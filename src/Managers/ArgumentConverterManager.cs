@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.CommandAll.Commands.Builders;
@@ -59,7 +58,7 @@ namespace DSharpPlus.CommandAll.Managers
         }
 
         /// <inheritdoc />
-        public bool TrySaturateParameters(IEnumerable<CommandParameterBuilder> parameters, [NotNullWhen(false)] out IEnumerable<CommandParameterBuilder> failedParameters)
+        public bool TrySaturateParameters(IEnumerable<CommandParameterBuilder> parameters, out IEnumerable<CommandParameterBuilder> failedParameters)
         {
             List<CommandParameterBuilder> failed = new();
             foreach (CommandParameterBuilder parameter in parameters)

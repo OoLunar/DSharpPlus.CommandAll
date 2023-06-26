@@ -43,7 +43,6 @@ namespace DSharpPlus.CommandAll.Managers
             {
                 if (type.IsNested || type.IsAbstract || type.IsInterface)
                 {
-                    continue;
                 }
                 else if (CommandBuilder.TryParse(extension, type, out IReadOnlyList<CommandBuilder>? commandBuilders, out Exception? error))
                 {
@@ -149,7 +148,7 @@ namespace DSharpPlus.CommandAll.Managers
             int i;
             for (i = Math.Min(fullSplit.Length, 3); i > 0; i--)
             {
-                string key = string.Join(' ', fullSplit[0..i]);
+                string key = string.Join(' ', fullSplit[..i]);
                 if (Commands.ContainsKey(key))
                 {
                     stringBuilder.Append(key);

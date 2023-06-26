@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                 builder.Flags |= CommandOverloadFlags.RequireObject;
             }
 
-            foreach (Attribute attribute in methodInfo.GetCustomAttributes().Cast<Attribute>())
+            foreach (Attribute attribute in methodInfo.GetCustomAttributes())
             {
                 switch (attribute)
                 {
@@ -149,8 +149,8 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                             builder.Flags |= CommandOverloadFlags.SlashPreferred;
                         }
                         break;
-                    case CommandCheckAttribute:
-                        builder.Checks.Add((CommandCheckAttribute)attribute);
+                    case CommandCheckAttribute checkAttribute:
+                        builder.Checks.Add(checkAttribute);
                         break;
                 }
             }

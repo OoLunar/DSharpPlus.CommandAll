@@ -77,12 +77,14 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
                     error = new InvalidPropertyStateException(nameof(MinValue), "MinValue must be an int when OptionType is Integer!");
                     return false;
                 }
-                else if (OptionType is ApplicationCommandOptionType.Number && MinValue is not double)
+
+                if (OptionType is ApplicationCommandOptionType.Number && MinValue is not double)
                 {
                     error = new InvalidPropertyStateException(nameof(MinValue), "MinValue must be a double when OptionType is Number!");
                     return false;
                 }
-                else if (OptionType is not ApplicationCommandOptionType.Integer and not ApplicationCommandOptionType.Number)
+
+                if (OptionType is not ApplicationCommandOptionType.Integer and not ApplicationCommandOptionType.Number)
                 {
                     error = new InvalidPropertyStateException(nameof(MinValue), "MinValue can only be set when OptionType is Integer or Number!");
                     return false;
@@ -96,12 +98,14 @@ namespace DSharpPlus.CommandAll.Commands.Builders.SlashMetadata
                     error = new InvalidPropertyStateException(nameof(MaxValue), "MaxValue must be an int when OptionType is Integer!");
                     return false;
                 }
-                else if (OptionType is ApplicationCommandOptionType.Number && MaxValue is not double)
+
+                if (OptionType is ApplicationCommandOptionType.Number && MaxValue is not double)
                 {
                     error = new InvalidPropertyStateException(nameof(MaxValue), "MaxValue must be a double when OptionType is Number!");
                     return false;
                 }
-                else if (OptionType is not ApplicationCommandOptionType.Integer and not ApplicationCommandOptionType.Number)
+
+                if (OptionType is not ApplicationCommandOptionType.Integer and not ApplicationCommandOptionType.Number)
                 {
                     error = new InvalidPropertyStateException(nameof(MaxValue), "MaxValue can only be set when OptionType is Integer or Number!");
                     return false;

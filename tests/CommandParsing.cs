@@ -13,7 +13,7 @@ namespace DSharpPlus.CommandAll.Tests
     {
         public CommandParsing()
         {
-            Extension.AddCommands(new[] { typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand) });
+            Extension.AddCommands(typeof(EchoCommand), typeof(PingCommand), typeof(MultiLevelCommand));
             Extension.ArgumentConverterManager.TrySaturateParameters(Extension.CommandManager.GetCommandBuilders().SelectMany(x => x.Overloads.SelectMany(y => y.Parameters)), out _);
             Extension.CommandManager.RegisterCommandsAsync(Extension).GetAwaiter().GetResult();
         }

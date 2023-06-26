@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandAll.Commands
         public Task ReplyAsync(string content) => ReplyAsync(new DiscordMessageBuilder().WithContent(content));
 
         /// <inheritdoc cref="ReplyAsync(IDiscordMessageBuilder)"/>
-        /// <param name="embed">The embed to send.</param>
+        /// <param name="embedBuilders">The embeds to send.</param>
         public Task ReplyAsync(params DiscordEmbedBuilder[] embedBuilders) => ReplyAsync(new DiscordMessageBuilder().AddEmbeds(embedBuilders.Select(embedBuilder => embedBuilder.Build())));
 
         /// <summary>
@@ -28,35 +28,35 @@ namespace DSharpPlus.CommandAll.Commands
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and a response has already been sent (excluding <see cref="PromptAsync(TextInputComponent[])"/>).</exception>
         public async Task ReplyAsync(IDiscordMessageBuilder messageBuilder)
         {
-            if (InvocationType == CommandInvocationType.SlashCommand)
+            switch (InvocationType)
             {
                 // Slash commands can only respond once, though we make an exception for modals since
-                // PromptAsync will replace the orignal interaction.
-                if (ResponseType.HasFlag(ContextResponseType.Created))
-                {
+                // PromptAsync will replace the original interaction.
+                case CommandInvocationType.SlashCommand when ResponseType.HasFlag(ContextResponseType.Created):
                     throw new InvalidOperationException("Cannot respond to a slash command more than once.");
-                }
-
-                ResponseType |= ContextResponseType.Created;
-                await Interaction!.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
-            }
-            else if (InvocationType == CommandInvocationType.TextCommand)
-            {
-                DiscordMessageBuilder builder = new(messageBuilder);
-
-                // Reply to the message that invoked the command if no reply is set
-                if (builder.ReplyId is null)
+                case CommandInvocationType.SlashCommand:
+                    ResponseType |= ContextResponseType.Created;
+                    await Interaction!.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
+                    break;
+                case CommandInvocationType.TextCommand:
                 {
-                    builder.WithReply(Message!.Id);
-                }
+                    DiscordMessageBuilder builder = new(messageBuilder);
 
-                // Don't ping anyone if no mentions are explicitly set
-                if (builder.Mentions?.Count is null or 0)
-                {
-                    builder.WithAllowedMentions(Mentions.None);
-                }
+                    // Reply to the message that invoked the command if no reply is set
+                    if (builder.ReplyId is null)
+                    {
+                        builder.WithReply(Message!.Id);
+                    }
 
-                Response = await Channel.SendMessageAsync(builder);
+                    // Don't ping anyone if no mentions are explicitly set
+                    if (builder.Mentions?.Count is null or 0)
+                    {
+                        builder.WithAllowedMentions(Mentions.None);
+                    }
+
+                    Response = await Channel.SendMessageAsync(builder);
+                    break;
+                }
             }
         }
 
@@ -67,28 +67,17 @@ namespace DSharpPlus.CommandAll.Commands
         /// If <see cref="InvocationType"/> is a <see cref="CommandInvocationType.TextCommand"/>, the bot will instead start "typing" in the channel for roughly 15 seconds.
         /// </remarks>
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and <see cref="ResponseType"/> is not null.</exception>
-        [SuppressMessage("Roslyn", "IDE0046", Justification = "No nested conditional expressions.")]
         public Task DelayAsync()
         {
             ResponseType |= ContextResponseType.Delayed;
-            if (InvocationType == CommandInvocationType.SlashCommand)
+            return InvocationType switch
             {
                 // Ensure that the command has not already responded
-                if (ResponseType != ContextResponseType.Delayed)
-                {
-                    throw new InvalidOperationException("Cannot delay a command that has already responded.");
-                }
-
-                return Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            }
-            else if (InvocationType == CommandInvocationType.TextCommand)
-            {
-                return Message!.Channel.TriggerTypingAsync();
-            }
-            else
-            {
-                return Task.CompletedTask;
-            }
+                CommandInvocationType.SlashCommand when ResponseType != ContextResponseType.Delayed => throw new InvalidOperationException("Cannot delay a command that has already responded."),
+                CommandInvocationType.SlashCommand => Interaction!.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource),
+                CommandInvocationType.TextCommand => Message!.Channel.TriggerTypingAsync(),
+                _ => Task.CompletedTask
+            };
         }
 
         /// <summary>
@@ -98,27 +87,22 @@ namespace DSharpPlus.CommandAll.Commands
         /// <exception cref="InvalidOperationException">Thrown if the <see cref="InvocationType"/> is a <see cref="CommandInvocationType.SlashCommand"/> and a response has not been sent.</exception>
         public async Task EditAsync(IDiscordMessageBuilder messageBuilder)
         {
-            if (InvocationType == CommandInvocationType.SlashCommand)
+            switch (InvocationType)
             {
-                // Ensure that the command has responded with a deferred response
-                ResponseType |= ContextResponseType.Updated;
-                await Interaction!.EditOriginalResponseAsync(new DiscordWebhookBuilder(messageBuilder));
-            }
-            else if (InvocationType == CommandInvocationType.TextCommand)
-            {
+                case CommandInvocationType.SlashCommand:
+                    // Ensure that the command has responded with a deferred response
+                    ResponseType |= ContextResponseType.Updated;
+                    await Interaction!.EditOriginalResponseAsync(new DiscordWebhookBuilder(messageBuilder));
+                    break;
                 // Ensure that the command has responded
-                if (ResponseType == ContextResponseType.None)
-                {
+                case CommandInvocationType.TextCommand when ResponseType == ContextResponseType.None:
                     throw new InvalidOperationException("You must first send a response before you can edit it.");
-                }
-                else if (ResponseType == ContextResponseType.Delayed)
-                {
+                case CommandInvocationType.TextCommand when ResponseType == ContextResponseType.Delayed:
                     await ReplyAsync(messageBuilder);
-                }
-                else
-                {
+                    break;
+                case CommandInvocationType.TextCommand:
                     Response = await Response!.ModifyAsync(new DiscordMessageBuilder(messageBuilder));
-                }
+                    break;
             }
         }
 
@@ -127,7 +111,7 @@ namespace DSharpPlus.CommandAll.Commands
         public Task EditAsync(string content) => EditAsync(new DiscordMessageBuilder().WithContent(content));
 
         /// <inheritdoc cref="EditAsync(IDiscordMessageBuilder)"/>
-        /// <param name="embed">The new message content.</param>
+        /// <param name="embedBuilders">The new message content.</param>
         public Task EditAsync(params DiscordEmbedBuilder[] embedBuilders) => EditAsync(new DiscordMessageBuilder().AddEmbeds(embedBuilders.Select(embedBuilder => embedBuilder.Build())));
 
         /// <summary>
@@ -145,24 +129,15 @@ namespace DSharpPlus.CommandAll.Commands
         /// Returns the original response to the command.
         /// </summary>
         /// <returns>The original response to the command. Null is returned if no response has been made.</returns>
-        public Task<DiscordMessage?> GetOriginalResponse()
+        public Task<DiscordMessage?> GetOriginalResponseAsync()
         {
-            if (InvocationType == CommandInvocationType.SlashCommand)
+            return InvocationType switch
             {
-                // Ensure the slash command has responded before making the rest requests
-                return ResponseType is ContextResponseType.None or ContextResponseType.Delayed
-                    ? Task.FromResult<DiscordMessage?>(null)
-                    : Interaction!.GetOriginalResponseAsync();
-            }
-            else if (InvocationType == CommandInvocationType.TextCommand)
-            {
-                // Return the cached response
-                return Task.FromResult(Response);
-            }
-            else
-            {
-                return Task.FromResult<DiscordMessage?>(null);
-            }
+                CommandInvocationType.SlashCommand => ResponseType is ContextResponseType.None or ContextResponseType.Delayed 
+                    ? Task.FromResult<DiscordMessage?>(null) 
+                    : Interaction!.GetOriginalResponseAsync(),
+                CommandInvocationType.TextCommand => Task.FromResult(Response), _ => Task.FromResult<DiscordMessage?>(null)
+            };
         }
     }
 }
