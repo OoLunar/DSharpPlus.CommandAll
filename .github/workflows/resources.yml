@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-pr:
+  regenerate-assets:
     name: Regenerate Resource Files
     runs-on: self-hosted
     steps:
