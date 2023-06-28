@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Commands.Enums;
@@ -39,24 +38,24 @@ namespace DSharpPlus.CommandAll.Commands
                     await Interaction!.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder(messageBuilder));
                     break;
                 case CommandInvocationType.TextCommand:
-                {
-                    DiscordMessageBuilder builder = new(messageBuilder);
-
-                    // Reply to the message that invoked the command if no reply is set
-                    if (builder.ReplyId is null)
                     {
-                        builder.WithReply(Message!.Id);
-                    }
+                        DiscordMessageBuilder builder = new(messageBuilder);
 
-                    // Don't ping anyone if no mentions are explicitly set
-                    if (builder.Mentions?.Count is null or 0)
-                    {
-                        builder.WithAllowedMentions(Mentions.None);
-                    }
+                        // Reply to the message that invoked the command if no reply is set
+                        if (builder.ReplyId is null)
+                        {
+                            builder.WithReply(Message!.Id);
+                        }
 
-                    Response = await Channel.SendMessageAsync(builder);
-                    break;
-                }
+                        // Don't ping anyone if no mentions are explicitly set
+                        if (builder.Mentions?.Count is null or 0)
+                        {
+                            builder.WithAllowedMentions(Mentions.None);
+                        }
+
+                        Response = await Channel.SendMessageAsync(builder);
+                        break;
+                    }
             }
         }
 
@@ -129,15 +128,13 @@ namespace DSharpPlus.CommandAll.Commands
         /// Returns the original response to the command.
         /// </summary>
         /// <returns>The original response to the command. Null is returned if no response has been made.</returns>
-        public Task<DiscordMessage?> GetOriginalResponseAsync()
+        public Task<DiscordMessage?> GetOriginalResponseAsync() => InvocationType switch
         {
-            return InvocationType switch
-            {
-                CommandInvocationType.SlashCommand => ResponseType is ContextResponseType.None or ContextResponseType.Delayed 
-                    ? Task.FromResult<DiscordMessage?>(null) 
-                    : Interaction!.GetOriginalResponseAsync(),
-                CommandInvocationType.TextCommand => Task.FromResult(Response), _ => Task.FromResult<DiscordMessage?>(null)
-            };
-        }
+            CommandInvocationType.SlashCommand => ResponseType is ContextResponseType.None or ContextResponseType.Delayed
+                ? Task.FromResult<DiscordMessage?>(null)
+                : Interaction!.GetOriginalResponseAsync(),
+            CommandInvocationType.TextCommand => Task.FromResult(Response),
+            _ => Task.FromResult<DiscordMessage?>(null)
+        };
     }
 }
