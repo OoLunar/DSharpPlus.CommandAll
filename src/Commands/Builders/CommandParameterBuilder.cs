@@ -185,8 +185,8 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     case ParamArrayAttribute:
                         builder.Flags |= CommandParameterFlags.Params | CommandParameterFlags.Optional;
                         break;
-                    case RequiredByAttribute requiredBy:
-                        builder.SlashMetadata.IsRequired = requiredBy.RequiredBy.HasFlag(RequiredBy.SlashCommand);
+                    case RequiresCommandTypeAttribute requiresCommandType:
+                        builder.SlashMetadata.IsRequired = requiresCommandType.CommandType.HasFlag(CommandInvocationType.SlashCommand);
                         break;
                     case RemainingTextAttribute:
                         if (builder.ParameterInfo.ParameterType != typeof(string))
