@@ -9,6 +9,9 @@ namespace DSharpPlus.CommandAll.Parsers
     public partial class RegexTextParser : ITextArgumentParser
     {
         public static readonly Regex QuoteMatcher = ArgumentMatcherRegex();
+        private readonly CommandAllConfiguration _configuration;
+
+        public RegexTextParser(CommandAllConfiguration configuration) => _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
         /// <inheritdoc/>
         public bool TryExtractArguments(CommandAllExtension extension, string message, out IReadOnlyList<string> arguments)
@@ -29,7 +32,15 @@ namespace DSharpPlus.CommandAll.Parsers
             List<Match> matches = ArgumentMatcherRegex().Matches(message).ToList();
             foreach (Match match in matches)
             {
-                if (match.Success)
+                if (!match.Success)
+                {
+                    continue;
+                }
+                else if (_configuration.QuoteCharacters.Contains(match.Value[0]) && _configuration.QuoteCharacters.Contains(match.Value[^1]) && match.Value[0] == match.Value[^1])
+                {
+                    args.Add(match.Value[1..^1]);
+                }
+                else
                 {
                     args.Add(match.Value);
                 }
@@ -39,7 +50,7 @@ namespace DSharpPlus.CommandAll.Parsers
             return true;
         }
 
-        [GeneratedRegex("(?:(?:\"|\\'|«|»|‘|“|„|‟)[^\"\\']+(?:\"|\\'|«|»|‘|“|„|‟)|```[^`]+```|\\S+)")]
+        [GeneratedRegex("""(?<!\\)((?:(["'«»‘“„‟]).*?[^\\]\2)|(```(?:.*?[\n]?)*?```)|(`.*`)|(\S+))""")]
         private static partial Regex ArgumentMatcherRegex();
     }
 }
