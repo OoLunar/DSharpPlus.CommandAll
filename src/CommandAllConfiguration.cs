@@ -88,7 +88,7 @@ namespace DSharpPlus.CommandAll
             PrefixParser = new PrefixParser();
             CommandExecutor = new CommandExecutor(serviceProvider.GetRequiredService<ILogger<CommandExecutor>>());
             CommandManager = new CommandManager(serviceProvider.GetRequiredService<ILogger<CommandManager>>());
-            TextArgumentParser = new CommandsNextStyleTextArgumentParser(this);
+            TextArgumentParser = new RegexTextParser();
         }
     }
 }
