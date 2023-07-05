@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -39,7 +38,10 @@ namespace DSharpPlus.CommandAll
             if (currentLoggingImplementation is null)
             {
                 Console.WriteLine($"No logging system set, using a {nameof(NullLoggerFactory)}. This is not recommended, please provide a logging system so you can see errors.");
-                configuration.ServiceCollection.AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+                configuration.ServiceCollection
+                    .AddSingleton<ILoggerFactory, NullLoggerFactory>()
+                    .AddSingleton<ILogger, NullLogger>()
+                    .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
             }
 
             CommandAllExtension extension = new(configuration);
@@ -66,7 +68,10 @@ namespace DSharpPlus.CommandAll
             if (currentLoggingImplementation is null)
             {
                 Console.WriteLine($"No logging system set, using a {nameof(NullLoggerFactory)}. This is not recommended, please provide a logging system so you can see errors.");
-                configuration.ServiceCollection.AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
+                configuration.ServiceCollection
+                    .AddSingleton<ILoggerFactory, NullLoggerFactory>()
+                    .AddSingleton<ILogger, NullLogger>()
+                    .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
             }
 
             Dictionary<int, CommandAllExtension> extensions = new();

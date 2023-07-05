@@ -21,15 +21,10 @@
     <!-- We only check for Nightly here because Version is explicitly defined in the nuget_release workflow. -->
     <Version>1.1.0-Nightly-$(Nightly)</Version>
   </PropertyGroup>
-  <ItemGroup Condition="$(Nightly) == ''">
-    <PackageReference Include="DSharpPlus" Version="4.4.2" />
-  </ItemGroup>
-  <ItemGroup Condition="$(Nightly) != ''">
-    <ProjectReference Include="../libs/DSharpPlus/DSharpPlus/DSharpPlus.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="../README.md" Pack="true" PackagePath="\" />
     <None Include="../LICENSE" Pack="true" PackagePath="\" />
+    <ProjectReference Include="../libs/DSharpPlus/DSharpPlus/DSharpPlus.csproj" />
     <PackageReference Include="Humanizer" Version="2.14.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
