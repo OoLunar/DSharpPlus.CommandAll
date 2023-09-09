@@ -134,11 +134,11 @@ namespace DSharpPlus.CommandAll
             // If the client has already been initialized, register the event handlers.
             if (Client.Guilds.Count != 0)
             {
-                DiscordClient_ReadyAsync(Client, null!).GetAwaiter().GetResult();
+                DiscordClient_SessionCreatedAsync(Client, null!).GetAwaiter().GetResult();
             }
             else
             {
-                Client.Ready += DiscordClient_ReadyAsync;
+                Client.SessionCreated += DiscordClient_SessionCreatedAsync;
             }
         }
 
@@ -150,7 +150,7 @@ namespace DSharpPlus.CommandAll
         /// </summary>
         /// <param name="sender">Unused.</param>
         /// <param name="eventArgs">Unused.</param>
-        private async Task DiscordClient_ReadyAsync(DiscordClient sender, ReadyEventArgs eventArgs)
+        private async Task DiscordClient_SessionCreatedAsync(DiscordClient sender, SessionReadyEventArgs eventArgs)
         {
             // Run once, only on shard 0
             if (sender.ShardId != 0)
@@ -159,7 +159,7 @@ namespace DSharpPlus.CommandAll
             }
 
             // Prevent the event handler from being executed multiple times.
-            Client.Ready -= DiscordClient_ReadyAsync;
+            Client.SessionCreated -= DiscordClient_SessionCreatedAsync;
 
             await _configureCommands.InvokeAsync(this, new ConfigureCommandsEventArgs(this, CommandManager));
             await CommandManager.RegisterCommandsAsync(this);
