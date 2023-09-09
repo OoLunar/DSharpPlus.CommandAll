@@ -72,7 +72,7 @@ namespace DSharpPlus.CommandAll.Examples.SlashMetadata
                 LoggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()
             });
 
-            CommandAllExtension extension = client.UseCommandAll(new(services) // Register the extension
+            CommandAllExtension extension = client.UseCommandAll(new(services.BuildServiceProvider()) // Register the extension
             {
                 DebugGuildId = debugGuildId // Which guild to register the debug slash commands to.
             });

@@ -88,7 +88,7 @@ namespace DSharpPlus.CommandAll
         internal CommandAllExtension(CommandAllConfiguration configuration)
         {
             // Add the configuration and extension to the service collection.
-            ServiceProvider = configuration.ServiceCollection.AddSingleton(configuration).AddSingleton(this).BuildServiceProvider();
+            ServiceProvider = configuration.ServiceProvider;
             CommandManager = configuration.CommandManager;
             ArgumentConverterManager = configuration.ArgumentConverterManager;
             CommandOverloadParser = configuration.CommandOverloadParser;

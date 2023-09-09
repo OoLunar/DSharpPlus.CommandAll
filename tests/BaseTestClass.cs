@@ -1,7 +1,4 @@
 using DSharpPlus.CommandAll.Parsers;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll.Tests
 {
@@ -23,7 +20,7 @@ namespace DSharpPlus.CommandAll.Tests
                 Token = "invalid token that won't be used"
             };
             Client = new(discordConfiguration);
-            Extension = Client.UseCommandAll(new(new ServiceCollection().AddSingleton<ILoggerFactory, NullLoggerFactory>().AddSingleton<ILogger, NullLogger>().AddSingleton(typeof(ILogger<>), typeof(NullLogger<>)))
+            Extension = Client.UseCommandAll(new CommandAllConfiguration()
             {
                 PrefixParser = new PrefixParser("!", ">>", "hey bot,")
             });

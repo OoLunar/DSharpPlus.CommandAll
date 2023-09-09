@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll
 {
@@ -13,8 +9,6 @@ namespace DSharpPlus.CommandAll
     /// </summary>
     public static class ExtensionMethods
     {
-        private static readonly Type _shardedLoggerFactoryType = typeof(DiscordClient).Assembly.GetType("DSharpPlus.ShardedLoggerFactory", true)!;
-
         /// <summary>
         /// Registers the extension with the <see cref="DiscordClient"/>.
         /// </summary>
@@ -31,20 +25,7 @@ namespace DSharpPlus.CommandAll
                 throw new InvalidOperationException("CommandAll Extension is already initialized.");
             }
 
-            configuration ??= new();
-            ServiceDescriptor? currentLoggingImplementation = configuration.ServiceCollection.FirstOrDefault(service => service.ServiceType == typeof(ILoggerFactory));
-
-            // No implementation provided
-            if (currentLoggingImplementation is null)
-            {
-                Console.WriteLine($"No logging system set, using a {nameof(NullLoggerFactory)}. This is not recommended, please provide a logging system so you can see errors.");
-                configuration.ServiceCollection
-                    .AddSingleton<ILoggerFactory, NullLoggerFactory>()
-                    .AddSingleton<ILogger, NullLogger>()
-                    .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
-            }
-
-            CommandAllExtension extension = new(configuration);
+            CommandAllExtension extension = new(configuration ?? new());
             client.AddExtension(extension);
             return extension;
         }
@@ -63,16 +44,6 @@ namespace DSharpPlus.CommandAll
 
             await shardedClient.InitializeShardsAsync();
             configuration ??= new();
-
-            ServiceDescriptor? currentLoggingImplementation = configuration.ServiceCollection.FirstOrDefault(service => service.ServiceType == typeof(ILoggerFactory));
-            if (currentLoggingImplementation is null)
-            {
-                Console.WriteLine($"No logging system set, using a {nameof(NullLoggerFactory)}. This is not recommended, please provide a logging system so you can see errors.");
-                configuration.ServiceCollection
-                    .AddSingleton<ILoggerFactory, NullLoggerFactory>()
-                    .AddSingleton<ILogger, NullLogger>()
-                    .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>));
-            }
 
             Dictionary<int, CommandAllExtension> extensions = new();
             foreach (DiscordClient shard in shardedClient.ShardClients.Values)
@@ -114,7 +85,5 @@ namespace DSharpPlus.CommandAll
 
             return extensions.AsReadOnly();
         }
-
-        private static object? GetDefaultValue(this Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
     }
 }

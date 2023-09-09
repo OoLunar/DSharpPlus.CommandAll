@@ -6,6 +6,7 @@ using DSharpPlus.CommandAll.Parsers;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DSharpPlus.CommandAll
 {
@@ -17,7 +18,7 @@ namespace DSharpPlus.CommandAll
         /// <summary>
         /// The services to be built and used by the <see cref="CommandAllExtension"/>.
         /// </summary>
-        public IServiceCollection ServiceCollection { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// The command executor used to run commands. Defaults to <see cref="CommandExecutor"/>.
@@ -73,22 +74,22 @@ namespace DSharpPlus.CommandAll
         /// </remarks>
         public CommandFilteringStrategy FilteringStrategy { get; set; } = CommandFilteringStrategy.AcceptAll;
 
+        public CommandAllConfiguration() : this(new ServiceCollection().AddLogging(loggingBuilder => loggingBuilder.AddProvider(NullLoggerProvider.Instance)).BuildServiceProvider()) { }
+
         /// <summary>
         /// Creates a new instance of <see cref="CommandAllConfiguration"/> to be copied by the <see cref="CommandAllExtension"/>.
         /// </summary>
         /// <param name="serviceDescriptors">The services to be built and used by the <see cref="CommandAllExtension"/>.</param>
-        public CommandAllConfiguration(IServiceCollection? serviceDescriptors = null)
+        public CommandAllConfiguration(IServiceProvider serviceProvider)
         {
-            ServiceCollection = serviceDescriptors ?? new ServiceCollection();
             QuoteCharacters = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
-
-            IServiceProvider serviceProvider = ServiceCollection.BuildServiceProvider();
-            ArgumentConverterManager = new ArgumentConverterManager(serviceProvider.GetRequiredService<ILogger<ArgumentConverterManager>>());
-            CommandOverloadParser = new CommandOverloadParser(serviceProvider.GetRequiredService<ILogger<CommandOverloadParser>>());
-            PrefixParser = new PrefixParser();
-            CommandExecutor = new CommandExecutor(serviceProvider.GetRequiredService<ILogger<CommandExecutor>>());
-            CommandManager = new CommandManager(serviceProvider.GetRequiredService<ILogger<CommandManager>>());
-            TextArgumentParser = new RegexTextParser(this);
+            ServiceProvider = serviceProvider;
+            ArgumentConverterManager = serviceProvider.GetService<IArgumentConverterManager>() ?? ActivatorUtilities.CreateInstance<ArgumentConverterManager>(serviceProvider);
+            CommandOverloadParser = serviceProvider.GetService<ICommandOverloadParser>() ?? ActivatorUtilities.CreateInstance<CommandOverloadParser>(serviceProvider);
+            PrefixParser = serviceProvider.GetService<IPrefixParser>() ?? ActivatorUtilities.CreateInstance<PrefixParser>(serviceProvider);
+            CommandExecutor = serviceProvider.GetService<ICommandExecutor>() ?? ActivatorUtilities.CreateInstance<CommandExecutor>(serviceProvider);
+            CommandManager = serviceProvider.GetService<ICommandManager>() ?? ActivatorUtilities.CreateInstance<CommandManager>(serviceProvider);
+            TextArgumentParser = serviceProvider.GetService<ITextArgumentParser>() ?? ActivatorUtilities.CreateInstance<RegexTextParser>(serviceProvider, this);
         }
     }
 }
