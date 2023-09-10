@@ -32,5 +32,10 @@ namespace DSharpPlus.CommandAll.Commands.Enums
         /// This flag is directly tied with <see langword="params"/>. If this flag is set, the parameter will trim the element's default value from the array.
         /// </summary>
         TrimExcess = 1 << 4,
+
+        /// <summary>
+        /// This parameter is an <see cref="string"/> and should be auto-completed.
+        /// </summary>
+        AutoComplete = 1 << 5
     }
 }

@@ -221,7 +221,7 @@ namespace DSharpPlus.CommandAll.Commands
                 subCommandAndGroups.Count == 1 ? ApplicationCommandOptionType.SubCommand : ApplicationCommandOptionType.SubCommandGroup,
                 null, null,
                 subCommandAndGroups.Count == 1 ? subCommandAndGroups[0].Options : subCommandAndGroups,
-                null, null, null, null,
+                null, overload?.Parameters.Any(parameter => parameter.Flags.HasFlag(CommandParameterFlags.AutoComplete)), null, null,
                 command.SlashMetadata.LocalizedNames.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value),
                 command.SlashMetadata.LocalizedDescriptions.ToDictionary(x => x.Key.Parent.TwoLetterISOLanguageName == x.Key.TwoLetterISOLanguageName ? x.Key.Parent.TwoLetterISOLanguageName : $"{x.Key.Parent.TwoLetterISOLanguageName}-{x.Key.TwoLetterISOLanguageName}", x => x.Value));
         }

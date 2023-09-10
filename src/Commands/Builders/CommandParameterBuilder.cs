@@ -171,6 +171,9 @@ namespace DSharpPlus.CommandAll.Commands.Builders
                     case DescriptionAttribute description:
                         builder.Description = description.Description ?? string.Empty;
                         break;
+                    case AutoCompleteAttribute:
+                        builder.Flags |= CommandParameterFlags.AutoComplete;
+                        break;
                     case ArgumentConverterAttribute argumentConverter:
                         builder.ArgumentConverterType = argumentConverter.ArgumentConverterType;
                         builder.SlashMetadata.OptionType = argumentConverter.ArgumentConverterType.GetProperty(nameof(IArgumentConverter.OptionType))!.GetValue(null) as ApplicationCommandOptionType?;
