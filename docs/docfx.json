@@ -1,0 +1,78 @@
+{
+  "build": {
+    "content": [
+      {
+        "files": [
+          "api/**.yml",
+          "api/index.md"
+        ]
+      },
+      {
+        "files": [
+          "articles/**.md",
+          "articles/**/toc.yml",
+          "toc.yml",
+          "*.md"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "disableGitFeatures": false,
+    "fileMetadataFiles": [],
+    "globalMetadata": {
+      "_appFaviconPath": "images/favicon.ico",
+      "_appFooter": "DSharpPlus.CommandAll",
+      "_appLogoPath": "images/logo.png",
+      "_appName": "CommandAll",
+      "_appTitle": "DSharpPlus.CommandAll"
+    },
+    "globalMetadataFiles": [],
+    "keepFileLink": false,
+    "noLangKeyword": false,
+    "overwrite": [
+      {
+        "exclude": [
+          "obj/**",
+          "_site/**"
+        ],
+        "files": [
+          "apidoc/**.md"
+        ]
+      }
+    ],
+    "postProcessors": [],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "template": [
+      "default",
+      "../libs/SingulinkFX/singulinkfx"
+    ],
+    "xref": [
+      "https://dsharpplus.github.io/DSharpPlus/xrefmap.yml"
+    ],
+    "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}"
+  },
+  "metadata": [
+    {
+      "dest": "api",
+      "disableDefaultFilter": false,
+      "disableGitFeatures": false,
+      "includePrivateMembers": false,
+      "namespaceLayout": "flattened",
+      "noRestore": false,
+      "src": [
+        {
+          "files": [
+            "*.csproj"
+          ],
+          "src": "../src"
+        }
+      ]
+    }
+  ]
+}

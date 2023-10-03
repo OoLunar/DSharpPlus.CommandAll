@@ -1,0 +1,7 @@
+.obsidian
+.vscode/
+bin/
+obj/
+build/
+logs/
+TestResults/
