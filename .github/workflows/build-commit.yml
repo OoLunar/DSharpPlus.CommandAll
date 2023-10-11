@@ -42,7 +42,7 @@ jobs:
         run: |
           dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
           echo LATEST_STABLE_VERSION=$(git describe --abbrev=0 --tags 2>/dev/null || echo '') >> $GITHUB_ENV
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }})
+          dotnet run --project ./tools/AutoUpdateChannelDescription --framework=net8.0 -p:Nightly=$(printf "%0*d" 5 ${{ github.run_number }})
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
