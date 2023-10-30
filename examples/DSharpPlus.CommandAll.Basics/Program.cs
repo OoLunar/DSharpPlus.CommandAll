@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.CommandAll.Processors.MessageCommands;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
+using DSharpPlus.CommandAll.Processors.UserCommands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -70,6 +71,7 @@ namespace DSharpPlus.CommandAll.Examples.Basics
                     loggerBuilder.AddSerilog(loggingConfiguration.CreateLogger());
                 }).BuildServiceProvider()
             });
+            extension.AddProcessor(new UserCommandProcessor());
             extension.AddProcessor(new MessageCommandProcessor());
             extension.AddProcessor(new SlashCommandProcessor());
             extension.AddCommands(typeof(Program).Assembly);
