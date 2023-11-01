@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using DSharpPlus.CommandAll.Processors;
 using DSharpPlus.CommandAll.Processors.MessageCommands;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
 using DSharpPlus.CommandAll.Processors.UserCommands;
@@ -20,6 +21,7 @@ namespace DSharpPlus.CommandAll.Examples.Basics
             DiscordClient client = new(new DiscordConfiguration()
             {
                 Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN") ?? throw new InvalidOperationException("No Discord bot token found."),
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
             });
 
             CommandAllExtension extension = client.UseCommandAll(new()
@@ -71,6 +73,8 @@ namespace DSharpPlus.CommandAll.Examples.Basics
                     loggerBuilder.AddSerilog(loggingConfiguration.CreateLogger());
                 }).BuildServiceProvider()
             });
+
+            extension.AddProcessor(new TextCommandProcessor());
             extension.AddProcessor(new UserCommandProcessor());
             extension.AddProcessor(new MessageCommandProcessor());
             extension.AddProcessor(new SlashCommandProcessor());
