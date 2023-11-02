@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir build
           dotnet pack -c Release -o build /p:Version=${{ github.event.release.tag_name }}
-          dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push "build/*" --skip-duplicate -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
           dotnet tool update -g docfx --prerelease
           docfx docs/docfx.json
       - name: Upload Nuget Packages To Github Actions
