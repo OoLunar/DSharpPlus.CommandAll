@@ -10,18 +10,18 @@ If you need help with CommandAll, you can join the [Discord Server](https://disc
 # Roadmap
 | Feature                           | Currently Supported |
 | --------------------------------- | ------------------- |
-| Text Commands                     | No                  |
-| Slash Commands                    | No                  |
-| Command Aliases                   | No                  |
+| Text Commands                     | Yes                 |
+| Slash Commands                    | Yes                 |
+| Command Aliases                   | Text Commands       |
 | Generated Aliases                 | No                  |
-| Command Groups                    | No                  |
-| Custom Argument Type Converters   | No                  |
-| Per Argument Type Converters      | No                  |
+| Command Groups                    | Yes                 |
+| Custom Argument Type Converters   | Yes                 |
+| Per Argument Type Converters      | Yes*                |
 | Built In Help Command             | No                  |
 | Params (Auto Generated Arguments) | No                  |
 | XML Documentation                 | No                  |
-| Translation Classes               | No                  |
-| Pre-Execution Checks              | No                  |
+| Translation Classes               | Yes                 |
+| Pre-Execution Checks              | Yes                 |
 
 # How to use
 Example code can be found in the [Examples Folder](./examples).
