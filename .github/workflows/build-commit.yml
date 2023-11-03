@@ -49,4 +49,4 @@ jobs:
           DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
           DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
           NUGET_URL: ${{ secrets.NUGET_URL }}
-          GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
+          GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
