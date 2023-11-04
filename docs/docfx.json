@@ -1,4 +1,26 @@
 {
+  "metadata": [
+    {
+      "src": [
+        {
+	  "src": "../",
+          "files": [
+	    "src/OoLunar.DSharpPlus.CommandAll.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "outputFormat": "mref",
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "noRestore": false,
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage",
+      "enumSortOrder": "alphabetic",
+      "allowCompilationErrors": false
+    }
+  ],
   "build": {
     "content": [
       {
@@ -16,31 +38,6 @@
         ]
       }
     ],
-    "dest": "_site",
-    "disableGitFeatures": false,
-    "fileMetadataFiles": [],
-    "globalMetadata": {
-      "_appFaviconPath": "images/favicon.ico",
-      "_appFooter": "DSharpPlus.CommandAll",
-      "_appLogoPath": "images/logo.png",
-      "_appName": "CommandAll",
-      "_appTitle": "DSharpPlus.CommandAll"
-    },
-    "globalMetadataFiles": [],
-    "keepFileLink": false,
-    "noLangKeyword": false,
-    "overwrite": [
-      {
-        "exclude": [
-          "obj/**",
-          "_site/**"
-        ],
-        "files": [
-          "apidoc/**.md"
-        ]
-      }
-    ],
-    "postProcessors": [],
     "resource": [
       {
         "files": [
@@ -48,31 +45,18 @@
         ]
       }
     ],
-    "template": [
-      "default",
-      "../libs/SingulinkFX/singulinkfx"
-    ],
     "xref": [
       "https://dsharpplus.github.io/DSharpPlus/xrefmap.yml"
     ],
-    "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}"
-  },
-  "metadata": [
-    {
-      "dest": "api",
-      "disableDefaultFilter": false,
-      "disableGitFeatures": false,
-      "includePrivateMembers": false,
-      "namespaceLayout": "flattened",
-      "noRestore": false,
-      "src": [
-        {
-          "files": [
-            "*.csproj"
-          ],
-          "src": "../src"
-        }
-      ]
-    }
-  ]
+    "output": "_site",
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "modern"
+    ],
+    "postProcessors": [],
+    "keepFileLink": false,
+    "disableGitFeatures": false
+  }
 }

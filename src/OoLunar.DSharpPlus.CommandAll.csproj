@@ -6,6 +6,7 @@
     <PackageId>OoLunar.DSharpPlus.CommandAll</PackageId>
     <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01857" />
