@@ -1,9 +1,9 @@
 {
   "build": {
     "globalMetadata": {
-      "_appFaviconPath": "images/favicon.ico",
+      "_appFaviconPath": "images/logo.ico",
       "_appFooter": "DSharpPlus.CommandAll",
-      "_appLogoPath": "images/logo.png",
+      "_appLogoPath": "images/logo_small.png",
       "_appName": "DSharpPlus.CommandAll",
       "_appTitle": "DSharpPlus.CommandAll"
     },
