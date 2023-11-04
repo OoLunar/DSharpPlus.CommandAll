@@ -20,10 +20,11 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/OoLunar/DSharpPlus.CommandAll</RepositoryUrl>
+    <Version>2.0.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition="$(Nightly) != ''">
     <!-- We only check for Nightly here because Version is explicitly defined in the nuget_release workflow. -->
-    <Version>2.0.0-Nightly-$(Nightly)</Version>
+    <Version>$(Version)-Nightly-$(Nightly)</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(ProjectRoot)/res/*.png" Pack="true" PackagePath=""/>
