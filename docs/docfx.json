@@ -1,27 +1,12 @@
 {
-  "metadata": [
-    {
-      "src": [
-        {
-	  "src": "../",
-          "files": [
-	    "src/OoLunar.DSharpPlus.CommandAll.csproj"
-          ]
-        }
-      ],
-      "dest": "api",
-      "outputFormat": "mref",
-      "includePrivateMembers": false,
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false,
-      "noRestore": false,
-      "namespaceLayout": "flattened",
-      "memberLayout": "samePage",
-      "enumSortOrder": "alphabetic",
-      "allowCompilationErrors": false
-    }
-  ],
   "build": {
+    "globalMetadata": {
+      "_appFaviconPath": "images/favicon.ico",
+      "_appFooter": "DSharpPlus.CommandAll",
+      "_appLogoPath": "images/logo.png",
+      "_appName": "DSharpPlus.CommandAll",
+      "_appTitle": "DSharpPlus.CommandAll"
+    },
     "content": [
       {
         "files": [
@@ -49,14 +34,25 @@
       "https://dsharpplus.github.io/DSharpPlus/xrefmap.yml"
     ],
     "output": "_site",
-    "globalMetadataFiles": [],
-    "fileMetadataFiles": [],
     "template": [
       "default",
       "modern"
-    ],
-    "postProcessors": [],
-    "keepFileLink": false,
-    "disableGitFeatures": false
-  }
+    ]
+  },
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../",
+          "files": [
+            "src/OoLunar.DSharpPlus.CommandAll.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "properties": {
+        "LangVersion": "preview"
+      }
+    }
+  ]
 }
