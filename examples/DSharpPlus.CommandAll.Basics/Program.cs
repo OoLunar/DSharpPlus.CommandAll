@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
-using DSharpPlus.CommandAll.Processors;
 using DSharpPlus.CommandAll.Processors.MessageCommands;
 using DSharpPlus.CommandAll.Processors.SlashCommands;
+using DSharpPlus.CommandAll.Processors.TextCommands;
 using DSharpPlus.CommandAll.Processors.UserCommands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
