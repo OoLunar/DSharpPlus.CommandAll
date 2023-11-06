@@ -10,6 +10,6 @@ namespace DSharpPlus.CommandAll.Examples.Basics.Commands
     public sealed class UserInfoCommand
     {
         [Command("user_info"), DisplayName("User Info"), SlashCommandTypes(ApplicationCommandType.SlashCommand, ApplicationCommandType.UserContextMenu)]
-        public static async Task ExecuteAsync(CommandContext context, DiscordUser user) => await context.RespondAsync(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder().WithDescription($"This person's account was created on {user.CreationTimestamp:MMMM dd, yyyy}")));
+        public static async Task ExecuteAsync(CommandContext context, DiscordUser? user = null) => await context.RespondAsync(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder().WithDescription($"This person's account was created on {(user ?? context.User).CreationTimestamp:MMMM dd, yyyy}")));
     }
 }
