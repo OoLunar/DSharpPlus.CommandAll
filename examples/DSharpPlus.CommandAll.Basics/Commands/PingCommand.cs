@@ -4,12 +4,13 @@ using DSharpPlus.CommandAll.Commands;
 using DSharpPlus.CommandAll.Commands.Attributes;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Attributes;
 using DSharpPlus.CommandAll.Processors.SlashCommands.Translation;
+using DSharpPlus.CommandAll.Processors.TextCommands.Attributes;
 
 namespace DSharpPlus.CommandAll.Examples.Basics.Commands
 {
     public sealed class PingCommand
     {
-        [Command("ping"), SlashLocalizer<PingTranslator>]
+        [Command("ping"), SlashLocalizer<PingTranslator>, TextAlias("pong")]
         public static async Task ExecuteAsync(CommandContext context) => await context.RespondAsync("Pong!");
     }
 
