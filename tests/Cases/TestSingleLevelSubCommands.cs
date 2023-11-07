@@ -12,7 +12,7 @@ namespace DSharpPlus.CommandAll.Tests.Cases
         public class TagCommand
         {
             [Command("add")]
-            public static Task AddAsync(TextContext context, string name, [RemainingText] string content) => Task.CompletedTask;
+            public static Task AddAsync(TextCommandContext context, string name, [RemainingText] string content) => Task.CompletedTask;
 
             [Command("get")]
             public static Task GetAsync(CommandContext context, string name) => Task.CompletedTask;
