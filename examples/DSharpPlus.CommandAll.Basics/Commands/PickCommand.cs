@@ -14,7 +14,7 @@ namespace DSharpPlus.CommandAll.Examples.Basics.Commands
 
     public sealed class PickProvider : IChoiceProvider
     {
-        public Task<Dictionary<string, object>> ProvideAsync(CommandArgument argument) => Task.FromResult(new Dictionary<string, object>
+        public Task<Dictionary<string, object>> ProvideAsync(CommandParameter parameter) => Task.FromResult(new Dictionary<string, object>
         {
             { "Dog", "dog" },
             { "Cat", "cat" },

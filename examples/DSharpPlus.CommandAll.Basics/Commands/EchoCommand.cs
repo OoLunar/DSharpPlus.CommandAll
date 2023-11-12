@@ -8,6 +8,6 @@ namespace DSharpPlus.CommandAll.Examples.Basics.Commands
     public sealed class EchoCommand
     {
         [Command("echo")]
-        public static async Task ExecuteAsync(CommandContext context, string text1, [RemainingText] string? text2 = null) => await context.RespondAsync($"{text1} {text2}".Trim());
+        public static async Task ExecuteAsync(CommandContext context, [RemainingText] string text) => await context.RespondAsync(text);
     }
 }
