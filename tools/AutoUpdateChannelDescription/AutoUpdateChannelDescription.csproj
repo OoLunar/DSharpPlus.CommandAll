@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="$(ProjectRoot)/src/OoLunar.DSharpPlus.CommandAll.csproj" />
-  </ItemGroup>
-</Project>
