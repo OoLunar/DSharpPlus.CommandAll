@@ -1,0 +1,1 @@
+This repository is now archived as it's officially been merged into DSharpPlus. Please do NOT use the `OoLunar.DSharpPlus.CommandAll` package and instead defer to the `DSharpPlus.Commands` Nuget package. This project has been a great goal of mine and I'm very happy that it's been achieved. Thank you for checking out the repository.
